@@ -1,0 +1,13 @@
+name: popgenToolkit
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - numpy
+  - pandas
+  - scipy
+  - matplotlib
+  - statsmodels
+  - seaborn
+  - tqdm
