@@ -15,6 +15,19 @@ from statsmodels.stats.multitest import multipletests
 
 
 def load_metadata(metadata_file):
+    """
+    Load metadata from a given file and create a dictionary mapping sample names to their corresponding diet groups.
+
+    Parameters:
+        metadata_file (str): Path to the metadata file in tab-separated values (TSV) format with column, "sample" and "group".
+
+    Returns:
+        dict: A dictionary where keys are sample names and values are diet groups.
+
+    Raises:
+        FileNotFoundError: If the metadata file does not exist.
+        pd.errors.ParserError: If there is an error parsing the metadata file.
+    """
     logging.info(f"Loading metadata from {metadata_file}")
     metadata = pd.read_csv(metadata_file, sep="\t")
     # Create a dictionary from the metadata where file_prefix is the key and group is the value
@@ -23,6 +36,30 @@ def load_metadata(metadata_file):
 
 
 def load_snv_files(input_dir, metadata_dict):
+    """
+    Load inStrain SNV files from a specified directory and return a dictionary of DataFrames.
+
+    Parameters:
+        input_dir (str): The directory containing the SNV files with the extension ".IS_SNVs.tsv".
+        metadata_dict (dict): A dictionary containing metadata where keys are file prefixes and values are group names.
+
+    Returns:
+        dict: A dictionary where keys are file prefixes and values are pandas DataFrames. Each DataFrame contains the following columns:
+            - scaffold: The scaffold identifier.
+            - position: The position of the SNV.
+            - position_coverage: The coverage at the position.
+            - A: The count of 'A' nucleotides.
+            - C: The count of 'C' nucleotides.
+            - T: The count of 'T' nucleotides.
+            - G: The count of 'G' nucleotides.
+            - MAG_ID: The MAG (Metagenome-Assembled Genome) ID extracted from the scaffold column.
+            - group: The group name from the metadata dictionary, defaulting to 'Unknown' if not found.
+
+    Raises:
+        FileNotFoundError: If the input directory does not exist.
+        pd.errors.EmptyDataError: If any of the SNV files are empty.
+        KeyError: If required columns are missing from the SNV files.
+    """
     # Dictionary to store DataFrames with dynamic names
     dataframes = {}
     for input_file in glob.glob(os.path.join(input_dir, "*.IS_SNVs.tsv")):
@@ -59,6 +96,23 @@ def load_snv_files(input_dir, metadata_dict):
 
 
 def calculate_frequencies(dataframes):
+    """
+    Calculate nucleotide frequencies for each position in the given DataFrames and concatenate the results.
+
+    This function takes a dictionary of DataFrames, where each DataFrame represents nucleotide counts at various positions.
+    It calculates the frequency of each nucleotide (A, C, T, G) at each position by dividing the count of each nucleotide
+    by the position coverage. It then concatenates the results from all DataFrames into a single DataFrame.
+
+    Parameters:
+        dataframes (dict): A dictionary where keys are sample IDs and values are pandas DataFrames. Each DataFrame must
+                           contain the columns 'A', 'C', 'T', 'G', 'position_coverage', 'MAG_ID', 'scaffold', 'position',
+                           and 'group'.
+
+    Returns:
+        pandas.DataFrame: A concatenated DataFrame containing the nucleotide frequencies for all positions and scaffolds
+                          across all samples. The resulting DataFrame includes the columns 'sample_id', 'MAG_ID',
+                          'scaffold', 'position', 'A_frequency', 'T_frequency', 'G_frequency', 'C_frequency', and 'group'.
+    """
     for df_name, df in dataframes.items():
         logging.info(f"Calculating nucleotide frequencies for {df_name}")
         position_coverage = df["position_coverage"]
@@ -105,18 +159,18 @@ def calculate_frequencies(dataframes):
 
 def run_significanceTest(args, group_1, group_2, paired=False):
     """
-    Perform a significance test (Mann-Whitney U Test or Wilcoxon signed-rank test) on allele frequencies between two groups.
+    Perform a significance test (Mann-Whitney U Test or Wilcoxon signed-rank test) on allele frequencies for each nucleotide between two groups.
 
     Parameters:
     args (tuple): A tuple containing the name and the grouped dataframe.
-    group_1 (str): The name of the first group.
-    group_2 (str): The name of the second group.
+    group_1 (str): The label for the first group in the dataframe.
+    group_2 (str): The label for the second group in the dataframe.
     paired (bool, optional): If True, perform the Wilcoxon signed-rank test for paired samples.
                              If False, perform the Mann-Whitney U Test for independent samples. Default is False.
 
     Returns:
     tuple: A tuple containing the name and a dictionary of p-values for each nucleotide frequency
-           (A_frequency, T_frequency, G_frequency, C_frequency). If the test is not performed due to insufficient data,
+           ('A_frequency', 'T_frequency', 'G_frequency', 'C_frequency'). If the test is not performed due to insufficient data,
            p-values will be NaN.
     """
     name, group = args
@@ -164,6 +218,26 @@ def run_significanceTest(args, group_1, group_2, paired=False):
 
 
 def perform_tests_parallel(df, cpus, group_1, group_2, paired=False):
+    """
+    Perform statistical tests in parallel on grouped data.
+
+    This function groups the input DataFrame by 'MAG_ID', 'scaffold', and 'position',
+    and then performs either Wilcoxon signed-rank tests (for dependent samples) or
+    Mann-Whitney U tests (for independent samples) in parallel using the specified
+    number of CPU cores.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame containing the data to be tested.
+    cpus (int): The number of CPU cores to use for parallel processing.
+    group_1 (str): The name of the first group for the statistical test.
+    group_2 (str): The name of the second group for the statistical test.
+    paired (bool, optional): If True, perform Wilcoxon signed-rank tests for dependent samples.
+                             If False, perform Mann-Whitney U tests for independent samples.
+                             Default is False.
+
+    Returns:
+    pd.DataFrame: A DataFrame containing the test results with Benjamini-Hochberg correction applied.
+    """
     start_time = time.time()
 
     # Group the data
@@ -214,6 +288,28 @@ def perform_tests_parallel(df, cpus, group_1, group_2, paired=False):
 
 
 def apply_bh_correction(test_results):
+    """
+    Apply Benjamini-Hochberg correction to p-values in the given test results DataFrame.
+
+    This function takes a DataFrame containing p-values for allele frequencies (A, T, G, C)
+    and applies the Benjamini-Hochberg correction to control the false discovery rate (FDR).
+    The corrected p-values are added to the DataFrame as new columns with the suffix '_adj'.
+
+    Parameters:
+    test_results (pd.DataFrame): A DataFrame containing p-values for allele frequencies.
+                                 The DataFrame must have the following columns:
+                                 - "A_frequency_p_value"
+                                 - "T_frequency_p_value"
+                                 - "G_frequency_p_value"
+                                 - "C_frequency_p_value"
+
+    Returns:
+    pd.DataFrame: A new DataFrame with the original p-values and the adjusted p-values.
+                  The adjusted p-values are added as new columns with the suffix '_adj'.
+
+    Raises:
+    ValueError: If NaN values are found in the p-value columns after cleaning.
+    """
 
     p_value_columns = [
         "A_frequency_p_value",

@@ -13,6 +13,20 @@ from tqdm import tqdm
 def plot_histogram(
     mag_df, dirPath, filePrefix, pvalue_columns, adj_pvalue_columns, mag_id
 ):
+    """
+    Plots histograms of original and adjusted p-values for a given MAG (Metagenome-Assembled Genome).
+
+    Parameters:
+    mag_df (pd.DataFrame): DataFrame containing p-values and other relevant data.
+    dirPath (str): Directory path where the plot image will be saved.
+    filePrefix (str): Prefix for the output file name.
+    pvalue_columns (list of str): List of column names containing original p-values.
+    adj_pvalue_columns (list of str): List of column names containing adjusted p-values.
+    mag_id (str): Identifier for the MAG being plotted.
+
+    Returns:
+    None
+    """
     os.makedirs(dirPath, exist_ok=True)
 
     if not mag_df.empty:
@@ -80,6 +94,21 @@ def plot_histogram(
 def process_mag(
     df, mag_id, base_path, pvalue_columns, adj_pvalue_columns, filter_condition, desc
 ):
+    """
+    Processes a DataFrame to filter and plot p-value distributions for a specific MAG (Metagenome-Assembled Genome).
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing the data.
+        mag_id (str): The MAG ID to filter the DataFrame.
+        base_path (str): The base directory path where plots will be saved.
+        pvalue_columns (list of str): List of column names containing p-values.
+        adj_pvalue_columns (list of str): List of column names containing adjusted p-values.
+        filter_condition (function): A function that takes a DataFrame and returns a filtered DataFrame.
+        desc (str): A description used for naming the output directory and file prefix.
+
+    Returns:
+        None
+    """
     mag_df = df[df["MAG_ID"] == mag_id]
     mag_df_subset = filter_condition(mag_df)
 
