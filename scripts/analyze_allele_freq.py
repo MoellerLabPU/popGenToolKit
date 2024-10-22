@@ -13,25 +13,27 @@ import pandas as pd
 from scipy import stats
 from statsmodels.stats.multitest import multipletests
 
+NUCLEOTIDES = ["A_frequency", "T_frequency", "G_frequency", "C_frequency"]
+
 
 def load_metadata(metadata_file):
     """
-    Load metadata from a given file and create a dictionary mapping sample names to their corresponding diet groups.
+    Load metadata from a given file and return it as a dictionary.
 
     Parameters:
-        metadata_file (str): Path to the metadata file in tab-separated values (TSV) format with column, "sample" and "group".
+        metadata_file (str): The path to the metadata file in tab-separated values (TSV) format.
 
     Returns:
-        dict: A dictionary where keys are sample names and values are diet groups.
-
-    Raises:
-        FileNotFoundError: If the metadata file does not exist.
-        pd.errors.ParserError: If there is an error parsing the metadata file.
+        dict: A dictionary where the keys are sample identifiers and the values are dictionaries
+              containing 'diet' and 'mouse' information for each sample.
     """
+
     logging.info(f"Loading metadata from {metadata_file}")
     metadata = pd.read_csv(metadata_file, sep="\t")
     # Create a dictionary from the metadata where file_prefix is the key and group is the value
-    metadata_dict = dict(zip(metadata["sample"], metadata["diet"]))
+    metadata_dict = metadata.set_index("sample")[["diet", "mouse"]].to_dict(
+        orient="index"
+    )
     return metadata_dict
 
 
@@ -76,6 +78,7 @@ def load_snv_files(input_dir, metadata_dict):
                 "scaffold",
                 "position",
                 "position_coverage",
+                # "gene",
                 "A",
                 "C",
                 "T",
@@ -84,12 +87,16 @@ def load_snv_files(input_dir, metadata_dict):
         )
 
         # Extract the MAG ID from the scaffold column by splitting on '.fa'
-        df["MAG_ID"] = df["scaffold"].str.partition(".fa")[0]
+        # df["MAG_ID"] = df["scaffold"].str.partition(".fa")[0]
 
-        # Add the group column from metadata
-        df["group"] = metadata_dict.get(
-            file_prefix, "Unknown"
-        )  # Default to 'Unknown' if not found in metadata
+        # Add metadata columns: diet, replicate, and mouse
+        # Default to 'Unknown' if not found in metadata
+        metadata_info = metadata_dict.get(
+            file_prefix, {"diet": "Unknown", "mouse": "Unknown"}
+        )
+        df["group"] = metadata_info["diet"]
+        # df["replicate"] = metadata_info['replicate']
+        df["mouse"] = metadata_info["mouse"]
 
         dataframes[f"{file_prefix}"] = df
     return dataframes
@@ -136,14 +143,17 @@ def calculate_frequencies(dataframes):
         df_subset = df[
             [
                 "sample_id",
-                "MAG_ID",
+                # "MAG_ID",
                 "scaffold",
                 "position",
+                # "gene",
                 "A_frequency",
                 "T_frequency",
                 "G_frequency",
                 "C_frequency",
                 "group",
+                # "replicate",
+                "mouse",
             ]
         ]
         # Append to the list
@@ -151,98 +161,155 @@ def calculate_frequencies(dataframes):
 
     # Concatenate all the DataFrames in the list.
     # This is the final DataFrame with all positions and scaffolds for all MAGs.
-    logging.info(f"Concatenating all dataframes together {df_name}")
+    logging.info(f"Concatenating all dataframes together.")
     final_table_all_positions = pd.concat(all_results, ignore_index=True)
 
     return final_table_all_positions
 
 
-def run_significanceTest(args, group_1, group_2, paired=False):
+def run_wilcoxon_test(args, group_1, group_2):
     """
-    Perform a significance test (Mann-Whitney U Test or Wilcoxon signed-rank test) on allele frequencies for each nucleotide between two groups.
+    Perform the Wilcoxon signed-rank test on paired samples from two groups.
 
     Parameters:
-    args (tuple): A tuple containing the name and the grouped dataframe.
-    group_1 (str): The label for the first group in the dataframe.
-    group_2 (str): The label for the second group in the dataframe.
-    paired (bool, optional): If True, perform the Wilcoxon signed-rank test for paired samples.
-                             If False, perform the Mann-Whitney U Test for independent samples. Default is False.
+    args (tuple): A tuple containing the name and the grouped DataFrame.
+    group_1 (str): The name of the first group.
+    group_2 (str): The name of the second group.
 
     Returns:
-    tuple: A tuple containing the name and a dictionary of p-values for each nucleotide frequency
-           ('A_frequency', 'T_frequency', 'G_frequency', 'C_frequency'). If the test is not performed due to insufficient data,
-           p-values will be NaN.
+    tuple: A tuple containing:
+        - name (str): The name from the args.
+        - p_values (dict): A dictionary with nucleotides as keys and their corresponding p-values.
+        - num_samples (int): The number of paired samples used in the test.
+        - num_samples (int): The number of paired samples used in the test (repeated for clarity).
+
+    Notes:
+    - The function assumes that the DataFrame is grouped by 'scaffold' and 'position'.
+    - The p-values are initialized to NaN and will only be calculated if both groups have at least 2 data points.
+    - If there are NaN values in the data, a ValueError will be raised due to the 'nan_policy' set to 'raise'.
     """
     name, group = args
-    # group is basically the dataframe, grouped by 'MAG_ID', 'scaffold' and 'position'
+
+    # group is basically the dataframe, grouped by 'scaffold' and 'position'
     # Separate the data into two groups
     group1 = group[group["group"] == group_1]
     group2 = group[group["group"] == group_2]
 
     # Initialize p_values with NaN
     # Initially for p-values are NA, because for the sites where number of samples are less than 2, None is returned, causing errors
-    p_values = {
-        f"{nuc}_p_value": np.nan
-        for nuc in ["A_frequency", "T_frequency", "G_frequency", "C_frequency"]
-    }
+    p_values = {f"{nuc}_p_value": np.nan for nuc in NUCLEOTIDES}
+
+    # Mouse is the main column to merge on here, as that is what's same in the before and after samples
+    merge_cols = ["mouse", "scaffold", "position", "gene"]
+    merged = pd.merge(
+        group1, group2, on=merge_cols, suffixes=("_group1", "_group2"), how="inner"
+    )
+
+    # Check if we have enough paired samples
+    num_samples = merged.shape[0]
+    if num_samples >= 2:
+        for nucleotide in NUCLEOTIDES:
+            x = merged[f"{nucleotide}_group1"]
+            y = merged[f"{nucleotide}_group2"]
+            # Compute differences
+            d = x - y
+            # Check if all differences are zero
+            # https://stackoverflow.com/a/65227113/12671809 statitics doesn't make sense if all differences are zero
+            # https://stackoverflow.com/a/18402696/12671809
+            if np.all(d == 0):
+                # All differences are zero, set p-value to 1.0
+                p_values[f"{nucleotide}_p_value"] = 1.0
+            else:
+                res = stats.wilcoxon(
+                    x,
+                    y,
+                    alternative="two-sided",
+                    nan_policy="raise",  # No NaN values should be present. But if present a ValueError will be raised
+                )
+                p_values[f"{nucleotide}_p_value"] = res.pvalue
+
+    # Always return (name, p_values)
+    return (name, p_values, num_samples, num_samples)
+
+
+def run_mannwhitneyu_test(args, group_1, group_2):
+    """
+    Perform the Mann-Whitney U test on two groups within a grouped DataFrame.
+
+    Parameters:
+    args (tuple): A tuple containing the name and the grouped DataFrame.
+    group_1 (str): The name of the first group to compare.
+    group_2 (str): The name of the second group to compare.
+
+    Returns:
+    tuple: A tuple containing:
+        - name (str): The name from the args tuple.
+        - p_values (dict): A dictionary with nucleotides as keys and their corresponding p-values as values.
+        - num_samples_group1 (int): The number of samples in the first group.
+        - num_samples_group2 (int): The number of samples in the second group.
+
+    Notes:
+    - The function assumes that the DataFrame is grouped by 'scaffold' and 'position'.
+    - The p-values are initialized to NaN and will only be calculated if both groups have at least 2 data points.
+    - If there are NaN values in the data, a ValueError will be raised due to the 'nan_policy' set to 'raise'.
+    """
+    name, group = args
+
+    # group is basically the dataframe, grouped by 'scaffold' and 'position'
+    # Separate the data into two groups
+    group1 = group[group["group"] == group_1]
+    group2 = group[group["group"] == group_2]
+
+    # Initialize p_values with NaN
+    # Initially for p-values are NA, because for the sites where number of samples are less than 2, None is returned, causing errors
+    p_values = {f"{nuc}_p_value": np.nan for nuc in NUCLEOTIDES}
+
+    # Counts of samples in each group
+    num_samples_group1 = group1.shape[0]
+    num_samples_group2 = group2.shape[0]
 
     # Only perform the t-test if both groups have at least 2 data points
-    if group1.shape[0] >= 2 and group2.shape[0] >= 2:
-        for nucleotide in ["A_frequency", "T_frequency", "G_frequency", "C_frequency"]:
-
-            # Mann-Whitney U Test (or Wilcoxon rank-sum test) is used for independent samples
-            # Wilcoxon signed-rank test is used for comparing two paired samples
-            # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html#mannwhitneyu
-            # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wilcoxon.html#wilcoxon
-
-            if paired:
-                res = stats.wilcoxon(
-                    group1[nucleotide],
-                    group2[nucleotide],
-                    alternative="two-sided",
-                    nan_policy="omit",
-                )
-
-            else:
-                res = stats.mannwhitneyu(
-                    group1[nucleotide],
-                    group2[nucleotide],
-                    alternative="two-sided",
-                    nan_policy="omit",
-                )
+    if num_samples_group1 >= 2 and num_samples_group2 >= 2:
+        for nucleotide in NUCLEOTIDES:
+            res = stats.mannwhitneyu(
+                group1[nucleotide],
+                group2[nucleotide],
+                alternative="two-sided",
+                nan_policy="raise",  # No NaN values should be present. But if present a ValueError will be raised
+            )
 
             p_values[f"{nucleotide}_p_value"] = res.pvalue
 
     # Always return (name, p_values)
-    return (name, p_values)
+    return (name, p_values, num_samples_group1, num_samples_group2)
 
 
 def perform_tests_parallel(df, cpus, group_1, group_2, paired=False):
     """
     Perform statistical tests in parallel on grouped data.
 
-    This function groups the input DataFrame by 'MAG_ID', 'scaffold', and 'position',
-    and then performs either Wilcoxon signed-rank tests (for dependent samples) or
-    Mann-Whitney U tests (for independent samples) in parallel using the specified
-    number of CPU cores.
+    This function groups the input DataFrame by 'scaffold' and 'position', then performs either the Mann-Whitney U test
+    for independent samples or the Wilcoxon signed-rank test for paired samples in parallel using the specified number
+    of CPU cores.
 
     Parameters:
     df (pd.DataFrame): The input DataFrame containing the data to be tested.
     cpus (int): The number of CPU cores to use for parallel processing.
-    group_1 (str): The name of the first group for the statistical test.
-    group_2 (str): The name of the second group for the statistical test.
-    paired (bool, optional): If True, perform Wilcoxon signed-rank tests for dependent samples.
-                             If False, perform Mann-Whitney U tests for independent samples.
-                             Default is False.
+    group_1 (str): The name of the first group for comparison.
+    group_2 (str): The name of the second group for comparison.
+    paired (bool, optional): If True, perform the Wilcoxon signed-rank test for paired samples. If False, perform the
+                             Mann-Whitney U test for independent samples. Default is False.
 
     Returns:
-    pd.DataFrame: A DataFrame containing the test results with Benjamini-Hochberg correction applied.
+    pd.DataFrame: A DataFrame containing the test results with p-values and sample sizes, with Benjamini-Hochberg
+                  correction applied.
     """
+
     start_time = time.time()
 
     # Group the data
-    logging.info("Grouping data by MAG_ID, scaffold and position")
-    grouped = df.groupby(["MAG_ID", "scaffold", "position"])
+    logging.info("Grouping data by scaffold and position")
+    grouped = df.groupby(["scaffold", "position"])
 
     # Prepare arguments for mapping
     logging.info(
@@ -250,37 +317,45 @@ def perform_tests_parallel(df, cpus, group_1, group_2, paired=False):
     )
     groups = list(grouped)
 
+    # Mann-Whitney U Test (or Wilcoxon rank-sum test) is used for independent samples
+    # Wilcoxon signed-rank test is used for comparing two paired samples
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html#mannwhitneyu
+    # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.wilcoxon.html#wilcoxon
+
     if paired:
         logging.info(
             f"Performing Wilcoxon signed-rank tests for dependent samples in parallel using {cpus} cores."
         )
+        my_func = partial(run_wilcoxon_test, group_1=group_1, group_2=group_2)
     else:
         logging.info(
             f"Performing Mann-Whitney U tests for independent samples in parallel using {cpus} cores."
         )
+        my_func = partial(run_mannwhitneyu_test, group_1=group_1, group_2=group_2)
 
     with Pool(cpus) as pool:
-        # https://docs.python.org/3/library/multiprocessing.html#multiprocessing.pool.Pool.imap
-        # https://stackoverflow.com/a/4463621/12671809 and https://stackoverflow.com/a/5443941/12671809
-        my_func = partial(
-            run_significanceTest, group_1=group_1, group_2=group_2, paired=paired
-        )
-        results = pool.map(my_func, groups)
+        try:
+            results = pool.map(my_func, groups)
+        except ValueError as err:
+            logging.error(f"An error occurred during multiprocessing: {err}")
+            pool.terminate()
+            pool.join()
+            raise
 
     end_time = time.time()
     logging.info(
-        f"Groups added to a list and tests performed in {end_time-start_time:.2f} seconds"
+        f"Groups added to a list and tests performed in {end_time - start_time:.2f} seconds"
     )
-
     # Convert results to DataFrame
     records = []
-    for name, p_values in results:
-        mag_id, scaffold, position = name
+    for name, p_values, num_samples_group1, num_samples_group2 in results:
+        scaffold, position = name
         record = {
-            "MAG_ID": mag_id,
             "scaffold": scaffold,
             "position": position,
             **p_values,
+            f"num_samples_{group_1}": num_samples_group1,
+            f"num_samples_{group_2}": num_samples_group2,
         }
         records.append(record)
     test_results = pd.DataFrame(records)
@@ -337,6 +412,10 @@ def apply_bh_correction(test_results):
         test_results_cleaned.loc[adjusted_p_values.index, f"{col}_adj"] = (
             adjusted_p_values
         )
+    # Extract the MAG ID from the scaffold column by splitting on '.fa'
+    test_results_cleaned["MAG_ID"] = test_results_cleaned["scaffold"].str.partition(
+        ".fa"
+    )[0]
 
     return test_results_cleaned
 
@@ -412,10 +491,14 @@ def main():
     start_time = time.time()
 
     metadata_dict = load_metadata(args.metadata_file)
-    if args.group_1 not in metadata_dict.values():
+    # Extract all unique group names from the metadata
+    groups_in_metadata = set(entry["diet"] for entry in metadata_dict.values())
+
+    # Check if args.group_1 and args.group_2 are in the metadata groups
+    if args.group_1 not in groups_in_metadata:
         raise ValueError(f"Group {args.group_1} not found in metadata file.")
 
-    if args.group_2 not in metadata_dict.values():
+    if args.group_2 not in groups_in_metadata:
         raise ValueError(f"Group {args.group_2} not found in metadata file.")
 
     dataframes = load_snv_files(args.input_dir, metadata_dict)
