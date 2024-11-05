@@ -200,7 +200,11 @@ def run_wilcoxon_test(args, group_1, group_2):
     p_values = {f"{nuc}_p_value": np.nan for nuc in NUCLEOTIDES}
 
     # Mouse is the main column to merge on here, as that is what's same in the before and after samples
-    merge_cols = ["mouse", "scaffold", "position", "gene"]
+    merge_cols = [
+        "mouse",
+        "scaffold",
+        "position",
+    ]
     merged = pd.merge(
         group1, group2, on=merge_cols, suffixes=("_group1", "_group2"), how="inner"
     )
@@ -416,6 +420,18 @@ def apply_bh_correction(test_results):
     test_results_cleaned["MAG_ID"] = test_results_cleaned["scaffold"].str.partition(
         ".fa"
     )[0]
+
+    # Make MAG_ID as the first column
+    cols = test_results_cleaned.columns.tolist()
+
+    # Remove 'MAG_ID' from the list
+    cols.remove("MAG_ID")
+
+    # Place 'MAG_ID' at the beginning
+    cols = ["MAG_ID"] + cols
+
+    # Reindex the DataFrame
+    test_results_cleaned = test_results_cleaned[cols]
 
     return test_results_cleaned
 
