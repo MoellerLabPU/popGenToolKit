@@ -363,6 +363,7 @@ def perform_tests_parallel(df, cpus, group_1, group_2, paired=False):
         }
         records.append(record)
     test_results = pd.DataFrame(records)
+    # print(test_results)
     return apply_bh_correction(test_results)
 
 

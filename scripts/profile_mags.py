@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import argparse
+import gc
 import logging
 import multiprocessing as mp
 import os
@@ -93,11 +94,18 @@ def process_contig(contig_name):
                 base = pileupread.alignment.query_sequence[
                     pileupread.query_position
                 ].upper()
+                # Convert any base other than A, T, G, C to N
+                if base not in {"A", "T", "G", "C"}:
+                    base = "N"
                 # Increment the base count at this position
                 base_counts[base] += 1
 
         # Calculate total coverage at this position
         total_coverage = sum(base_counts.values())
+
+        # Skip positions where total_coverage is zero ie. no reads covering the position
+        if total_coverage == 0:
+            continue
 
         # Retrieve counts for each nucleotide
         A_count = base_counts.get("A", 0)
@@ -125,6 +133,22 @@ def process_contig(contig_name):
 
 
 def map_genes(prodigal_fasta):
+    """
+    Parses a Prodigal FASTA file to extract gene information and returns it as a DataFrame.
+
+    Parameters:
+        prodigal_fasta (str): Path to the Prodigal FASTA file.
+
+    Returns:
+        pandas.DataFrame: A DataFrame containing gene information with columns:
+            - gene_id (str): The gene identifier.
+            - start (int): The start position of the gene (0-based index).
+            - end (int): The end position of the gene (0-based index).
+            - contig (str): The contig identifier extracted from the gene_id.
+
+    Raises:
+        ValueError: If the header format in the FASTA file is unexpected.
+    """
     # Initialize a list to store gene information
     logging.info("Parsing Prodigal FASTA file to extract gene information.")
     genes_data = []
@@ -150,8 +174,8 @@ def map_genes(prodigal_fasta):
                 }
             )
         else:
-            print(f"Warning: Unexpected header format: {header}")
             logging.warning(f"Warning: Unexpected header format: {header}.")
+            raise ValueError("Unexpected header format in the FASTA file.")
 
     # Convert the list to a DataFrame
     genes_df = pd.DataFrame(genes_data)
@@ -161,10 +185,35 @@ def map_genes(prodigal_fasta):
 
 
 def extract_contigID(gene_id):
-    # Remove the last underscore from gene_id to get the contig ID
-    # e.g., SLG1007_DASTool_bins_35.fa_k141_82760_1 -> SLG1007_DASTool_bins_35.fa_k141_82760
+    """
+    Extract the contig ID from a given gene ID by removing the last underscore and the following characters.
+
+    Parameters:
+        gene_id (str): The gene ID string from which to extract the contig ID.
+                       Example: 'SLG1007_DASTool_bins_35.fa_k141_82760_1'
+
+    Returns:
+        str: The extracted contig ID.
+             Example: 'SLG1007_DASTool_bins_35.fa_k141_82760'
+    """
     contig = "_".join(gene_id.split("_")[:-1])
     return contig
+
+
+def extract_mag_name(contig_name):
+    """
+    Extracts the MAG (Metagenome-Assembled Genome) name from a given contig name.
+
+    Parameters:
+        contig_name (str): The name of the contig file, expected to end with ".fa".
+            Example: 'SLG1007_DASTool_bins_35.fa_k141_82760'
+
+    Returns:
+        str: The extracted MAG name, which is the part of the contig name before ".fa".
+            Example: 'SLG1007_DASTool_bins_35'
+    """
+    mag_name = contig_name.split(".fa")[0]
+    return mag_name
 
 
 def create_intervalTree(genes_df):
@@ -185,7 +234,7 @@ def create_intervalTree(genes_df):
         dict: A dictionary where each key is a contig and each value is an IntervalTree containing intervals for the genes and their IDs.
 
     """
-    logging.info(f"Creating IntervalTree for the genes dataframe..")
+    # logging.info(f"Creating IntervalTree for the genes dataframe..")
     start_time = time.time()
 
     contig_trees = defaultdict(IntervalTree)
@@ -202,7 +251,7 @@ def create_intervalTree(genes_df):
         contig_trees[contig].addi(start, end + 1, gene_id)
 
     end_time = time.time()
-    logging.info(f"IntervalTree created in {end_time - start_time:.2f} seconds")
+    # logging.info(f"IntervalTree created in {end_time - start_time:.2f} seconds")
     return contig_trees
 
 
@@ -221,8 +270,8 @@ def map_positions_to_genes(positions_df, contig_trees):
                   that contains the gene IDs corresponding to each position. If a position does not overlap
                   with any gene, the 'gene_id' will be None.
     """
-    logging.info("Mapping positions to genes...")
-    start_time = time.time()
+    # logging.info("Mapping positions to genes...")
+    # start_time = time.time()
 
     # Initialize a list to collect DataFrames
     result_dfs = []
@@ -258,8 +307,8 @@ def map_positions_to_genes(positions_df, contig_trees):
     # Concatenate all groups back into a single DataFrame
     mapped_positions_df = pd.concat(result_dfs, ignore_index=True)
 
-    end_time = time.time()
-    logging.info(f"Positions mapped to genes in {end_time - start_time:.2f} seconds")
+    # end_time = time.time()
+    # logging.info(f"Positions mapped to genes in {end_time - start_time:.2f} seconds")
     return mapped_positions_df
 
 
@@ -340,45 +389,68 @@ def main():
 
     num_processes = args.cpus
 
-    # Create a multiprocessing Pool with initializer
+    # Create a mapping from MAG names to their contigs
+    mag_contigs = defaultdict(list)
+    for contig in contig_list:
+        mag_name = extract_mag_name(contig)
+        mag_contigs[mag_name].append(contig)
+
+    # Load genes data once
+    genes_df = map_genes(args.prodigal_fasta)
+
+    # Initialize multiprocessing pool once
     with mp.Pool(
         processes=num_processes,
         initializer=init_worker,
         initargs=(args.bam_path, args.fasta_path),
     ) as pool:
-        # Use imap_unordered for progress tracking
-        data = []
-        for contig_data in tqdm(
-            pool.imap_unordered(process_contig, contig_list),
-            total=len(contig_list),
-            desc="Profiling contigs",
+
+        # Process each MAG with a progress bar
+        for mag_name in tqdm(
+            mag_contigs, total=len(mag_contigs), desc="Processing MAGs"
         ):
-            data.extend(contig_data)
+            contigs = mag_contigs[mag_name]
+            # logging.info(f"Processing MAG '{mag_name}' with {len(contigs)} contigs")
 
-    logging.info(f"Creating dataframe with profiled contigs.")
-    df = pd.DataFrame(data)
+            # Initialize data list for this MAG
+            data_list = []
 
-    logging.info(f"Writing dataframe to file.")
-    # Get the filename without extension
-    sampleID = Path(args.bam_path).stem
-    os.makedirs(args.output_dir, exist_ok=True)
-    outPath = os.path.join(args.output_dir, f"{sampleID}_profiled.tsv.gz")
-    df.to_csv(outPath, sep="\t", index=False, compression="gzip")
+            # Process contigs for this MAG
+            contig_results = pool.imap_unordered(process_contig, contigs)
+            for contig_data in contig_results:
+                data_list.extend(contig_data)
+
+            # Create DataFrame for this MAG
+            df_mag = pd.DataFrame(data_list)
+
+            # Filter genes_df for this MAG
+            genes_df_mag = genes_df[
+                genes_df["contig"].apply(extract_mag_name) == mag_name
+            ]
+
+            # Create IntervalTree for this MAG
+            contig_trees = create_intervalTree(genes_df_mag)
+
+            # Map positions to genes for this MAG
+            if not df_mag.empty:
+                mapped_positions_df = map_positions_to_genes(df_mag, contig_trees)
+
+                # Write data to file
+                sampleID = Path(args.bam_path).stem
+                outDir = os.path.join(args.output_dir, sampleID)
+                os.makedirs(outDir, exist_ok=True)
+                outPath = os.path.join(outDir, f"{sampleID}_{mag_name}_profiled.tsv.gz")
+                mapped_positions_df.to_csv(
+                    outPath, sep="\t", index=False, compression="gzip"
+                )
+                # logging.info(f"Mapped positions for MAG '{mag_name}' saved to {outPath}")
+
+                # Release memory
+                del data_list, df_mag, mapped_positions_df, genes_df_mag, contig_trees
+            gc.collect()
 
     end_time = time.time()
     logging.info(f"Total time taken {end_time - start_time:.2f} seconds")
-
-    genes_df = map_genes(args.prodigal_fasta)
-    contig_trees = create_intervalTree(genes_df)
-
-    # Map positions to genes
-    mapped_positions_df = map_positions_to_genes(df, contig_trees)
-
-    # Save the mapped positions
-    logging.info(f"Writing dataframe to file.")
-    outPath = os.path.join(args.output_dir, f"{sampleID}_profiled_with_genes.tsv.gz")
-    mapped_positions_df.to_csv(outPath, index=False, sep="\t", compression="gzip")
-    logging.info(f"Mapped positions saved to {outPath}")
 
 
 if __name__ == "__main__":

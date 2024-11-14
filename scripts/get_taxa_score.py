@@ -6,6 +6,19 @@ import os
 import pandas as pd
 
 
+def read_gtdb(gtdb_fpath):
+    gtdb_df = pd.read_csv(
+        gtdb_fpath,
+        sep="\t",
+        usecols=["user_genome", "classification"],
+    )
+    gtdb_df = gtdb_df.rename(columns={"user_genome": "MAG_ID"})
+    taxon_data = gtdb_df["classification"].apply(parse_classification)
+    taxon_df = pd.DataFrame(taxon_data.tolist())
+    gtdb_df = pd.concat([gtdb_df, taxon_df], axis=1)
+    gtdb_df = gtdb_df.drop(columns=["classification"])
+
+
 def parse_classification(classification_str):
     """
     Parses a taxonomic classification string and returns a dictionary with taxonomic ranks.
@@ -154,7 +167,7 @@ def main():
     )
 
     parser = argparse.ArgumentParser(
-        description="Perform Mann-Whitney U test with BH correction for nucleotide frequencies at each site.",
+        description="Group MAGs and calculate significance score.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
@@ -209,17 +222,7 @@ def main():
 
     args = parser.parse_args()
 
-    gtdb_df = pd.read_csv(
-        args.gtdb_taxonomy,
-        sep="\t",
-        usecols=["user_genome", "classification"],
-    )
-    gtdb_df = gtdb_df.rename(columns={"user_genome": "MAG_ID"})
-
-    taxon_data = gtdb_df["classification"].apply(parse_classification)
-    taxon_df = pd.DataFrame(taxon_data.tolist())
-    gtdb_df = pd.concat([gtdb_df, taxon_df], axis=1)
-    gtdb_df = gtdb_df.drop(columns=["classification"])
+    gtdb_df = read_gtdb(args.gtdb_taxonomy)
     pValue_table = pd.read_csv(args.pValue_table, sep="\t")
 
     logging.info("Merging p-value table with GTDB taxonomy.")
