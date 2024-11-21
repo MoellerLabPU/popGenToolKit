@@ -1,12 +1,12 @@
 # config.yml
 
 # Script paths
-
-profile: "/home/suppal/popGenToolKit/scripts/profile_mags.py"
-generate_mag_metadata: "/home/suppal/popGenToolKit/scripts/generate_mag_metadata.py"
-significance_test: "/home/suppal/popGenToolKit/scripts/analyze_allele_freq_per_MAG.py"
-get_taxa_score: "/home/suppal/popGenToolKit/scripts/get_taxa_score.py"
-get_gene_scores_per_mag: "/home/suppal/popGenToolKit/scripts/get_gene_scores_per_MAG.py"
+scripts:
+  profile: "/home/suppal/popGenToolKit/scripts/profile_mags.py"
+  generate_mag_metadata: "/home/suppal/popGenToolKit/scripts/generate_mag_metadata.py"
+  significance_test: "/home/suppal/popGenToolKit/scripts/analyze_allele_freq_per_MAG.py"
+  get_taxa_score: "/home/suppal/popGenToolKit/scripts/get_taxa_score.py"
+  get_gene_scores_per_mag: "/home/suppal/popGenToolKit/scripts/get_gene_scores_per_MAG.py"
 
 # Inputs
 bamDir: "/workdir1/sidd/for_sam/new_instrain/alignments"
