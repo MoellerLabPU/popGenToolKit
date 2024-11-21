@@ -17,6 +17,7 @@ def read_gtdb(gtdb_fpath):
     taxon_df = pd.DataFrame(taxon_data.tolist())
     gtdb_df = pd.concat([gtdb_df, taxon_df], axis=1)
     gtdb_df = gtdb_df.drop(columns=["classification"])
+    return gtdb_df
 
 
 def parse_classification(classification_str):
@@ -104,6 +105,13 @@ def calculate_significant_scores(df, group_by_column="MAG_ID", p_value_threshold
         "C_frequency_p_value",
     ]
 
+    # Check for missing values in p_value_columns
+    if df[p_value_columns].isnull().values.any():
+        logging.warning(
+            "Missing value found in p-value column. Dropping rows with NaNs."
+        )
+        df = df.dropna(subset=p_value_columns)
+
     df_merged = df.copy()
     # Identify significant sites
     df_merged["is_significant"] = (
@@ -123,7 +131,15 @@ def calculate_significant_scores(df, group_by_column="MAG_ID", p_value_threshold
     percentage_significant = (significant_sites_per_group / total_sites_per_group) * 100
 
     # Create a DataFrame with the results
-    group_scores = percentage_significant.reset_index(name="score")
+    # group_scores = percentage_significant.reset_index(name="score")
+    group_scores = pd.DataFrame(
+        {
+            group_by_column: total_sites_per_group.index,
+            "total_sites_per_group": total_sites_per_group.values,
+            "significant_sites_per_group": significant_sites_per_group.values,
+            "score": percentage_significant.values,
+        }
+    )
 
     if group_by_column == "MAG_ID":
         # If grouping by MAG_ID, include all taxonomic columns
@@ -139,14 +155,18 @@ def calculate_significant_scores(df, group_by_column="MAG_ID", p_value_threshold
 
         # Remove duplicates and keep relevant taxonomic info
         group_taxonomy = df_merged[relevant_taxa_columns].drop_duplicates()
-
     # Merge the scores with taxonomic information
     final_table = pd.merge(
         group_scores, group_taxonomy, on=group_by_column, how="inner"
     )
 
     # Reorder columns for clarity
-    columns_order = relevant_taxa_columns + ["score"]
+    # columns_order = relevant_taxa_columns + ["score"]
+    columns_order = relevant_taxa_columns + [
+        "total_sites_per_group",
+        "significant_sites_per_group",
+        "score",
+    ]
     final_table = final_table[columns_order]
 
     # Sort the table by score in descending order
@@ -221,9 +241,20 @@ def main():
     )
 
     args = parser.parse_args()
-
+    logging.info("Parsing GTDB taxa table.")
     gtdb_df = read_gtdb(args.gtdb_taxonomy)
-    pValue_table = pd.read_csv(args.pValue_table, sep="\t")
+    logging.info("Reading p-value table.")
+    pValue_table = pd.read_csv(
+        args.pValue_table,
+        sep="\t",
+        usecols=[
+            "MAG_ID",
+            "A_frequency_p_value",
+            "T_frequency_p_value",
+            "G_frequency_p_value",
+            "C_frequency_p_value",
+        ],
+    )
 
     logging.info("Merging p-value table with GTDB taxonomy.")
     merged_df = pd.merge(pValue_table, gtdb_df, on="MAG_ID", how="inner")

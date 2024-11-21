@@ -65,11 +65,12 @@ def process_contig(contig_name):
     # Iterate over the pileup columns (i.e., positions) in this contig
     for pileupcolumn in bamfile.pileup(
         contig=contig_name,
-        stepper="nofilter",
+        stepper="samtools",
         ignore_orphans=True,
         min_base_quality=30,
         ignore_overlaps=True,
-        max_depth=100000,
+        max_depth=100000000,
+        compute_baq=False,
     ):
 
         pos = pileupcolumn.reference_pos  # 0-based position

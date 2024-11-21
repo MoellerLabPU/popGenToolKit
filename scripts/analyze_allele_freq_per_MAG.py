@@ -1,13 +1,12 @@
 import argparse
 import gc
-import glob
 import logging
 import os
 import time
 from collections import defaultdict
 from functools import partial
-from itertools import islice
 from multiprocessing import Pool, cpu_count
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -20,6 +19,19 @@ NUCLEOTIDES = ["A_frequency", "T_frequency", "G_frequency", "C_frequency"]
 
 
 def calculate_mag_sizes(fasta_file):
+    """
+    Calculate the sizes of Metagenome-Assembled Genomes (MAGs) from a FASTA file.
+
+    This function parses a given FASTA file and calculates the total size of each MAG
+    by summing the lengths of its contigs. The MAG ID is extracted from the contig ID,
+    which is assumed to be the part of the contig ID before '.fa'.
+
+    Parameters:
+        fasta_file (str): Path to the input FASTA file containing contig sequences.
+
+    Returns:
+        dict: A dictionary where keys are MAG IDs and values are the total sizes of the MAGs.
+    """
     logging.info("Parsing FASTA file to calculate MAG size.")
     mag_sizes = defaultdict(int)
     for record in SeqIO.parse(fasta_file, "fasta"):
@@ -32,76 +44,73 @@ def calculate_mag_sizes(fasta_file):
     return mag_sizes
 
 
-def load_metadata(metadata_file):
-    logging.info(f"Loading metadata from {metadata_file}")
-    metadata = pd.read_csv(metadata_file, sep="\t")
-    # Create a dictionary from the metadata where file_prefix is the key and group is the value
-    metadata_dict = metadata.set_index("sampleID")[["group", "subjectID"]].to_dict(
+def load_mag_metadata_file(mag_metadata_file, mag_id, breath_threshold):
+    """
+    Load MAG metadata from a file and process it.
+
+    Parameters:
+        mag_metadata_file (str): Path to the MAG metadata file (tab-separated values).
+        mag_id (str): The MAG identifier to be associated with each sample.
+        breath_threshold (float): The breath threshold value to be associated with each sample.
+
+    Returns:
+        tuple: A tuple containing:
+            - metadata_dict (dict): A dictionary where keys are sample IDs and values are dictionaries with keys 'group' and 'subjectID'.
+            - sample_files_with_mag_id (list): A list of tuples, each containing (sample_id, file_path, mag_id, breath_threshold).
+
+    Raises:
+        ValueError: If the MAG metadata file is missing required columns.
+    """
+
+    logging.info(f"Loading MAG metadata from file: {mag_metadata_file}")
+    df = pd.read_csv(mag_metadata_file, sep="\t")
+
+    # Ensure required columns are present
+    required_columns = {"sample_id", "file_path", "subjectID", "group"}
+    missing_columns = required_columns - set(df.columns)
+    if missing_columns:
+        raise ValueError(f"Missing columns in mag metadata file: {missing_columns}")
+
+    # Convert columns to string and fill missing values with 'Unknown'
+    df = df.astype({"sample_id": str, "file_path": str, "subjectID": str, "group": str})
+    df = df.fillna({"subjectID": "Unknown", "group": "Unknown"})
+
+    # Build metadata_dict
+    metadata_dict = df.set_index("sample_id")[["group", "subjectID"]].to_dict(
         orient="index"
     )
-    return metadata_dict
 
-
-# def load_mag_files(input_dir):
-#     mag_files = defaultdict(list)
-#     # Traverse the input directory and sub-directories
-#     for root, dirs, files in os.walk(input_dir):
-#         logging.info(f"Looking for files in: {root}")
-#         for file in files:
-#             if file.endswith("_profiled.tsv.gz"):
-#                 filepath = os.path.join(root, file)
-#                 # Extract dirName from the directory name
-#                 dirName = os.path.basename(root)
-#                 # Remove '_profiled.tsv.gz' from filename
-#                 filename_core = file[: -len("_profiled.tsv.gz")]
-#                 # Remove dirName and underscore from the filename to get MAG ID
-#                 if filename_core.startswith(dirName + "_"):
-#                     mag_id = filename_core[len(dirName) + 1 :]
-#                 else:
-#                     logging.warning(f"Filename does not start with sample ID: {file}")
-#                     continue
-#                 mag_files[mag_id].append((dirName, filepath))
-#     return mag_files
-
-
-def load_mag_files(metadata_file):
-    logging.info(f"Loading MAG files from metadata: {metadata_file}")
-    metadata = pd.read_csv(metadata_file, sep="\t")
-    mag_files = defaultdict(list)
-
-    for idx, row in metadata.iterrows():
-        sample_id = str(row["sampleID"])
-        dir_path = str(row["dirPath"])
-        dir_path = os.path.abspath(dir_path)  # Get absolute path
-
-        # Construct the expected filename pattern
-        # According to your format: {dirPath}_{MAG_ID}_profiled.tsv.gz
-        # Since dirPath is already the directory, we can adjust the pattern
-        pattern = os.path.join(
-            dir_path, f"{os.path.basename(dir_path)}_*_profiled.tsv.gz"
+    # Build sample_files_with_mag_id: list of (sample_id, file_path, mag_id, breath_threshold)
+    sample_files_with_mag_id = (
+        df[["sample_id", "file_path"]]
+        .apply(
+            lambda row: (row["sample_id"], row["file_path"], mag_id, breath_threshold),
+            axis=1,
         )
+        .tolist()
+    )
 
-        # Find all matching files
-        files = glob.glob(pattern)
-
-        for filepath in files:
-            filename = os.path.basename(filepath)
-            # Extract mag_id from filename
-            # Filename format: {dirPath}_{MAG_ID}_profiled.tsv.gz
-            # Remove '{dirPath}_' and '_profiled.tsv.gz' to get mag_id
-            prefix = os.path.basename(dir_path) + "_"
-            suffix = "_profiled.tsv.gz"
-            if filename.startswith(prefix) and filename.endswith(suffix):
-                mag_id = filename[len(prefix) : -len(suffix)]
-                mag_files[mag_id].append((sample_id, filepath))
-            else:
-                logging.warning(f"Filename does not match expected pattern: {filename}")
-    return mag_files
+    return metadata_dict, sample_files_with_mag_id
 
 
 def calculate_frequencies(df):
-    total_coverage = df["total_coverage"]
+    """
+    Calculate nucleotide frequencies for a given DataFrame.
 
+    This function takes a DataFrame containing nucleotide counts and total coverage,
+    and calculates the frequency of each nucleotide (A, C, T, G) by dividing the count
+    of each nucleotide by the total coverage. The resulting frequencies are added as new
+    columns to the DataFrame.
+
+    Parameters:
+        df (pandas.DataFrame): A DataFrame with columns "A", "C", "T", "G", and "total_coverage".
+
+    Returns:
+        pandas.DataFrame: The input DataFrame with additional columns for nucleotide frequencies:
+                          "A_frequency", "C_frequency", "T_frequency", and "G_frequency".
+    """
+    total_coverage = df["total_coverage"]
+    logging.info("Calculating nucleotide frequencies.")
     # Calculate frequencies directly
     df["A_frequency"] = df["A"] / total_coverage
     df["C_frequency"] = df["C"] / total_coverage
@@ -111,7 +120,29 @@ def calculate_frequencies(df):
     return df
 
 
-def process_sample_file(args):
+def process_mag_files(args):
+    """
+    Processes a MAG (Metagenome-Assembled Genome) file and adds metadata information.
+
+    Parameters:
+        args (tuple): A tuple containing the following elements:
+            sample_id (str): The sample identifier.
+            filepath (str): The path to the MAG file.
+            mag_id (str): The MAG identifier.
+            breath_threshold (float): The threshold for breadth coverage.
+
+    Returns:
+        pd.DataFrame or None: A DataFrame with added metadata and calculated breadth if the breadth is above the threshold,
+                              otherwise None if the breadth is below the threshold or if the MAG size is not found.
+
+    Notes:
+        - The function reads the MAG file from the given filepath.
+        - Adds sample_id, group, and subjectID columns to the DataFrame.
+        - Inserts the MAG_ID as the first column.
+        - Calculates the breadth of coverage for the MAG.
+        - If the breadth is below the given threshold, the function logs a message and returns None.
+        - If the breadth is above the threshold, the function adds the breadth and genome size to the DataFrame and returns it.
+    """
     sample_id, filepath, mag_id, breath_threshold = args
     df = pd.read_csv(filepath, sep="\t")
     # Add sample_id column
@@ -124,7 +155,6 @@ def process_sample_file(args):
     df["subjectID"] = metadata_info["subjectID"]
     # This adds MAG_ID as the first column
     df.insert(0, "MAG_ID", mag_id)
-    # df["MAG_ID"] = mag_id
 
     # Get MAG size (total number of positions in the MAG)
     mag_size = mag_size_dict.get(mag_id)
@@ -140,7 +170,7 @@ def process_sample_file(args):
 
     if breadth < breath_threshold:
         logging.info(
-            f"\nMAG {mag_id} in sample {sample_id} has breadth {breadth:.2%}, which is less than {breath_threshold:.2%}. Skipping this sample-MAG combination."
+            f"MAG {mag_id} in sample {sample_id} has breadth {breadth:.2%}, which is less than {breath_threshold:.2%}. Skipping this sample-MAG combination."
         )
         return None  # Skip this sample-MAG combination
     else:
@@ -150,6 +180,19 @@ def process_sample_file(args):
 
 
 def init_worker(metadata, mag_sizes):
+    """
+    Initialize worker process with metadata and MAG sizes.
+
+    This function sets up global dictionaries for metadata and MAG sizes
+    that can be accessed by worker processes.
+
+    Parameters:
+        metadata (dict): A dictionary containing metadata information.
+        mag_sizes (dict): A dictionary containing sizes of MAGs (Metagenome-Assembled Genomes).
+
+    Returns:
+        None
+    """
     global metadata_dict
     global mag_size_dict
     metadata_dict = metadata
@@ -157,6 +200,23 @@ def init_worker(metadata, mag_sizes):
 
 
 def run_wilcoxon_test(args, group_1, group_2, min_sample_num):
+    """
+    Perform the Wilcoxon signed-rank test on paired samples from two groups.
+
+    Parameters:
+    args (tuple): A tuple containing the name and the grouped dataframe.
+    group_1 (str): The name of the first group.
+    group_2 (str): The name of the second group.
+    min_sample_num (int): The minimum number of paired samples required to perform the test.
+
+    Returns:
+    tuple: A tuple containing:
+        - name_tuple (tuple): The name tuple from the input args.
+        - p_values (dict): A dictionary with nucleotides as keys and their corresponding p-values as values.
+        - num_samples (int): The number of paired samples used in the test.
+        - num_samples (int): The number of paired samples used in the test (duplicate).
+        - notes (str): Notes regarding the test, including any special conditions encountered.
+    """
     name_tuple, group = args
 
     # group is basically the dataframe, grouped by 'scaffold' and 'position'
@@ -205,6 +265,23 @@ def run_wilcoxon_test(args, group_1, group_2, min_sample_num):
 
 
 def run_mannwhitneyu_test(args, group_1, group_2, min_sample_num):
+    """
+    Perform the Mann-Whitney U test on allele frequencies between two groups.
+
+    Parameters:
+    args (tuple): A tuple containing the name and the grouped dataframe.
+    group_1 (str): The name of the first group.
+    group_2 (str): The name of the second group.
+    min_sample_num (int): The minimum number of samples required in each group to perform the test.
+
+    Returns:
+    tuple: A tuple containing:
+        - name_tuple (tuple): The name tuple from args.
+        - p_values (dict): A dictionary with nucleotides as keys and their corresponding p-values.
+        - num_samples_group1 (int): The number of samples in the first group.
+        - num_samples_group2 (int): The number of samples in the second group.
+        - notes (str): Additional notes (currently empty).
+    """
     name_tuple, group = args
 
     # group is basically the dataframe, grouped by 'scaffold' and 'position'
@@ -239,11 +316,26 @@ def run_mannwhitneyu_test(args, group_1, group_2, min_sample_num):
 
 
 def perform_tests_parallel(df, cpus, group_1, group_2, min_sample_num=6, paired=False):
+    """
+    Perform statistical tests (Mann-Whitney U test or Wilcoxon signed-rank test) in parallel on grouped data.
+
+    Parameters:
+    df (pd.DataFrame): DataFrame containing the data to be tested.
+    cpus (int): Number of CPU cores to use for parallel processing.
+    group_1 (str): Name of the first group for comparison.
+    group_2 (str): Name of the second group for comparison.
+    min_sample_num (int, optional): Minimum number of samples required for the test. Default is 6.
+    paired (bool, optional): If True, perform Wilcoxon signed-rank test for paired samples. If False, perform Mann-Whitney U test for independent samples. Default is False.
+
+    Returns:
+    pd.DataFrame: DataFrame containing the test results with p-values and other relevant information.
+    """
     start_time = time.time()
 
     # Group the data
-    logging.info("\n Grouping data by scaffold and position")
+    logging.info("Grouping data by scaffold and position")
     grouped = df.groupby(["contig", "position", "gene_id"])
+    num_test = len(grouped)
 
     # Mann-Whitney U Test (or Wilcoxon rank-sum test) is used for independent samples
     # Wilcoxon signed-rank test is used for comparing two paired samples
@@ -252,7 +344,7 @@ def perform_tests_parallel(df, cpus, group_1, group_2, min_sample_num=6, paired=
 
     if paired:
         logging.info(
-            f"Performing Wilcoxon signed-rank tests for dependent samples in parallel using {cpus} cores."
+            f"Performing {num_test:,} Wilcoxon signed-rank tests for dependent samples in parallel using {cpus} cores."
         )
         my_func = partial(
             run_wilcoxon_test,
@@ -262,7 +354,7 @@ def perform_tests_parallel(df, cpus, group_1, group_2, min_sample_num=6, paired=
         )
     else:
         logging.info(
-            f"Performing Mann-Whitney U tests for independent samples in parallel using {cpus} cores."
+            f"Performing {num_test:,} Mann-Whitney U tests for independent samples in parallel using {cpus} cores."
         )
         my_func = partial(
             run_mannwhitneyu_test,
@@ -274,7 +366,9 @@ def perform_tests_parallel(df, cpus, group_1, group_2, min_sample_num=6, paired=
     with Pool(processes=cpus) as pool:
         results_iter = pool.imap_unordered(my_func, grouped)
         records = []
-        for result in results_iter:
+        for result in tqdm(
+            results_iter, desc="Performing significance tests", total=num_test
+        ):
             name_tuple, p_values, num_samples_group1, num_samples_group2, notes = result
             contig, position, gene_id = name_tuple
             record = {
@@ -373,16 +467,15 @@ def main():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
-    # parser.add_argument(
-    #     "--input_dir",
-    #     help="Path to directory with input files",
-    #     type=str,
-    #     required=True,
-    #     metavar="filepath",
-    # )
-
     parser.add_argument(
-        "--metadata_file",
+        "--magID",
+        help="MAG ID to process",
+        type=str,
+        required=True,
+        metavar="str",
+    )
+    parser.add_argument(
+        "--mag_metadata_file",
         help="Path to metadata file",
         type=str,
         required=True,
@@ -406,7 +499,7 @@ def main():
     parser.add_argument(
         "--cpus",
         help=f"Number of processors to use.",
-        default=16,
+        default=cpu_count(),
         metavar="int",
         type=int,
     )
@@ -440,12 +533,6 @@ def main():
         action="store_true",
         default=False,
     )
-    parser.add_argument(
-        "--get_taxa_score",
-        help="Samples are paired or dependent (e.g., before and after treatment)",
-        action="store_true",
-        default=True,
-    )
 
     parser.add_argument(
         "--output_dir",
@@ -461,8 +548,13 @@ def main():
     # Calculate MAG sizes
     mag_size_dict = calculate_mag_sizes(args.fasta)
 
-    # Load metadata
-    metadata_dict = load_metadata(args.metadata_file)
+    # Extract mag_id from the mag_metadata_file name
+    # mag_id = os.path.basename(args.mag_metadata_file).replace("_samples.tsv", "")
+    mag_id = args.magID
+    # Load per-MAG metadata file and get required data structures
+    metadata_dict, sample_files_with_mag_id = load_mag_metadata_file(
+        args.mag_metadata_file, mag_id, args.breath_threshold
+    )
 
     groups_in_metadata = set(entry["group"] for entry in metadata_dict.values())
 
@@ -473,109 +565,86 @@ def main():
     if args.group_2 not in groups_in_metadata:
         raise ValueError(f"Group {args.group_2} not found in metadata file.")
 
-    # Load MAG files
-    mag_files = load_mag_files(args.metadata_file)
+    # Process the samples
+    number_of_processes = min(args.cpus, len(sample_files_with_mag_id))
 
-    # mag_files = dict(islice(mag_files.items(), 2))
-
-    # List to collect test results from all MAGs
-    test_results_list = []
-    # Loop over each MAG
-    for mag_id, sample_files in tqdm(
-        mag_files.items(), total=len(mag_files), desc="Reading MAG files"
-    ):
-        sample_files_with_mag_id = [
-            (  # dirName.split(".")[0] to get the sample_id. Removes ".sorted" from the sample ID
-                dirName.split(".")[0],
-                filepath,
-                mag_id,
-                args.breath_threshold,
-            )
-            for dirName, filepath in sample_files
-        ]
-        number_of_processes = min(16, len(sample_files_with_mag_id))
-
-        # Load sample data in parallel
-        with Pool(
-            processes=number_of_processes,
-            initializer=init_worker,
-            initargs=(metadata_dict, mag_size_dict),
-        ) as pool:
-            data_list = list(
-                pool.imap_unordered(process_sample_file, sample_files_with_mag_id)
-            )
-
-        # Filter out None values (samples with breadth < 50%)
-        data_list = [df for df in data_list if df is not None]
-
-        if not data_list:
-            logging.info(
-                f"No samples for MAG {mag_id} passed the breadth threshold. Skipping this MAG."
-            )
-            continue  # Skip further processing for this MAG
-
-        # Concatenate data for this MAG
-        mag_df = pd.concat(data_list, ignore_index=True)
-
-        # Release memory from data_list
-        del data_list
-        gc.collect()
-
-        # Calculate frequencies and perform statistical tests
-        mag_df = calculate_frequencies(mag_df)
-
-        test_results = perform_tests_parallel(
-            mag_df,
-            args.cpus,
-            args.group_1,
-            args.group_2,
-            args.min_sample_num,
-            args.paired,
+    logging.info(
+        f"Processing {len(sample_files_with_mag_id)} samples for MAG {mag_id} using {number_of_processes} processes."
+    )
+    # Load sample data in parallel
+    with Pool(
+        processes=number_of_processes,
+        initializer=init_worker,
+        initargs=(metadata_dict, mag_size_dict),
+    ) as pool:
+        data_list = list(
+            pool.imap_unordered(process_mag_files, sample_files_with_mag_id)
         )
-        # Add MAG_ID to test_results
-        # test_results["MAG_ID"] = mag_id
-        # This adds MAG_ID as the first column
-        test_results.insert(0, "MAG_ID", mag_id)
 
-        # Collect test_results into the list
-        test_results_list.append(test_results)
+    # Filter out None values (samples with breadth < 50%)
+    data_list = [df for df in data_list if df is not None]
 
-        # Save test results for this MAG
-        # mag_output_dir = os.path.join(args.output_dir, mag_id)
+    if not data_list:
+        logging.info(
+            f"No samples for MAG {mag_id} passed the breadth threshold. Writing empty files and exiting..... :("
+        )
         os.makedirs(args.output_dir, exist_ok=True)
-        logging.info(f"Saving results for MAG {mag_id} to {args.output_dir}")
-
-        mag_df.to_csv(
-            os.path.join(args.output_dir, f"{mag_id}_nucleotide_frequencies.tsv"),
-            index=False,
-            sep="\t",
+        nuc_fPath = os.path.join(
+            args.output_dir, f"{mag_id}_nucleotide_frequencies.tsv"
         )
+        test_fPath = os.path.join(args.output_dir, f"{mag_id}_test_results.tsv")
+        Path(nuc_fPath).touch()
+        Path(test_fPath).touch()
+        return  # Exit the program
 
-        test_results.to_csv(
-            os.path.join(args.output_dir, f"{mag_id}_test_results.tsv"),
-            index=False,
-            sep="\t",
-        )
+    # Concatenate data for this MAG
+    mag_df = pd.concat(data_list, ignore_index=True)
 
-        # Release memory from mag_df and test_results if necessary
-        del mag_df, test_results
-        gc.collect()
+    # Release memory from data_list
+    del data_list
+    gc.collect()
 
-    # After processing all MAGs, concatenate all test results
-    combined_test_results = pd.concat(test_results_list, ignore_index=True)
+    # Calculate frequencies and perform statistical tests
+    mag_df = calculate_frequencies(mag_df)
 
-    # Save the combined test_results table
-    combined_test_results.to_csv(
-        os.path.join(args.output_dir, "combined_test_results.tsv"),
+    test_results = perform_tests_parallel(
+        mag_df,
+        args.cpus,
+        args.group_1,
+        args.group_2,
+        args.min_sample_num,
+        args.paired,
+    )
+
+    # This adds MAG_ID as the first column
+    test_results.insert(0, "MAG_ID", mag_id)
+
+    # Save test results for this MAG
+    os.makedirs(args.output_dir, exist_ok=True)
+    logging.info(f"Saving results for MAG {mag_id} to {args.output_dir}")
+
+    mag_df_sorted = mag_df.sort_values(
+        by=["contig", "position"], ascending=[True, True]
+    )
+    mag_df_sorted.to_csv(
+        os.path.join(args.output_dir, f"{mag_id}_nucleotide_frequencies.tsv"),
+        index=False,
+        sep="\t",
+    )
+    test_results_sorted = test_results.sort_values(
+        by=["contig", "position"], ascending=[True, True]
+    )
+    test_results_sorted.to_csv(
+        os.path.join(args.output_dir, f"{mag_id}_test_results.tsv"),
         index=False,
         sep="\t",
     )
 
-    logging.info(
-        f"Combined test results saved to {args.output_dir}/combined_test_results.tsv"
-    )
-    del test_results_list
+    # Release memory from mag_df and test_results if necessary
+    del mag_df, test_results
     gc.collect()
+    logging.info(f"Processing of MAG {mag_id} completed.")
+
     end_time = time.time()
     logging.info(f"Total time taken: {end_time-start_time:.2f} seconds")
 
