@@ -389,7 +389,6 @@ def perform_tests_parallel(df, cpus, group_1, group_2, min_sample_num=6, paired=
     test_results = pd.DataFrame(records)
     p_value_columns = [nucleotide + "_p_value" for nucleotide in NUCLEOTIDES]
     test_results["min_p_value"] = test_results[p_value_columns].min(axis=1)
-    # print(test_results)
     return apply_bh_correction(test_results)
 
 
@@ -420,8 +419,6 @@ def apply_bh_correction(test_results):
     # Only keep rows where no p-value column is NaN
     p_value_columns = [nucleotide + "_p_value" for nucleotide in NUCLEOTIDES]
     test_results_cleaned = test_results.dropna(subset=p_value_columns, how="any").copy()
-    # mask = ~test_results[p_value_columns].isna().all(axis=1)
-    # test_results_cleaned = test_results.loc[mask]
 
     # Ensure there are no NaN values in p-value columns
     if test_results_cleaned[p_value_columns].isnull().values.any():

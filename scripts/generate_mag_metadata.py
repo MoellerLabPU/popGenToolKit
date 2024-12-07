@@ -93,10 +93,15 @@ def merge_metadata(mag_dict, metadata_file):
     """
     # Load metadata
     metadata_df = pd.read_csv(
-        metadata_file, sep="\t", usecols=["sample", "mouse", "diet"]
+        metadata_file,
+        sep="\t",
+        usecols=["sample", "mouse", "group", "time", "replicate"],
     )
     metadata_df = metadata_df.rename(
-        columns={"sample": "sample_id", "mouse": "subjectID", "diet": "group"}
+        columns={
+            "sample": "sample_id",
+            "mouse": "subjectID",
+        }
     )
 
     # Ensure 'sample_id' column is a string for consistent matching
@@ -117,7 +122,14 @@ def merge_metadata(mag_dict, metadata_file):
             else:
                 logging.info(f"Metadata not found for sample ID: {sample_id}")
                 # If metadata is not found, you can choose to fill with default values or skip the sample
-                sample_info.update({"subjectID": "Unknown", "group": "Unknown"})
+                sample_info.update(
+                    {
+                        "subjectID": "Unknown",
+                        "group": "Unknown",
+                        "replicate": "Unknown",
+                        "time": "Unknown",
+                    }
+                )
     return mag_dict
 
 
@@ -127,13 +139,13 @@ def write_output_files(mag_dict, output_dir):
 
     This function creates an output directory if it does not exist and writes
     a TSV file for each MAG ID. Each TSV file contains sample information
-    including sample ID, subjectID, group, and file path.
+    including sample ID, subjectID, replicate, group, and file path.
 
     Parameters:
     mag_dict (dict): A dictionary where keys are MAG IDs and values are lists
                      of dictionaries containing sample information. Each sample
                      information dictionary should have the keys "sample_id",
-                     "subjectID", "group", and "file_path".
+                     "subjectID", "group", "replicate" and "file_path".
     output_dir (str): The directory where the output files will be written.
 
     Returns:
@@ -147,13 +159,17 @@ def write_output_files(mag_dict, output_dir):
         output_file_path = os.path.join(output_dir, f"{mag_id}_samples.tsv")
         with open(output_file_path, "w") as f:
             # Write header
-            f.write("sample_id\tsubjectID\tgroup\tfile_path\n")
+            f.write("sample_id\tsubjectID\ttime\tgroup\treplicate\tfile_path\n")
             for sample_info in sample_info_list:
                 sample_id = sample_info["sample_id"]
                 subjectID = sample_info["subjectID"]
                 group = sample_info["group"]
+                time = sample_info["time"]
+                replicate = sample_info["replicate"]
                 file_path = sample_info["file_path"]
-                f.write(f"{sample_id}\t{subjectID}\t{group}\t{file_path}\n")
+                f.write(
+                    f"{sample_id}\t{subjectID}\t{time}\t{group}\t{replicate}\t{file_path}\n"
+                )
         logging.info(f"Output written for MAG {mag_id}: {output_file_path}")
 
 
