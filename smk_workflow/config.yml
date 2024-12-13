@@ -4,35 +4,39 @@
 scripts:
   profile: "/home/suppal/popGenToolKit/scripts/profile_mags.py"
   generate_mag_metadata: "/home/suppal/popGenToolKit/scripts/generate_mag_metadata.py"
-  significance_test: "/home/suppal/popGenToolKit/scripts/analyze_allele_freq_per_MAG.py"
-  get_taxa_score: "/home/suppal/popGenToolKit/scripts/get_taxa_score.py"
-  get_gene_scores_per_mag: "/home/suppal/popGenToolKit/scripts/get_gene_scores_per_MAG.py"
+  significance_test: "/home/suppal/popGenToolKit/scripts/analyze_allele_freq.py"
+  # get_taxa_score: "/home/suppal/popGenToolKit/scripts/get_taxa_score.py"
+  # get_gene_scores_per_mag: "/home/suppal/popGenToolKit/scripts/get_gene_scores_per_MAG.py"
 
 # Inputs
-bamDir: "/workdir1/sidd/for_sam/new_instrain/alignments"
+bamDir: "/workdir1/sidd/for_sam/new_instrain/profiles_paired3"
 fasta: "/workdir1/sidd/for_sam/new_instrain/redo_representative_megamag.fa"
 prodigal: "/workdir1/sidd/for_sam/new_instrain/prodigal_redo/redo_representative_megamag.fna"
-metadata_file: "/workdir1/sidd/for_sam/mouse_md.txt"
-gtdb_file: "/workdir1/sidd/for_sam/gtdbtk.bac120.summary.tsv"
+metadata_file: "/workdir1/sidd/for_sam/new_instrain/mouse_md_edit.txt"
+# gtdb_file: "/workdir1/sidd/for_sam/gtdbtk.bac120.summary.tsv"
 
 
 # Outputs
-outDir: "/workdir1/sidd/for_sam/new_instrain/profiles_per_MAG_smk"
+root_out: "/workdir1/sidd/for_sam/new_instrain/profiles_paired3"
 
 # Parameters
-groups:
-  group_1: "control_end"
-  group_2: "fat_end"
-min_sample_num: 6
+timepoints_combinations:
+  - ["pre", "end"]
+  - ["end", "post"]
+
+groups_combinations:
+  - ["fat", "control"]
+
+min_sample_num: 4
 breath_threshold: 0.1
-paired: False
-group_by_column: "MAG_ID"
+
+# group_by_column: "MAG_ID"
 p_value_threshold: 0.05
 
 # Resources
-logDir: "/workdir1/sidd/src/profile_sigTest/logsAll"
+logDir: "/workdir1/sidd/src/profile_new/logs"
 cpus:
   profile: 8
-  significance_test: 8
+  significance_test: 16
 
 

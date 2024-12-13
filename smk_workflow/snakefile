@@ -1,63 +1,66 @@
 import os
 import pandas as pd
 from glob import glob
-import logging
-
-logging.basicConfig(
-    format="[%(asctime)s %(levelname)s] %(name)s: %(message)s",
-    datefmt="%m/%d/%Y %I:%M:%S %p",
-    level=logging.DEBUG,
-)
+from collections import defaultdict
 
 
 # Load the configuration file
 configfile: "config.yml"
 
 
-OUTDIR = config["outDir"]
+OUTDIR = config["root_out"]
 # Automatically detect sample IDs based on filenames in the directory
 samples = [
     os.path.basename(bam).split(".")[0]
     for bam in glob(os.path.join(config["bamDir"], "*.sorted.bam"))
 ]
-# Get the groupby column for taxa scores file
-group_by_column = config.get("group_by_column", "MAG_ID")
 
 
-def get_gene_scores_files(wildcards):
-    mag_ids = get_mag_ids(wildcards)
-    files = []
-    for mag_id in mag_ids:
-        files.extend(
-            [
-                os.path.join(
-                    OUTDIR, "gene_scores", f"{mag_id}_gene_scores_combined.tsv"
-                ),
-                os.path.join(
-                    OUTDIR, "gene_scores", f"{mag_id}_gene_scores_individual.tsv"
-                ),
-                os.path.join(
-                    OUTDIR, "gene_scores", f"{mag_id}_gene_scores_overlapping.tsv"
-                ),
-            ]
-        )
-    return files
+timepoints_labels = [
+    "{}_{}".format(*tp) for tp in config["timepoints_combinations"]
+]  # ["T1_T2", "T2_T3"]
+groups_labels = [
+    "{}_{}".format(*gr) for gr in config["groups_combinations"]
+]  # ["G1_G2", "G2_G4"]
 
 
-# Define the final targets
+wildcard_constraints:
+    groups="[a-zA-Z0-9_.-]+",
+    timepoints="[a-zA-Z0-9_.-]+",
+
+
+# Define a function to extract MAGs from the checkpoint output
+def discovered_mags():
+    cp = checkpoints.find_mags.get()  # This ensures the checkpoint is run first
+    with open(cp.output[0]) as f:
+        results = []
+        for line in f:
+            tp, gr, mag_list_str = line.strip().split("\t")
+            for mag in mag_list_str.split(","):
+                results.append((tp, gr, mag))
+        return results
+
+
 rule all:
     input:
-        # Outputs from profile rule
-        expand(os.path.join(OUTDIR, "{sample}.sorted"), sample=samples),
-        # Output from generate_mag_metadata
-        os.path.join(OUTDIR, "mag_metadata", "mag_list.txt"),
-        # The concatenated test results
-        os.path.join(OUTDIR, "significance_results", "combined_test_results.tsv.gz"),
-        # Taxa scores file
-        os.path.join(OUTDIR, f"significant_taxa_{group_by_column}.tsv"),
-        # Gene scores files
-        # Include the inputs from collect_gene_scores
-        get_gene_scores_files,
+        expand(os.path.join(OUTDIR, "profiles", "{sample}.sorted"), sample=samples),
+        # Step 2 outputs (directories from generate_metadata)
+        expand(
+            os.path.join(
+                OUTDIR, "inputMetadata", "inputMetadata_{timepoints}-{groups}"
+            ),
+            timepoints=timepoints_labels,
+            groups=groups_labels,
+        ),
+        lambda wildcards: [
+            os.path.join(
+                OUTDIR,
+                "significanceAnalysis",
+                f"significanceAnalysis_{tp}-{gp}",
+                f"{mag}_single_sample_test.tsv.gz",
+            )
+            for tp, gp, mag in discovered_mags()
+        ],
 
 
 #####################################
@@ -71,7 +74,7 @@ rule profile:
         fasta=config["fasta"],
         prodigal=config["prodigal"],
     output:
-        directory(os.path.join(OUTDIR, "{sample}.sorted")),
+        directory(os.path.join(OUTDIR, "profiles", "{sample}.sorted")),
     threads: config["cpus"]["profile"]
     log:
         os.path.join(config["logDir"], "profile", "{sample}_profile.log"),
@@ -91,23 +94,71 @@ rule profile:
 #####################################
 
 
-checkpoint generate_mag_metadata:
+rule generate_metadata:
     input:
-        # Depends on all output directories from the profile rule (ensuring it runs after all profile jobs are done).
-        dirs=expand(os.path.join(OUTDIR, "{sample}.sorted"), sample=samples),
-        metadata=config["metadata_file"],  # Path to the main metadata file
+        rootDir=os.path.join(OUTDIR, "profiles"),
+        metadata=config["metadata_file"],
     output:
-        metadata_dir=directory(os.path.join(OUTDIR, "mag_metadata")),
-        mag_list=os.path.join(OUTDIR, "mag_metadata", "mag_list.txt"),
+        outDir=directory(
+            os.path.join(
+                OUTDIR, "inputMetadata", "inputMetadata_{timepoints}-{groups}"
+            )
+        ),
     params:
         scriptPath=config["scripts"]["generate_mag_metadata"],
+    log:
+        os.path.join(config["logDir"], "generate_metadata", "{timepoints}-{groups}.log"),
     shell:
         """
-        mkdir -p {output.metadata_dir}
-        python {params.scriptPath} --rootDir {OUTDIR} --metadata {input.metadata} --outDir {output.metadata_dir}
-        # After generating metadata, list the MAG IDs into mag_list.txt
-        ls {output.metadata_dir} | grep '_samples.tsv$' | sed 's/_samples.tsv$//' > {output.mag_list}
+        # Extract the two timepoints and groups from the wildcard strings
+        TP1=$(echo {wildcards.timepoints} | cut -d'_' -f1)
+        TP2=$(echo {wildcards.timepoints} | cut -d'_' -f2)
+        G1=$(echo {wildcards.groups} | cut -d'_' -f1)
+        G2=$(echo {wildcards.groups} | cut -d'_' -f2)
+
+        python {params.scriptPath} \
+            --rootDir {input.rootDir} \
+            --metadata {input.metadata} \
+            --outDir {output.outDir} \
+            --timepoints $TP1 $TP2 \
+            --groups $G1 $G2 \
+            > {log} 2>&1
+         
         """
+
+
+checkpoint find_mags:
+    input:
+        # This ensures that the checkpoint will only run when all the below directories exist.
+        expand(
+            os.path.join(
+                OUTDIR, "inputMetadata", "inputMetadata_{timepoints}-{groups}"
+            ),
+            timepoints=timepoints_labels,
+            groups=groups_labels,
+        ),
+    output:
+        os.path.join(OUTDIR, "found_mags.tsv"),
+    run:
+        # Discover all sample files
+        mag_files = glob_wildcards(
+            os.path.join(
+                OUTDIR,
+                "inputMetadata",
+                "inputMetadata_{timepoints}-{groups}",
+                "{mag}_samples.tsv",
+            )
+        )
+        # mag_files now holds lists of matched wildcards: mag_files.timepoints, mag_files.groups, mag_files.mag
+
+        # Organize the found MAGs by combination of timepoints and groups
+        combos = defaultdict(list)
+        for tp, gr, mg in zip(mag_files.timepoints, mag_files.groups, mag_files.mag):
+            combos[(tp, gr)].append(mg)
+            # Write them to a file
+        with open(output[0], "w") as f:
+            for (tp, gr), mg_list in combos.items():
+                f.write(f"{tp}\t{gr}\t{','.join(mg_list)}\n")
 
 
 #####################################
@@ -115,170 +166,65 @@ checkpoint generate_mag_metadata:
 #####################################
 
 
-rule significance_test:
+rule significance_analysis_per_mag:
     input:
-        mag_metadata_file=lambda wildcards: os.path.join(
-            OUTDIR, "mag_metadata", f"{wildcards.mag_id}_samples.tsv"
+        mag_metadata_file=os.path.join(
+            OUTDIR,
+            "inputMetadata",
+            "inputMetadata_{timepoints}-{groups}",
+            "{mag}_samples.tsv",
         ),
-        fasta=config["fasta"],
     output:
-        nucleotide_freqs=os.path.join(
-            OUTDIR, "significance_results", "{mag_id}_nucleotide_frequencies.tsv"
+        os.path.join(
+            OUTDIR,
+            "significanceAnalysis",
+            "significanceAnalysis_{timepoints}-{groups}",
+            "{mag}_two_sample_test_unpaired.tsv.gz",
         ),
-        test_results=os.path.join(
-            OUTDIR, "significance_results", "{mag_id}_test_results.tsv"
+        os.path.join(
+            OUTDIR,
+            "significanceAnalysis",
+            "significanceAnalysis_{timepoints}-{groups}",
+            "{mag}_two_sample_test_paired.tsv.gz",
+        ),
+        os.path.join(
+            OUTDIR,
+            "significanceAnalysis",
+            "significanceAnalysis_{timepoints}-{groups}",
+            "{mag}_single_sample_test.tsv.gz",
+        ),
+        os.path.join(
+            OUTDIR,
+            "significanceAnalysis",
+            "significanceAnalysis_{timepoints}-{groups}",
+            "{mag}_nucleotide_frequencies.tsv.gz",
         ),
     params:
-        mag_id="{mag_id}",
-        group_1=config["groups"]["group_1"],
-        group_2=config["groups"]["group_2"],
-        min_sample_num=config["min_sample_num"],
-        breath_threshold=config["breath_threshold"],
-        # paired=config["paired"],
-        paired_flag="--paired" if config["paired"] else "",
-        output_dir=os.path.join(OUTDIR, "significance_results"),
+        outDir=os.path.join(
+            OUTDIR,
+            "significanceAnalysis",
+            "significanceAnalysis_{timepoints}-{groups}",
+        ),
         scriptPath=config["scripts"]["significance_test"],
+        fasta=config["fasta"],
+        breath_threshold=config.get("breath_threshold", 0.1),
+        min_sample_num=config.get("min_sample_num", 4),
     threads: config["cpus"]["significance_test"]
     log:
         os.path.join(
-            config["logDir"], "significanceTest", "{mag_id}_significant_test.log"
+            config["logDir"],
+            "significance_analysis",
+            "{timepoints}-{groups}-{mag}.log",
         ),
     shell:
         """
         python {params.scriptPath} \
-            --magID {params.mag_id} \
+            --magID {wildcards.mag} \
             --mag_metadata_file {input.mag_metadata_file} \
-            --fasta {input.fasta} \
-            --group_1 '{params.group_1}' \
-            --group_2 '{params.group_2}' \
+            --fasta {params.fasta} \
+            --breath_threshold {params.breath_threshold} \
             --min_sample_num {params.min_sample_num} \
             --cpus {threads} \
-            {params.paired_flag} \
-            --breath_threshold {params.breath_threshold} \
-            --output_dir {params.output_dir} \
+            --output_dir {params.outDir} \
             > {log} 2>&1
         """
-
-
-#####################################
-# Step 4: Concatenate Test Results
-#####################################
-
-
-def get_mag_ids(wildcards):
-    # Wait for the checkpoint to finish
-    checkpoint_output = checkpoints.generate_mag_metadata.get().output
-    mag_list_file = checkpoint_output.mag_list
-    # Now read the MAG IDs from mag_list.txt
-    with open(mag_list_file) as f:
-        mag_ids = [line.strip() for line in f]
-    return mag_ids
-
-
-def get_test_results_files(wildcards):
-    mag_ids = get_mag_ids(wildcards)
-    outDir = os.path.join(OUTDIR, "significance_results")
-    return [f"{outDir}/{mag_id}_test_results.tsv" for mag_id in mag_ids]
-
-
-rule concatenate_test_results:
-    input:
-        test_results=get_test_results_files,
-    output:
-        concatenated=os.path.join(
-            OUTDIR, "significance_results", "combined_test_results.tsv.gz"
-        ),
-    log:
-        os.path.join(
-            config["logDir"], "significanceTest", "concatenate_test_results.log"
-        ),
-    run:
-        # List to hold DataFrames
-        dfs = []
-        logging.info("Concatenating test results")
-        # Read each test results file
-        for file in input.test_results:
-            logging.info(f"Reading {file}")
-            df = pd.read_csv(file, sep="\t")
-            dfs.append(df)
-
-            # Concatenate all DataFrames
-        logging.info(f"Concatenating {len(input.test_results)} files")
-        combined_df = pd.concat(dfs, ignore_index=True)
-
-        # Write the combined DataFrame to the output file
-        combined_df.to_csv(
-            output.concatenated, sep="\t", index=False, compression="gzip"
-        )
-        logging.info(
-            f"Concatenated {len(input.test_results)} files into {output.concatenated}"
-        )
-
-
-#####################################
-# Step 5: Calculate Taxa/Gene specific Scores
-#####################################
-
-
-rule get_taxa_score:
-    input:
-        combined_results=os.path.join(
-            OUTDIR, "significance_results", "combined_test_results.tsv.gz"
-        ),
-        gtdb_taxonomy=config["gtdb_file"],
-    output:
-        significant_taxa=os.path.join(OUTDIR, f"significant_taxa_{group_by_column}.tsv"),
-    params:
-        group_by_column=config.get("group_by_column", "MAG_ID"),
-        p_value_threshold=config.get("p_value_threshold", 0.05),
-        output_dir=OUTDIR,
-        scriptPath=config["scripts"]["get_taxa_score"],
-    log:
-        os.path.join(config["logDir"], "taxa_score", "significance_score.log"),
-    shell:
-        """
-        python {params.scriptPath} \
-            --gtdb_taxonomy {input.gtdb_taxonomy} \
-            --pValue_table {input.combined_results} \
-            --group_by_column {params.group_by_column} \
-            --pValue_threshold {params.p_value_threshold} \
-            --output_dir {params.output_dir} \
-            > {log} 2>&1
-        """
-
-
-rule get_gene_scores_per_mag:
-    input:
-        test_results=os.path.join(
-            OUTDIR, "significance_results", "{mag_id}_test_results.tsv"
-        ),
-    output:
-        gene_scores_combined=os.path.join(
-            OUTDIR, "gene_scores", "{mag_id}_gene_scores_combined.tsv"
-        ),
-        gene_scores_individual=os.path.join(
-            OUTDIR, "gene_scores", "{mag_id}_gene_scores_individual.tsv"
-        ),
-        gene_scores_overlapping=os.path.join(
-            OUTDIR, "gene_scores", "{mag_id}_gene_scores_overlapping.tsv"
-        ),
-    params:
-        p_value_threshold=config.get("p_value_threshold", 0.05),
-        output_dir=os.path.join(OUTDIR, "gene_scores"),
-        scriptPath=config["scripts"]["get_gene_scores_per_mag"],
-    log:
-        os.path.join(config["logDir"], "gene_scores", "{mag_id}_gene_scores.log"),
-    shell:
-        """
-        python {params.scriptPath} \
-            --pValue_table {input.test_results} \
-            --pValue_threshold {params.p_value_threshold} \
-            --output_dir {params.output_dir} \
-            --prefix {wildcards.mag_id} \
-            > {log} 2>&1
-        """
-
-
-rule collect_gene_scores:
-    input:
-        get_gene_scores_files,

@@ -439,7 +439,7 @@ def perform_tests(mean_changes_df, mag_id, output_dir, cpus, min_sample_num=4):
     grouped = mean_changes_df.groupby(["contig", "position"])
     import itertools
 
-    grouped = list(itertools.islice(grouped, 100000))
+    grouped = list(itertools.islice(grouped, 1000000))
 
     num_tests = len(grouped)
 
@@ -649,11 +649,8 @@ def run_paired_tests(args, group_1, group_2, min_sample_num):
             data1 = merged_data[f"{nucleotide}_diff_mean_group1"]
             data2 = merged_data[f"{nucleotide}_diff_mean_group2"]
             # Check for identical values
-            mean1 = np.mean(data1)
-            mean2 = np.mean(data2)
-            var1 = np.var(data1, ddof=1)
-            var2 = np.var(data2, ddof=1)
-            if var1 == 0 and var2 == 0 and mean1 == mean2:
+            d = data1 - data2
+            if np.all(d == 0):
                 p_values[f"{nucleotide}_p_value_paired_tTest"] = (
                     1.0  # Paired t-test outputs NaN if both groups have identical values
                 )
@@ -891,7 +888,7 @@ def main():
     del data_list
     gc.collect()
 
-    # save_nucleotide_frequencies(data_dict, args.output_dir, mag_id)
+    save_nucleotide_frequencies(data_dict, args.output_dir, mag_id)
 
     allele_changes = calculate_allele_frequency_changes(
         data_dict, args.output_dir, mag_id

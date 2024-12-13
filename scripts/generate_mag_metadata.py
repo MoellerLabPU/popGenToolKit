@@ -66,71 +66,62 @@ def find_mag_files(root_dir):
                             )
                         else:
                             logging.info(
-                                f"Filename does not match expected format: {filename}"
+                                f"Filename does not match expected format: {filename}. Skipped."
                             )
             else:
                 logging.info(
-                    f"Subdirectory does not match expected format (sampleID.sorted): {subdir_name}"
+                    f"Subdirectory does not match expected format (sampleID.sorted): {subdir_name}. Skipped."
                 )
     return mag_dict
 
 
-def merge_metadata(mag_dict, metadata_file):
+def merge_metadata(mag_dict, metadata_file, timepoints, groups):
     """
     Merges metadata from a file into a dictionary of metagenome-assembled genomes (MAGs).
 
     Parameters:
         mag_dict (dict): A dictionary where keys are MAG IDs and values are lists of sample information dictionaries.
-        metadata_file (str): Path to the metadata file in TSV format containing columns 'sample', 'mouse', and 'diet'.
+        metadata_file (str): Path to the metadata file in TSV format containing columns 'sample', 'subjectID', 'group', 'time' and 'replicate'.
+        timepoints (list): List of timepoints to filter the metadata.
+        groups (list): List of groups to filter the metadata.
 
     Returns:
         dict: The updated mag_dict with metadata fields added to each sample information dictionary.
-
-    Notes:
-        - The metadata file should have columns 'sample', 'mouse', and 'diet'.
-        - The 'sample' column in the metadata file is renamed to 'sample_id' for consistency.
-        - If metadata for a sample ID is not found, default values 'Unknown' are used for 'mouse' and 'diet'.
     """
     # Load metadata
     metadata_df = pd.read_csv(
         metadata_file,
         sep="\t",
-        usecols=["sample", "mouse", "group", "time", "replicate"],
-    )
-    metadata_df = metadata_df.rename(
-        columns={
-            "sample": "sample_id",
-            "mouse": "subjectID",
-        }
+        usecols=["sample_id", "subjectID", "group", "time", "replicate"],
     )
 
     # Ensure 'sample_id' column is a string for consistent matching
     metadata_df["sample_id"] = metadata_df["sample_id"].astype(str)
 
+    # Filter metadata to only include the specified timepoints and groups
+    # This ensures that samples not matching these criteria are excluded
+    metadata_df = metadata_df[
+        metadata_df["time"].isin(timepoints) & metadata_df["group"].isin(groups)
+    ]
+
     # Create a metadata dictionary for quick lookup
     metadata_dict = metadata_df.set_index("sample_id").to_dict(orient="index")
 
-    # Merge metadata into mag_dict
+    # Merge metadata into mag_dict, excluding samples with no metadata match
+    filtered_mag_dict = {}
     for mag_id, sample_info_list in mag_dict.items():
+        filtered_samples = []
         for sample_info in sample_info_list:
             sample_id = sample_info["sample_id"]
-            # Get metadata for the sample
             metadata = metadata_dict.get(sample_id)
             if metadata:
                 # Add metadata fields to sample_info
                 sample_info.update(metadata)
-            else:
-                logging.info(f"Metadata not found for sample ID: {sample_id}")
-                # If metadata is not found, you can choose to fill with default values or skip the sample
-                sample_info.update(
-                    {
-                        "subjectID": "Unknown",
-                        "group": "Unknown",
-                        "replicate": "Unknown",
-                        "time": "Unknown",
-                    }
-                )
-    return mag_dict
+                filtered_samples.append(sample_info)
+        if filtered_samples:
+            filtered_mag_dict[mag_id] = filtered_samples
+
+    return filtered_mag_dict
 
 
 def write_output_files(mag_dict, output_dir):
@@ -191,9 +182,24 @@ def main():
     parser.add_argument(
         "--metadata",
         type=str,
-        help="Path to the metadata TSV file to merge with the main data. Should contain columns 'sample', 'mouse', and 'diet'.",
+        help="Path to the metadata TSV file to merge with the main data. Should contain columns 'sample_id', 'subjectID', 'replicate', 'group' and 'time'.",
         required=True,
     )
+
+    parser.add_argument(
+        "--timepoints",
+        nargs=2,
+        help="Two timepoints to include.",
+        required=True,
+    )
+
+    parser.add_argument(
+        "--groups",
+        nargs=2,
+        help="Two groups to include.",
+        required=True,
+    )
+
     parser.add_argument(
         "--outDir",
         help="Path to the directory where output files will be saved.",
@@ -203,7 +209,7 @@ def main():
     args = parser.parse_args()
 
     mag_dict = find_mag_files(args.rootDir)
-    mag_dict = merge_metadata(mag_dict, args.metadata)
+    mag_dict = merge_metadata(mag_dict, args.metadata, args.timepoints, args.groups)
     write_output_files(mag_dict, args.outDir)
 
 
