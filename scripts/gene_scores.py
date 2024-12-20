@@ -1,51 +1,21 @@
 #!/usr/bin/env python
-
 import argparse
 import logging
 import os
 
 import pandas as pd
+from utilities import calculate_score, extract_test_columns
 
 
-def calculate_group_scores(df):
-    group_scores = df.groupby("gene_id").agg(
-        total_sites=("position", "count"),
-        significant_sites=("is_significant", "sum"),
+def get_scores(df, p_value_threshold=0.05):
+
+    test_columns_dict = extract_test_columns(df)
+    # First Output: Overlapping genes are kept as combined entities
+    group_scores_combined = calculate_score(
+        df, test_columns_dict, "gene_id", p_value_threshold
     )
-    group_scores["score"] = (
-        group_scores["significant_sites"] / group_scores["total_sites"]
-    ) * 100
-    group_scores = group_scores.reset_index()
-    group_scores = group_scores.sort_values(by="score", ascending=False)
-    return group_scores
 
-
-def calculate_significant_scores(df, p_value_threshold=0.05):
-
-    # Define the p-value columns
-    p_value_columns = [
-        "A_frequency_p_value",
-        "T_frequency_p_value",
-        "G_frequency_p_value",
-        "C_frequency_p_value",
-    ]
-
-    # Check for missing values in p_value_columns
-    if df[p_value_columns].isnull().values.any():
-        logging.warning(
-            "Missing value found in p-value column. Dropping rows with NaNs."
-        )
-        df = df.dropna(subset=p_value_columns)
-
-    # Create 'is_significant' column
-    df["is_significant"] = df[p_value_columns].lt(p_value_threshold).any(axis=1)
-
-    ### First Output: Current Functionality ###
-    # Overlapping genes are kept as combined entities
-    group_scores_combined = calculate_group_scores(df)
-
-    ### Second Output: Individual Genes ###
-    # Overlapping positions contribute to each gene separately
+    # Second Output: Overlapping positions contribute to each gene separately
     df_individual = df.copy()
     # Split 'gene_id' into a list if multiple genes are present
     df_individual["gene_id"] = df_individual["gene_id"].str.split(",")
@@ -54,13 +24,16 @@ def calculate_significant_scores(df, p_value_threshold=0.05):
     # Trim whitespace from gene_ids
     df_individual["gene_id"] = df_individual["gene_id"].str.strip()
     # Calculate group scores
-    group_scores_individual = calculate_group_scores(df_individual)
+    group_scores_individual = calculate_score(
+        df_individual, test_columns_dict, "gene_id", p_value_threshold
+    )
 
-    ### Third Output: Overlapping Genes Only ###
-    # Identify overlapping genes
+    # Third Output: Overlapping Genes Only
     overlapping_rows = df[df["gene_id"].str.contains(",", na=False)].copy()
     if not overlapping_rows.empty:
-        group_scores_overlapping = calculate_group_scores(overlapping_rows)
+        group_scores_overlapping = calculate_score(
+            overlapping_rows, test_columns_dict, "gene_id", p_value_threshold
+        )
     else:
         # If no overlapping genes, create an empty DataFrame
         logging.info("No overlapping genes found, creating empty DataFrame.")
@@ -112,6 +85,7 @@ def main():
         help="File prefix to use.",
         metavar="str",
         type=str,
+        default="sample",
     )
 
     args = parser.parse_args()
@@ -122,14 +96,14 @@ def main():
     logging.info("Calculating significant scores...")
 
     group_scores_combined, group_scores_individual, group_scores_overlapping = (
-        calculate_significant_scores(df, args.pValue_threshold)
+        get_scores(df, args.pValue_threshold)
     )
 
     # Ensure output directory exists
     os.makedirs(args.output_dir, exist_ok=True)
 
     # Determine file prefix
-    prefix = args.prefix if args.prefix else ""
+    prefix = args.prefix if args.prefix else "sample"
 
     # Save the three DataFrames to separate files with optional prefix
     output_combined = os.path.join(

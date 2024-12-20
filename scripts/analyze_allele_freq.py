@@ -332,10 +332,21 @@ def calculate_allele_frequency_changes(data_dict, output_dir, mag_id):
         df_timepoint2 = data_dict[subjectID][timepoint_2]
 
         # Merge on contig and position
+        # In pandas when both key columns ('gene_id' here) contain rows where the key is a null value, those rows will be matched against each other
+        """
+        df1 = pd.DataFrame({'key1': [1, 2, None], 'value1': ['A', 'B', 'C']})
+        df2 = pd.DataFrame({'key1': [1, None, 3], 'value1': ['X', 'Y', 'Z']})
+
+        merged_df = pd.merge(df1, df2, on='key1', how='inner')
+        print(merged_df)
+           key1 value1_x value1_y
+        0   1.0        A        X
+        1   NaN        C        Y
+        """
         merged_df = pd.merge(
             df_timepoint1,
             df_timepoint2,
-            on=["subjectID", "contig", "position", "replicate", "group"],
+            on=["subjectID", "contig", "gene_id", "position", "replicate", "group"],
             suffixes=(f"_{timepoint_1}", f"_{timepoint_2}"),
             how="inner",
         )
@@ -353,7 +364,7 @@ def calculate_allele_frequency_changes(data_dict, output_dir, mag_id):
 
         # Select relevant columns
         columns_to_keep = (
-            ["subjectID", "contig", "position", "replicate", "group"]
+            ["subjectID", "gene_id", "contig", "position", "replicate", "group"]
             + [f"{nuc}_{timepoint_1}" for nuc in NUCLEOTIDES]
             + [f"{nuc}_{timepoint_2}" for nuc in NUCLEOTIDES]
             + [f"{nuc}_diff" for nuc in NUCLEOTIDES]
@@ -382,6 +393,25 @@ def calculate_allele_frequency_changes(data_dict, output_dir, mag_id):
 
 
 def get_mean_change(allele_changes, mag_id, output_dir):
+    """
+    Calculate the mean changes in allele frequencies for subjectIDs present in the same replicate and group.
+
+    Parameters:
+        allele_changes (pd.DataFrame): DataFrame containing allele change information with columns
+                                       ['contig', 'position', 'replicate', 'group', 'subjectID', 'gene_id' '<nuc>_diff'].
+        mag_id (str): Identifier for the metagenome-assembled genome (MAG).
+        output_dir (str): Directory where the output file will be saved.
+
+    Returns:
+        pd.DataFrame: DataFrame with mean changes in allele frequencies and count of unique subject IDs
+                      for each group, with columns ['contig', 'position', 'replicate', 'group', 'gene_id',
+                      '<nuc>_diff_mean', 'subjectID_count'].
+
+    Notes:
+        - The function groups the input DataFrame by ['contig', 'position', 'replicate', 'group', 'gene_id'] and
+          calculates the mean of nucleotide differences and the count of unique subject IDs in each group.
+        - The resulting DataFrame is saved as a compressed TSV file in the specified output directory.
+    """
     logging.info(
         "Calculating mean changes in allele frequencies for subjectIDs present in the same replicate and group."
     )
@@ -392,7 +422,9 @@ def get_mean_change(allele_changes, mag_id, output_dir):
 
     # Perform the groupby and aggregation
     mean_changes_df = (
-        allele_changes.groupby(["contig", "position", "replicate", "group"])
+        allele_changes.groupby(
+            ["contig", "gene_id", "position", "replicate", "group"], dropna=False
+        )
         .agg(agg_dict)
         .reset_index()
     )
@@ -435,11 +467,11 @@ def perform_tests(mean_changes_df, mag_id, output_dir, cpus, min_sample_num=4):
         return
 
     # Group the data
-    logging.info("Grouping data by contig and position")
-    grouped = mean_changes_df.groupby(["contig", "position"])
-    import itertools
+    logging.info("Grouping data by contig, gene_id and position")
+    grouped = mean_changes_df.groupby(["contig", "gene_id", "position"], dropna=False)
+    # import itertools
 
-    grouped = list(itertools.islice(grouped, 1000000))
+    # grouped = list(itertools.islice(grouped, 1000000))
 
     num_tests = len(grouped)
 
@@ -491,9 +523,10 @@ def perform_unpaired_tests(
             results_iter, desc="Performing significance tests", total=num_tests
         ):
             name_tuple, p_values, num_samples_group1, num_samples_group2, notes = result
-            contig, position = name_tuple
+            contig, gene_id, position = name_tuple
             record = {
                 "contig": contig,
+                "gene_id": gene_id,
                 "position": position,
                 **p_values,
                 f"num_samples_{group_1}": num_samples_group1,
@@ -517,7 +550,7 @@ def perform_unpaired_tests(
         f"Saving 2 sample unpaired significance results for MAG {mag_id} to {output_dir}"
     )
     test_results.to_csv(
-        os.path.join(output_dir, f"{mag_id}_two_sample_test_unpaired.tsv.gz"),
+        os.path.join(output_dir, f"{mag_id}_two_sample_unpaired.tsv.gz"),
         index=False,
         sep="\t",
         compression="gzip",
@@ -588,9 +621,10 @@ def perform_paired_tests(func_unpaired, grouped, cpus, num_tests, output_dir, ma
             results_iter, desc="Performing paired significance tests", total=num_tests
         ):
             name_tuple, p_values, num_pairs, notes = result
-            contig, position = name_tuple
+            contig, gene_id, position = name_tuple
             record = {
                 "contig": contig,
+                "gene_id": gene_id,
                 "position": position,
                 **p_values,
                 "num_pairs": num_pairs,
@@ -611,7 +645,7 @@ def perform_paired_tests(func_unpaired, grouped, cpus, num_tests, output_dir, ma
         f"Saving 2 sample paired significance results for MAG {mag_id} to {output_dir}"
     )
     test_results.to_csv(
-        os.path.join(output_dir, f"{mag_id}_two_sample_test_paired.tsv.gz"),
+        os.path.join(output_dir, f"{mag_id}_two_sample_paired.tsv.gz"),
         index=False,
         sep="\t",
         compression="gzip",
@@ -691,9 +725,10 @@ def perform_one_sample_tests(
             results_iter, desc="Performing one-sample tests", total=num_tests
         ):
             name_tuple, p_values, num_samples_dict, notes = result
-            contig, position = name_tuple
+            contig, gene_id, position = name_tuple
             record = {
                 "contig": contig,
+                "gene_id": gene_id,
                 "position": position,
                 **p_values,
                 **num_samples_dict,
@@ -713,7 +748,7 @@ def perform_one_sample_tests(
         f"Saving single-sample significance results for MAG {mag_id} to {output_dir}"
     )
     test_results.to_csv(
-        os.path.join(output_dir, f"{mag_id}_single_sample_test.tsv.gz"),
+        os.path.join(output_dir, f"{mag_id}_single_sample.tsv.gz"),
         index=False,
         sep="\t",
         compression="gzip",

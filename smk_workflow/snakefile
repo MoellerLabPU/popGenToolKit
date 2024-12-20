@@ -2,6 +2,8 @@ import os
 import pandas as pd
 from glob import glob
 from collections import defaultdict
+from multiprocessing import Pool
+import logging
 
 
 # Load the configuration file
@@ -27,6 +29,8 @@ groups_labels = [
 wildcard_constraints:
     groups="[a-zA-Z0-9_.-]+",
     timepoints="[a-zA-Z0-9_.-]+",
+    taxon="[a-zA-Z]+",
+    test_type="[a-zA-Z_]+",
 
 
 # Define a function to extract MAGs from the checkpoint output
@@ -38,13 +42,13 @@ def discovered_mags():
             tp, gr, mag_list_str = line.strip().split("\t")
             for mag in mag_list_str.split(","):
                 results.append((tp, gr, mag))
+        # print(results)
         return results
 
 
 rule all:
     input:
         expand(os.path.join(OUTDIR, "profiles", "{sample}.sorted"), sample=samples),
-        # Step 2 outputs (directories from generate_metadata)
         expand(
             os.path.join(
                 OUTDIR, "inputMetadata", "inputMetadata_{timepoints}-{groups}"
@@ -52,14 +56,54 @@ rule all:
             timepoints=timepoints_labels,
             groups=groups_labels,
         ),
+        # lambda wildcards: [
+        #     os.path.join(
+        #         OUTDIR,
+        #         "scores",
+        #         "intermediate",
+        #         f"MAG_scores_{tp}-{gp}",
+        #         f"{mag}_score_two_sample_paired.tsv",
+        #     )
+        #     for tp, gp, mag in discovered_mags()
+        # ],
+        # expand(
+        #     os.path.join(
+        #         OUTDIR,
+        #         "scores",
+        #         "processed",
+        #         "scores_{test_type}-{timepoints}-{groups}_MAGs.tsv",
+        #     ),
+        #     timepoints=timepoints_labels,
+        #     groups=groups_labels,
+        #     test_type=["single_sample", "two_sample_paired", "two_sample_unpaired"],
+        # ),
+        expand(
+            os.path.join(
+                OUTDIR,
+                "scores",
+                "processed",
+                "combined",
+                "scores_{test_type}-{timepoints}-{groups}-{taxon}.tsv",
+            ),
+            test_type=["single_sample", "two_sample_paired", "two_sample_unpaired"],
+            timepoints=timepoints_labels,
+            groups=groups_labels,
+            taxon=["domain", "phylum", "class", "order", "family", "genus", "species"],
+        ),
         lambda wildcards: [
             os.path.join(
                 OUTDIR,
-                "significanceAnalysis",
-                f"significanceAnalysis_{tp}-{gp}",
-                f"{mag}_single_sample_test.tsv.gz",
+                "scores",
+                "processed",
+                f"gene_scores_{tp}-{gp}",
+                f"{mag}-{test_type}_gene_scores_combined.tsv",
             )
             for tp, gp, mag in discovered_mags()
+            for test_type in [
+                "single_sample",
+                "two_sample_paired",
+                "two_sample_unpaired",
+            ]
         ],
 
 
@@ -76,8 +120,10 @@ rule profile:
     output:
         directory(os.path.join(OUTDIR, "profiles", "{sample}.sorted")),
     threads: config["cpus"]["profile"]
-    log:
-        os.path.join(config["logDir"], "profile", "{sample}_profile.log"),
+    resources:
+        mem_gb=config["memory"]["profile"],
+    # log:
+    #     os.path.join(config["logDir"], "profile", "{sample}_profile.log"),
     params:
         outDir=OUTDIR,
         scriptPath=config["scripts"]["profile"],
@@ -85,7 +131,7 @@ rule profile:
         """
         python {params.scriptPath} \
         --bam_path {input.bam} --fasta_path {input.fasta} --prodigal_fasta {input.prodigal} \
-        --cpus {threads} --output_dir {params.outDir} > {log} 2>&1
+        --cpus {threads} --output_dir {params.outDir}
         """
 
 
@@ -106,8 +152,8 @@ rule generate_metadata:
         ),
     params:
         scriptPath=config["scripts"]["generate_mag_metadata"],
-    log:
-        os.path.join(config["logDir"], "generate_metadata", "{timepoints}-{groups}.log"),
+    # log:
+    #     os.path.join(config["logDir"], "generate_metadata", "{timepoints}-{groups}.log"),
     shell:
         """
         # Extract the two timepoints and groups from the wildcard strings
@@ -121,8 +167,7 @@ rule generate_metadata:
             --metadata {input.metadata} \
             --outDir {output.outDir} \
             --timepoints $TP1 $TP2 \
-            --groups $G1 $G2 \
-            > {log} 2>&1
+            --groups $G1 $G2 
          
         """
 
@@ -179,19 +224,19 @@ rule significance_analysis_per_mag:
             OUTDIR,
             "significanceAnalysis",
             "significanceAnalysis_{timepoints}-{groups}",
-            "{mag}_two_sample_test_unpaired.tsv.gz",
+            "{mag}_single_sample.tsv.gz",
         ),
         os.path.join(
             OUTDIR,
             "significanceAnalysis",
             "significanceAnalysis_{timepoints}-{groups}",
-            "{mag}_two_sample_test_paired.tsv.gz",
+            "{mag}_two_sample_paired.tsv.gz",
         ),
         os.path.join(
             OUTDIR,
             "significanceAnalysis",
             "significanceAnalysis_{timepoints}-{groups}",
-            "{mag}_single_sample_test.tsv.gz",
+            "{mag}_two_sample_unpaired.tsv.gz",
         ),
         os.path.join(
             OUTDIR,
@@ -210,12 +255,14 @@ rule significance_analysis_per_mag:
         breath_threshold=config.get("breath_threshold", 0.1),
         min_sample_num=config.get("min_sample_num", 4),
     threads: config["cpus"]["significance_test"]
-    log:
-        os.path.join(
-            config["logDir"],
-            "significance_analysis",
-            "{timepoints}-{groups}-{mag}.log",
-        ),
+    resources:
+        mem_gb=config["memory"]["significance_test"],
+    # log:
+    #     os.path.join(
+    #         config["logDir"],
+    #         "significance_analysis",
+    #         "{timepoints}-{groups}-{mag}.log",
+    #     ),
     shell:
         """
         python {params.scriptPath} \
@@ -225,6 +272,221 @@ rule significance_analysis_per_mag:
             --breath_threshold {params.breath_threshold} \
             --min_sample_num {params.min_sample_num} \
             --cpus {threads} \
+            --output_dir {params.outDir} 
+        """
+
+
+#####################################
+# Step 4: Calculate test scores
+# Step 4.1: Individual MAG scores
+#####################################
+
+
+rule significance_score_per_MAG:
+    input:
+        pvalue_table=os.path.join(
+            OUTDIR,
+            "significanceAnalysis",
+            "significanceAnalysis_{timepoints}-{groups}",
+            "{mag}_{test_type}.tsv.gz",
+        ),
+        gtdb_taxonomy=config["gtdb_file"],
+    output:
+        os.path.join(
+            OUTDIR,
+            "scores",
+            "intermediate",
+            "MAG_scores_{timepoints}-{groups}",
+            "{mag}_score_{test_type}.tsv",
+        ),
+    params:
+        scriptPath=config["scripts"]["scores"],
+        group_by_column="MAG_ID",
+        pValue_threshold=config.get("p_value_threshold", 0.05),
+    # log:
+    #     os.path.join(
+    #         config["logDir"],
+    #         "significance_scores",
+    #         "{test_type}",
+    #         "{timepoints}-{groups}-{mag}-single.log",
+    #     ),
+    shell:
+        """
+        python {params.scriptPath} \
+            --gtdb_taxonomy {input.gtdb_taxonomy} \
+            --pValue_table {input.pvalue_table} \
+            --group_by_column {params.group_by_column} \
+            --pValue_threshold {params.pValue_threshold} \
+            --out_fPath {output} 
+        """
+
+
+#####################################
+# Step 4.2: Combine individual MAG scores
+#####################################
+
+
+rule combine_MAG_scores:
+    input:
+        scores=os.path.join(
+            OUTDIR,
+            "scores",
+            "intermediate",
+            "MAG_scores_{timepoints}-{groups}",
+            "{mag}_score_{test_type}.tsv",
+        ),
+        # scores=lambda wildcards: [
+        #     os.path.join(
+        #         OUTDIR,
+        #         "scores",
+        #         "intermediate",
+        #         f"MAG_scores_{wildcards.timepoints}-{wildcards.groups}",
+        #         f"{mag}_score_{wildcards.test_type}.tsv",
+        #     )
+        #     for tp, gp, mag in discovered_mags()
+        #     if tp == wildcards.timepoints and gp == wildcards.groups
+        # ],
+    output:
+        concatenated=os.path.join(
+            OUTDIR,
+            "scores",
+            "processed",
+            "combined",
+            "scores_{test_type}-{timepoints}-{groups}-MAGs.tsv",
+        ),
+    # log:
+    #     os.path.join(
+    #         config["logDir"],
+    #         "combine_scores",
+    #         "combine_scores_{test_type}-{timepoints}-{groups}-MAGs.log",
+    #     ),
+    run:
+        logging.basicConfig(
+            format="[%(asctime)s %(levelname)s] %(name)s: %(message)s",
+            datefmt="%m/%d/%Y %I:%M:%S %p",
+            level=logging.INFO,
+            filename=log[0],
+        )
+
+        dfs = []
+        for file in input.scores:
+            logging.info(f"Reading {file}")
+            df = pd.read_csv(file, sep="\t")
+            dfs.append(df)
+
+        logging.info(
+            f"Reading files for combinations {wildcards.timepoints}-{wildcards.groups}"
+        )
+
+        combined_df = pd.concat(dfs, ignore_index=True)
+
+        logging.info(f"Writing combined scores to {output}")
+        combined_df.to_csv(output.concatenated, sep="\t", index=False)
+
+
+#####################################
+# Step 4.3: Taxa scores
+#####################################
+
+
+rule taxa_scores:
+    input:
+        combined=os.path.join(
+            OUTDIR,
+            "scores",
+            "processed",
+            "combined",
+            "scores_{test_type}-{timepoints}-{groups}-MAGs.tsv",
+        ),
+    output:
+        os.path.join(
+            OUTDIR,
+            "scores",
+            "processed",
+            "combined",
+            "scores_{test_type}-{timepoints}-{groups}-{taxon}.tsv",
+        ),
+    params:
+        scriptPath=config["scripts"]["combine_scores"],
+    # log:
+    #     os.path.join(
+    #         config["logDir"],
+    #         "combine_scores",
+    #         "combine_scores_{test_type}-{timepoints}-{groups}-{taxon}.log",
+    #     ),
+    shell:
+        """
+        python {params.scriptPath} \
+            --input_df {input.combined} \
+            --group_by_column {wildcards.taxon} \
+            --out_fPath {output} 
+        """
+
+
+#####################################
+# Step 4.4: Gene scores
+#####################################
+
+
+rule gene_scores:
+    input:
+        pvalue_table=os.path.join(
+            OUTDIR,
+            "significanceAnalysis",
+            "significanceAnalysis_{timepoints}-{groups}",
+            "{mag}_{test_type}.tsv.gz",
+        ),
+        # pvalue_table=lambda wildcards: [
+        #     os.path.join(
+        #         OUTDIR,
+        #         "significanceAnalysis",
+        #         f"significanceAnalysis_{wildcards.timepoints}-{wildcards.groups}",
+        #         f"{mag}_{wildcards.test_type}.tsv.gz",
+        #     )
+        #     for tp, gp, mag in discovered_mags()
+        #     if tp == wildcards.timepoints and gp == wildcards.groups
+        # ],
+    output:
+        combined=os.path.join(
+            OUTDIR,
+            "scores",
+            "processed",
+            "gene_scores_{timepoints}-{groups}",
+            "{mag}-{test_type}_gene_scores_combined.tsv",
+        ),
+        individual=os.path.join(
+            OUTDIR,
+            "scores",
+            "processed",
+            "gene_scores_{timepoints}-{groups}",
+            "{mag}-{test_type}_gene_scores_individual.tsv",
+        ),
+        overlapping=os.path.join(
+            OUTDIR,
+            "scores",
+            "processed",
+            "gene_scores_{timepoints}-{groups}",
+            "{mag}-{test_type}_gene_scores_overlapping.tsv",
+        ),
+    params:
+        scriptPath=config["scripts"]["gene_scores"],  # Update with the actual path to your script
+        prefix="{mag}-{test_type}",
+        pValue_threshold=config.get("p_value_threshold", 0.05),
+        outDir=os.path.join(
+            OUTDIR, "scores", "processed", "gene_scores_{timepoints}-{groups}"
+        ),
+    # log:
+    #     os.path.join(
+    #         config["logDir"],
+    #         "gene_scores",
+    #         "{timepoints}-{groups}",
+    #         "gene_scores_{mag}-{test_type}.log",
+    #     ),
+    shell:
+        """
+        python {params.scriptPath} \
+            --pValue_table {input.pvalue_table} \
+            --pValue_threshold {params.pValue_threshold} \
             --output_dir {params.outDir} \
-            > {log} 2>&1
+            --prefix {params.prefix} \
         """

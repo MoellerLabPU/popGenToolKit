@@ -4,6 +4,7 @@ import logging
 import os
 
 import pandas as pd
+from utilities import calculate_score, extract_test_columns
 
 
 def read_gtdb(gtdb_fpath):
@@ -60,73 +61,7 @@ def parse_classification(classification_str):
     return taxon_dict
 
 
-def extract_test_columns(df):
-    p_value_columns = [col for col in df.columns if "p_value" in col]
-    # Check for NaNs in all p-value columns and drop
-    if df[p_value_columns].isnull().values.any():
-        raise ValueError("NaNs found in p-value column.")
-
-    test_columns_dict = {}
-
-    for col in p_value_columns:
-        if "p_value_" in col:
-            # Everything after 'p_value' is part of the test name
-            test_name = col.split("p_value_")[1]
-        else:
-            raise ValueError(
-                f"Column {col} does not contain 'p_value' in expected format."
-            )
-
-        test_columns_dict.setdefault(test_name, []).append(col)
-    logging.info(f"Detected tests: {test_columns_dict.keys()}")
-    return test_columns_dict
-
-
-def compute_significance_for_tests(
-    df, test_columns_dict, group_by_column, p_value_threshold=0.05
-):
-
-    grouped = df.groupby(group_by_column)
-    total_sites_per_group = grouped.size()
-
-    # Start with a base results DataFrame containing the group and total sites
-    merged_results = pd.DataFrame(
-        {
-            group_by_column: total_sites_per_group.index,
-            "total_sites_per_group": total_sites_per_group.values,
-        }
-    )
-
-    # Compute and merge each test's results
-    for test_name, test_cols in test_columns_dict.items():
-        significant_col = f"is_significant_{test_name}"
-        df[significant_col] = df[test_cols].lt(p_value_threshold).any(axis=1)
-
-        # Count how many are significant per group for this test
-        significant_sites_per_group = grouped[significant_col].sum()
-        percentage_significant = (
-            significant_sites_per_group / total_sites_per_group
-        ) * 100
-
-        test_result = pd.DataFrame(
-            {
-                group_by_column: total_sites_per_group.index,
-                f"significant_sites_per_group_{test_name}": significant_sites_per_group.values,
-                f"score_{test_name}": percentage_significant.values,
-            }
-        )
-
-        # Merge this test's result into the main DataFrame
-        merged_results = pd.merge(
-            merged_results,
-            test_result,
-            on=group_by_column,
-        )
-
-    return merged_results
-
-
-def calculate_significant_scores(df, group_by_column="MAG_ID", p_value_threshold=0.05):
+def get_scores(df, group_by_column="MAG_ID", p_value_threshold=0.05):
 
     allowed_columns = [
         "MAG_ID",
@@ -143,7 +78,7 @@ def calculate_significant_scores(df, group_by_column="MAG_ID", p_value_threshold
 
     test_columns_dict = extract_test_columns(df)
     # Compute significance scores for all tests and merge them
-    merged_results = compute_significance_for_tests(
+    merged_results = calculate_score(
         df, test_columns_dict, group_by_column, p_value_threshold
     )
 
@@ -161,21 +96,22 @@ def calculate_significant_scores(df, group_by_column="MAG_ID", p_value_threshold
 
     # Merge taxonomy into the final results
     final_table = pd.merge(
-        merged_results, group_taxonomy, on=group_by_column, how="inner"
+        merged_results, group_taxonomy, on=group_by_column, how="left"
     )
 
     # Reorder columns: taxonomy columns first, then total_sites_per_group, and all test columns
-    test_score_cols = [col for col in final_table.columns if col.startswith("score_")]
+    test_total_cols = [
+        c for c in final_table.columns if c.startswith("total_sites_per_group_")
+    ]
     test_sig_cols = [
         col
         for col in final_table.columns
         if col.startswith("significant_sites_per_group_")
     ]
+    test_score_cols = [col for col in final_table.columns if col.startswith("score_")]
+
     columns_order = (
-        relevant_taxa_columns
-        + ["total_sites_per_group"]
-        + test_sig_cols
-        + test_score_cols
+        relevant_taxa_columns + test_total_cols + test_sig_cols + test_score_cols
     )
     final_table = final_table[columns_order]
 
@@ -258,22 +194,21 @@ def main():
 
     logging.info("Reading p-value table.")
     pValue_table = pd.read_csv(args.pValue_table, sep="\t")
-    pValue_table["MAG_ID"] = pValue_table["contig"].str.split(".fa").str[0]
+    if "MAG_ID" not in pValue_table.columns:
+        pValue_table["MAG_ID"] = pValue_table["contig"].str.split(".fa").str[0]
 
     logging.info("Merging p-value table with GTDB taxonomy.")
-    merged_df = pd.merge(pValue_table, gtdb_df, on="MAG_ID", how="inner")
+    merged_df = pd.merge(pValue_table, gtdb_df, on="MAG_ID", how="left")
 
     logging.info("Calculating significance score.")
-    final_table = calculate_significant_scores(
-        merged_df, args.group_by_column, args.pValue_threshold
-    )
+    final_table = get_scores(merged_df, args.group_by_column, args.pValue_threshold)
     if not args.out_fPath:
         baseDir = os.path.dirname(args.pValue_table)
         outFpath = os.path.join(baseDir, f"significant_taxa_{args.group_by_column}.tsv")
     else:
         outFpath = args.out_fPath
 
-    logging.info("Writing results to file.")
+    logging.info(f"Writing results to file: {outFpath}")
     final_table.to_csv(outFpath, sep="\t", index=False)
 
 

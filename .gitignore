@@ -163,3 +163,4 @@ cython_debug/
 
 smk_workflow/.snakemake
 .snakemake
+smk_workflow/logs
