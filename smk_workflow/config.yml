@@ -8,6 +8,7 @@ scripts:
   scores: "/home/suppal/popGenToolKit/scripts/scores.py"
   combine_scores: "/home/suppal/popGenToolKit/scripts/scores_from_combined_table.py"
   gene_scores: "/home/suppal/popGenToolKit/scripts/gene_scores.py"
+  outlier_detection: "/home/suppal/popGenToolKit/scripts/outliers_genes.py"
 
 # Inputs
 bamDir: "/workdir1/sidd/for_sam/new_instrain/alignments"
@@ -35,7 +36,7 @@ breath_threshold: 0.1
 p_value_threshold: 0.05
 
 # Resources
-logDir: "/workdir1/sidd/src/profile_new/logs"
+# logDir: "/workdir1/sidd/src/snakemake/logs"
 cpus:
   profile: 8
   significance_test: 16

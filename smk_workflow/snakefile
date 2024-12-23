@@ -105,6 +105,20 @@ rule all:
                 "two_sample_unpaired",
             ]
         ],
+        lambda wildcards: [
+            os.path.join(
+                OUTDIR,
+                "outlier_genes",
+                f"{tp}-{gp}",
+                f"{mag}-{test_type}_outlier_genes.tsv",
+            )
+            for tp, gp, mag in discovered_mags()
+            for test_type in [
+                "single_sample",
+                "two_sample_paired",
+                "two_sample_unpaired",
+            ]
+        ],
 
 
 #####################################
@@ -489,4 +503,44 @@ rule gene_scores:
             --pValue_threshold {params.pValue_threshold} \
             --output_dir {params.outDir} \
             --prefix {params.prefix} \
+        """
+
+
+#####################################
+# Step 5: Idnetofy outlier genes
+#####################################
+
+
+rule analyze_outliers:
+    input:
+        mag_file=os.path.join(
+            OUTDIR,
+            "scores",
+            "intermediate",
+            "MAG_scores_{timepoints}-{groups}",
+            "{mag}_score_{test_type}.tsv",
+        ),
+        gene_file=os.path.join(
+            OUTDIR,
+            "scores",
+            "processed",
+            "gene_scores_{timepoints}-{groups}",
+            "{mag}-{test_type}_gene_scores_individual.tsv",
+        ),
+    output:
+        out_fPath=os.path.join(
+            OUTDIR,
+            "outlier_genes",
+            "{timepoints}-{groups}",
+            "{mag}-{test_type}_outlier_genes.tsv",
+        ),
+    params:
+        scriptPath=config["scripts"]["outlier_detection"],
+    shell:
+        """
+        python {params.scriptPath} \
+            --mag_file {input.mag_file} \
+            --mag_id {wildcards.mag} \
+            --gene_file {input.gene_file} \
+            --out_fPath {output.out_fPath}
         """
