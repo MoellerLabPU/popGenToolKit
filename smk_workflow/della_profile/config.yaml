@@ -4,7 +4,6 @@ executor: cluster-generic
 cluster-generic-submit-cmd:
   mkdir -p logs/`date +"%d-%m-%y"`/{rule} &&
   sbatch
-    --partition={resources.partition}
     --cpus-per-task={threads}
     --mem={resources.mem_mb}
     --time={resources.time}
@@ -13,9 +12,8 @@ cluster-generic-submit-cmd:
     --parsable
 
 default-resources:
-  - partition=regular
   - mem_mb=2000
-  - time="14-00:00:00"
+  - time="10:00:00"
 
 restart-times: 3
 max-jobs-per-second: 10

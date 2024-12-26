@@ -907,14 +907,12 @@ def main():
     data_list = [df for df in data_list if df is not None]
 
     if not data_list:
-        logging.info(
-            f"No samples for MAG {mag_id} passed the breadth threshold. Writing empty files and exiting..... :("
-        )
-        os.makedirs(args.output_dir, exist_ok=True)
-        nuc_fPath = os.path.join(
-            args.output_dir, f"{mag_id}_nucleotide_frequencies.tsv"
-        )
-        Path(nuc_fPath).touch()
+        logging.info(f"No samples for MAG {mag_id} passed the breadth threshold.")
+        # os.makedirs(args.output_dir, exist_ok=True)
+        # nuc_fPath = os.path.join(
+        #     args.output_dir, f"{mag_id}_nucleotide_frequencies.tsv"
+        # )
+        # Path(nuc_fPath).touch()
         return  # Exit the program
 
     data_dict = create_data_dict(data_list)

@@ -16,3 +16,4 @@ dependencies:
   - biopython
   - intervaltree
   - snakemake>=8.0.0
+  - snakemake-executor-plugin-cluster-generic
