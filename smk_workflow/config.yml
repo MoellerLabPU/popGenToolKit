@@ -16,7 +16,7 @@ fasta: "/workdir1/sidd/for_sam/new_instrain/redo_representative_megamag.fa"
 prodigal: "/workdir1/sidd/for_sam/new_instrain/prodigal_redo/redo_representative_megamag.fna"
 metadata_file: "/workdir1/sidd/for_sam/new_instrain/mouse_md_edit.txt"
 gtdb_file: "/workdir1/sidd/for_sam/gtdbtk.bac120.summary.tsv"
-mag_ids_file: /workdir1/sidd/for_sam/new_instrain/profiles_paired5/mag_list
+# mag_ids_file: /workdir1/sidd/for_sam/new_instrain/profiles_paired5/mag_list
 
 # Outputs
 root_out: "/workdir1/sidd/for_sam/new_instrain/profiles_paired5"
@@ -48,6 +48,6 @@ memory:
 time: # days-HH:MM:SS
   profile: "08:00:00"
   significance_test: "08:00:00"
-  general: "00:10:00"
+  general: "01:02:00"
 
 

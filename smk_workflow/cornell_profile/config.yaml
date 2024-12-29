@@ -14,10 +14,10 @@ cluster-generic-submit-cmd:
 
 default-resources:
   - partition=regular
-  - mem_mb=2000
+  - mem_mb=4000
   - time="14-00:00:00"
 
-restart-times: 3
+restart-times: 1
 max-jobs-per-second: 10
 max-status-checks-per-second: 1
 latency-wait: 60

@@ -46,6 +46,11 @@ def discovered_mags():
         return results
 
 
+localrules:
+    all,
+    find_mags,
+
+
 rule all:
     input:
         expand(os.path.join(OUTDIR, "profiles", "{sample}.sorted"), sample=samples),
