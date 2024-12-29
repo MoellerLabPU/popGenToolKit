@@ -4,6 +4,7 @@ channels:
   - bioconda
   - defaults
 dependencies:
+  - python
   - numpy
   - pandas
   - scipy
@@ -11,3 +12,8 @@ dependencies:
   - statsmodels
   - seaborn
   - tqdm
+  - pysam
+  - biopython
+  - intervaltree
+  - snakemake>=8.0.0
+  - snakemake-executor-plugin-cluster-generic

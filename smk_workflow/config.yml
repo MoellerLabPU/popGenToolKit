@@ -1,0 +1,53 @@
+# config.yml
+
+# Script paths
+scripts:
+  profile: "/home/suppal/popGenToolKit/scripts/profile_mags.py"
+  generate_mag_metadata: "/home/suppal/popGenToolKit/scripts/generate_mag_metadata.py"
+  significance_test: "/home/suppal/popGenToolKit/scripts/analyze_allele_freq.py"
+  scores: "/home/suppal/popGenToolKit/scripts/scores.py"
+  combine_scores: "/home/suppal/popGenToolKit/scripts/scores_from_combined_table.py"
+  gene_scores: "/home/suppal/popGenToolKit/scripts/gene_scores.py"
+  outlier_detection: "/home/suppal/popGenToolKit/scripts/outliers_genes.py"
+
+# Inputs
+bamDir: "/workdir1/sidd/for_sam/new_instrain/alignments"
+fasta: "/workdir1/sidd/for_sam/new_instrain/redo_representative_megamag.fa"
+prodigal: "/workdir1/sidd/for_sam/new_instrain/prodigal_redo/redo_representative_megamag.fna"
+metadata_file: "/workdir1/sidd/for_sam/new_instrain/mouse_md_edit.txt"
+gtdb_file: "/workdir1/sidd/for_sam/gtdbtk.bac120.summary.tsv"
+# mag_ids_file: /workdir1/sidd/for_sam/new_instrain/profiles_paired5/mag_list
+
+# Outputs
+root_out: "/workdir1/sidd/for_sam/new_instrain/profiles_paired5"
+
+# Parameters
+timepoints_combinations:
+  - ["pre", "end"]
+  - ["end", "post"]
+
+groups_combinations:
+  - ["fat", "control"]
+
+min_sample_num: 4
+breath_threshold: 0.1
+
+# group_by_column: "MAG_ID"
+p_value_threshold: 0.05
+
+# Resources
+# logDir: "/workdir1/sidd/src/snakemake/logs"
+cpus:
+  profile: 8
+  significance_test: 16
+
+memory:
+  profile: 10000 # 10 GB
+  significance_test: 100000 # 100 GB
+
+time: # days-HH:MM:SS
+  profile: "08:00:00"
+  significance_test: "08:00:00"
+  general: "01:02:00"
+
+
