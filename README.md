@@ -36,4 +36,12 @@ Now you are ready to run the workflow !
 
 1. You only really need to edit `/popGenToolKit/smk_workflow/config.yml` to be able to run the workflow. Change the paths to the scripts, file and any input parameters.
 2. Make sure that the correct environment is activate ie. `popgenToolkit` and you're in `/popGenToolKit/smk_workflow` directory.
-3. To run the worklow do, `snakemake --profile cornell_profile` and let the magic happen magic happen 🪄 👨‍🔬 👩‍🔬 !
+3. To run the workflow do, `snakemake --profile cornell_profile` and let the magic happen 🪄 👨‍🔬 👩‍🔬 !
+
+## 📁 Input files format 📁 ##
+
+- **bamDir**: Directory with sorted and indexed `bam` files. The files should have the name in the format `<sampleID>.sorted.bam` and `<sampleID>.sorted.bam.bai`.
+- **fasta**: A big combined FASTA file of all the contigs making up the representative MAGs that are assumed to be present in the samples. The FASTA header should have the format `<MAG_ID>.fa_<contig_ID>`.
+- **prodigal**: nucleic acid ORFs predictions by Prodigal of the above **fasta** file. NOTE that it's important that prodigal is run on the above **fasta** file for the IDs to match properly.
+- **metadata_file**: Metadata file with the following columns: `sample_id` (should match the sampleID used in **bamDir**), `replicate`, `subjectID`, `time`, `group`.
+- **gtdb_file**: Path to the `gtdbtk.bac120.summary.tsv` output file produced by GTDB-Tk.
