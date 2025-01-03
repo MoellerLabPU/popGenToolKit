@@ -116,7 +116,7 @@ rule profile:
         fasta=config["fasta"],
         prodigal=config["prodigal"],
     output:
-        directory(os.path.join(OUTDIR, "profiles", "{sample}.sorted")),
+        sampleDirs=directory(os.path.join(OUTDIR, "profiles", "{sample}.sorted")),
     threads: config["cpus"]["profile"]
     resources:
         mem_mb=config["memory"]["profile"],
@@ -147,8 +147,11 @@ rule profile:
 
 rule generate_metadata:
     input:
-        rootDir=os.path.join(OUTDIR, "profiles"),
         metadata=config["metadata_file"],
+        # This enures that generate_metadata is run after all samples are profiled
+        sampleDirs=expand(
+            os.path.join(OUTDIR, "profiles", "{sample}.sorted"), sample=samples
+        ),
     output:
         outDir=directory(
             os.path.join(
@@ -156,6 +159,7 @@ rule generate_metadata:
             )
         ),
     params:
+        rootDir=os.path.join(OUTDIR, "profiles"),
         scriptPath=config["scripts"]["generate_mag_metadata"],
     resources:
         time=config["time"]["general"],
@@ -170,7 +174,7 @@ rule generate_metadata:
         G2=$(echo {wildcards.groups} | cut -d'_' -f2)
 
         python {params.scriptPath} \
-            --rootDir {input.rootDir} \
+            --rootDir {params.rootDir} \
             --metadata {input.metadata} \
             --outDir {output.outDir} \
             --timepoints $TP1 $TP2 \
