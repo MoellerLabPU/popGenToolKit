@@ -276,3 +276,28 @@ class TestPairwiseAniCLI(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestEnumeratePairs(unittest.TestCase):
+    """Direct unit tests for ``enumerate_pairs`` (no subprocess): a two-mouse,
+    three-timepoint roster where mouse m2 was never sampled at 10mo."""
+
+    ROSTER = pd.DataFrame({
+        "sample_id": ["S1", "S2", "S3", "S4", "S5"],
+        "subjectID": ["m1", "m2", "m1", "m2", "m1"],
+        "time":      ["5mo", "5mo", "10mo", "16mo", "16mo"],
+    })
+
+    def test_transitions_pair_each_mouse_across_the_configured_timepoints(self):
+        from alleleflux.scripts.analysis.ani.pairwise_ani import enumerate_pairs
+        pairs = enumerate_pairs(self.ROSTER, "transitions", [("5mo", "10mo"), ("5mo", "16mo")])
+        # m1: 5mo->10mo (S1,S3) and 5mo->16mo (S1,S5); m2 only has 5mo->16mo (S2,S4).
+        # No later-vs-later pair (S3,S5), which within_subject WOULD emit.
+        self.assertEqual(pairs, [("S1", "S3"), ("S1", "S5"), ("S2", "S4")])
+
+    def test_two_samples_for_one_mouse_at_one_timepoint_is_an_error(self):
+        from alleleflux.scripts.analysis.ani.pairwise_ani import enumerate_pairs
+        roster = pd.concat([self.ROSTER, pd.DataFrame(
+            {"sample_id": ["S6"], "subjectID": ["m1"], "time": ["5mo"]})])
+        with self.assertRaisesRegex(ValueError, "m1.*5mo"):
+            enumerate_pairs(roster, "transitions", [("5mo", "10mo")])

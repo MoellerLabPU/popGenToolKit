@@ -51,7 +51,6 @@ Method credit: Olm et al. 2021, Nat Biotechnol, doi:10.1038/s41587-020-00797-0.
 
 import argparse
 import itertools
-from collections import defaultdict
 import logging
 import math
 import multiprocessing
@@ -154,20 +153,28 @@ def enumerate_pairs(
     if "time" not in samples_df.columns:
         raise ValueError("--pairs transitions requires a time column in the QC file")
     time_of = dict(zip(samples_df["sample_id"].astype(str), samples_df["time"].astype(str)))
-    # Index samples by (mouse, timepoint) so each transition is a direct lookup:
-    # for every mouse, every sample at EARLIER pairs with every sample at LATER
-    # (normally exactly one of each).
-    at = defaultdict(list)
+    # One sample per (mouse, timepoint).  A mouse sampled twice at the same
+    # timepoint has no single "before" or "after" and is a roster error, so raise
+    # rather than silently pairing both (0 such cases in DRiDO's 2,250 samples).
+    sample_at: dict[tuple[str, str], str] = {}
     for sample in sample_ids:
-        at[(subject_of[sample], time_of[sample])].append(sample)
+        key = (subject_of[sample], time_of[sample])
+        if key in sample_at:
+            raise ValueError(
+                f"Mouse {key[0]} has two samples at timepoint {key[1]}: "
+                f"{sample_at[key]} and {sample}"
+            )
+        sample_at[key] = sample
+
+    # For every transition and every mouse: if the mouse has a sample at BOTH the
+    # earlier and the later timepoint, that is one pair; otherwise nothing.
     pairs = set()
     for earlier, later in transitions:
-        for (subject, time), samples_here in at.items():
-            if time != earlier:
-                continue
-            for sample_a in samples_here:
-                for sample_b in at.get((subject, later), []):
-                    pairs.add(tuple(sorted((sample_a, sample_b))))  # sample1 < sample2
+        for subject in set(subject_of.values()):
+            before = sample_at.get((subject, earlier))
+            after = sample_at.get((subject, later))
+            if before is not None and after is not None:
+                pairs.add(tuple(sorted((before, after))))  # sample1 < sample2
     return sorted(pairs)
 
 
