@@ -97,6 +97,17 @@ class TestCallTransitions(unittest.TestCase):
                     "dominant_strain_change", "frequency_shift", "background"):
             self.assertIn(col, got.columns)
 
+    def test_group_or_replicate_mismatch_within_a_mouse_raises(self):
+        # A pair is one mouse at two times; its diet group and replicate cannot differ.
+        row = _pair_row("A1", "A2", "m1", "5mo", "22mo", 0.999999, 0.8)
+        row["group_2"] = "20"                                   # group_1 is "40"
+        with self.assertRaisesRegex(ValueError, "group"):
+            self._call([row])
+        row = _pair_row("A1", "A2", "m1", "5mo", "22mo", 0.999999, 0.8)
+        row["replicate_2"] = "2"
+        with self.assertRaisesRegex(ValueError, "replicate"):
+            self._call([row])
+
     def test_rejects_degenerate_transition(self):
         with self.assertRaises(ValueError):
             call_transitions(pd.DataFrame([_pair_row("A", "B", "m", "5mo", "22mo", 1.0, 1.0)]),
@@ -198,3 +209,142 @@ class TestAllelesPresentAt(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# ---------------------------------------------------------------------------
+# End-to-end: the ``alleleflux-strain-turnover`` command
+# ---------------------------------------------------------------------------
+import gzip
+import os
+import shutil
+import subprocess
+import tempfile
+
+PROFILE_HEADER = "contig\tposition\tref_base\ttotal_coverage\tA\tC\tG\tT\tN\tgene_id\n"
+
+
+def _write_profile(directory, sample, mag, rows):
+    """rows: (contig, position, ref, A, C, G, T, gene_id)."""
+    sample_dir = os.path.join(directory, sample)
+    os.makedirs(sample_dir, exist_ok=True)
+    with gzip.open(os.path.join(sample_dir, f"{sample}_{mag}_profiled.tsv.gz"), "wt") as handle:
+        handle.write(PROFILE_HEADER)
+        for contig, pos, ref, a, c, g, t, gene in rows:
+            handle.write(f"{contig}\t{pos}\t{ref}\t{a + c + g + t}\t{a}\t{c}\t{g}\t{t}\t0\t{gene}\n")
+
+
+class TestStrainTurnoverCLI(unittest.TestCase):
+    """Runs the REAL pairwise-ANI command to make the pair table, then the
+    turnover command on top of it (both via ``conda run``-installed scripts).
+
+    Two mice over a 6 bp contig, transition pre -> end:
+      m1 (fat):     S1 pre = 20 A everywhere; S3 end = same except position 2
+                    is 14 A + 6 C (a NEW allele at 30 %) and position 5 has 2
+                    reads (below min_cov).  -> stable background, 1 candidate.
+      m2 (control): S2 pre = 20 A everywhere; S4 end = 20 G everywhere.
+                    -> every compared base a fixed difference: strain_replacement
+                    + dominant_strain_change, NOT scanned.
+    """
+    MAG = "MAG_T"
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp()
+        self.profiles = os.path.join(self.tmp, "profiles")
+        self.pairwise = os.path.join(self.tmp, "pairwise")
+        self.out = os.path.join(self.tmp, "turnover")
+        A = lambda p, gene="g1": ("c1", p, "A", 20, 0, 0, 0, gene)
+        _write_profile(self.profiles, "S1", self.MAG, [A(p) for p in range(6)])
+        _write_profile(self.profiles, "S3", self.MAG,
+                       [A(0), A(1), ("c1", 2, "A", 14, 6, 0, 0, "g1"), A(3), A(4), ("c1", 5, "A", 2, 0, 0, 0, "")])
+        _write_profile(self.profiles, "S2", self.MAG, [A(p) for p in range(6)])
+        _write_profile(self.profiles, "S4", self.MAG, [("c1", p, "A", 0, 0, 20, 0, "g1") for p in range(6)])
+        self.qc = os.path.join(self.tmp, f"{self.MAG}_QC.tsv")
+        pd.DataFrame({
+            "sample_id": ["S1", "S2", "S3", "S4"], "MAG_ID": [self.MAG] * 4, "file_path": ["x"] * 4,
+            "group": ["fat", "control", "fat", "control"], "subjectID": ["m1", "m2", "m1", "m2"],
+            "replicate": ["r1", "r2", "r1", "r2"], "time": ["pre", "pre", "end", "end"],
+            "genome_size": [6] * 4, "breadth": [1.0] * 4, "coverage_threshold_passed": [True] * 4,
+        }).to_csv(self.qc, sep="\t", index=False)
+        self.fasta = os.path.join(self.tmp, "ref.fa")
+        with open(self.fasta, "w") as handle:
+            handle.write(">c1\nAAAAAA\n")
+        with open(self.fasta + ".fai", "w") as handle:
+            handle.write("c1\t6\t4\t6\t7\n")
+        self.mag_mapping = os.path.join(self.tmp, "mag_mapping.tsv")
+        pd.DataFrame({"mag_id": [self.MAG], "contig_id": ["c1"]}).to_csv(self.mag_mapping, sep="\t", index=False)
+        # The pair table this command consumes, made by the real upstream command.
+        done = subprocess.run([
+            "alleleflux-pairwise-ani", "--mag", self.MAG, "--profiles_dir", self.profiles,
+            "--qc_files", self.qc, "--fasta", self.fasta, "--mag_mapping", self.mag_mapping,
+            "--output_dir", self.pairwise, "--pairs", "transitions", "--transitions", "pre:end",
+        ], capture_output=True, text=True)
+        self.assertEqual(done.returncode, 0, done.stderr)
+
+    def tearDown(self):
+        shutil.rmtree(self.tmp)
+
+    def _run(self, *extra):
+        return subprocess.run([
+            "alleleflux-strain-turnover", "--mag", self.MAG,
+            "--pair_table", os.path.join(self.pairwise, f"{self.MAG}_pairwise_ani.tsv"),
+            "--profiles_dir", self.profiles, "--fasta", self.fasta, "--mag_mapping", self.mag_mapping,
+            "--output_dir", self.out, "--transitions", "pre:end", *extra,
+        ], capture_output=True, text=True)
+
+    def _read(self, suffix, **kw):
+        return pd.read_csv(os.path.join(self.out, f"{self.MAG}{suffix}"), sep="\t", **kw)
+
+    def test_turnover_table_has_one_row_per_mouse_with_both_verdicts(self):
+        done = self._run()
+        self.assertEqual(done.returncode, 0, done.stderr)
+        table = self._read("_strain_turnover.tsv").set_index("subjectID")
+        self.assertEqual(sorted(table.index), ["m1", "m2"])
+        m1, m2 = table.loc["m1"], table.loc["m2"]
+        self.assertEqual((m1.sample_t1, m1.sample_t2, m1.transition), ("S1", "S3", "pre_end"))
+        self.assertEqual(m1.background, "stable")
+        self.assertEqual((int(m1.n_absent), int(m1.n_below_detection), int(m1.n_de_novo)), (1, 0, 1))
+        self.assertEqual(m2.background, "strain_replacement+dominant_strain_change")
+        self.assertTrue(bool(m2.strain_replacement) and bool(m2.dominant_strain_change))
+        self.assertTrue(pd.isna(m2.n_de_novo))          # not scanned -> blank, not 0
+        # provenance stamped on every row
+        self.assertEqual((float(m1.min_compared), float(m1.pop_threshold), float(m1.con_threshold), int(m1.min_cov)),
+                         (0.1, 0.99999, 0.999, 5))
+        self.assertEqual(m1.replicate, "r1")
+
+    def test_candidates_file_has_the_new_allele_with_gene_and_counts(self):
+        self._run()
+        cand = self._read("_de_novo_candidates.tsv.gz")
+        self.assertEqual(len(cand), 1)
+        row = cand.iloc[0]
+        self.assertEqual((row.subjectID, row.group, row.transition, row.contig, int(row.position), row.base),
+                         ("m1", "fat", "pre_end", "c1", 2, "C"))
+        self.assertEqual(row.gene_id, "g1")
+        self.assertEqual((int(row.t1_reads), int(row.t1_threshold), row.t1_evidence), (0, 3, "absent"))
+        self.assertEqual((int(row.t2_reads), float(row.freq_t2)), (6, 0.3))
+        self.assertEqual([int(row[c]) for c in ("A_t1", "C_t1", "G_t1", "T_t1", "coverage_t1")], [20, 0, 0, 0, 20])
+        self.assertEqual([int(row[c]) for c in ("A_t2", "C_t2", "G_t2", "T_t2", "coverage_t2")], [14, 6, 0, 0, 20])
+        self.assertFalse(bool(row.t2_consensus) or bool(row.fully_replaced))
+
+    def test_rollup_keeps_groups_separate(self):
+        self._run()
+        roll = self._read("_turnover_rollup.tsv").set_index("group")
+        fat, control = roll.loc["fat"], roll.loc["control"]
+        self.assertEqual((int(fat.n_pairs), int(fat.n_stable), int(fat.n_both)), (1, 1, 0))
+        self.assertEqual((int(fat.n_absent), int(fat.n_below_detection), int(fat.n_de_novo)), (1, 0, 1))
+        # 1 de novo over the 5 compared bases of the one scanned pair
+        self.assertAlmostEqual(float(fat.de_novo_per_mb), 1 / 5 * 1e6)
+        self.assertEqual((int(control.n_pairs), int(control.n_both), int(control.n_stable)), (1, 1, 0))
+        self.assertTrue(pd.isna(control.de_novo_per_mb))   # nothing scanned in this group
+
+    def test_min_cov_must_match_the_pair_table(self):
+        done = self._run("--min_cov", "4")
+        self.assertNotEqual(done.returncode, 0)
+        self.assertIn("min_cov", done.stderr)
+
+    def test_no_matching_transition_gives_header_only_outputs(self):
+        done = self._run("--transitions", "pre:post")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        for suffix in ("_strain_turnover.tsv", "_de_novo_candidates.tsv.gz", "_turnover_rollup.tsv"):
+            table = self._read(suffix)
+            self.assertEqual(len(table), 0, suffix)
+            self.assertGreater(len(table.columns), 5, suffix)

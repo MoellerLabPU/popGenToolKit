@@ -61,6 +61,7 @@ alleleflux-cmh-scores = "alleleflux.scripts.analysis.scoring.cmh_scores:main"
 alleleflux-regional-contrast = "alleleflux.scripts.analysis.regional_contrast:main"
 alleleflux-regional-contrast-summary = "alleleflux.scripts.preprocessing.regional_contrast_summary:main"
 alleleflux-pairwise-ani = "alleleflux.scripts.analysis.ani.pairwise_ani:main"
+alleleflux-strain-turnover = "alleleflux.scripts.analysis.ani.strain_turnover:main"
 
 # Preprocessing scripts
 alleleflux-metadata = "alleleflux.scripts.preprocessing.mag_metadata:main"
