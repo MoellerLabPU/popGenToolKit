@@ -9,11 +9,7 @@ import numpy as np
 import pandas as pd
 
 from alleleflux.scripts.analysis.ani.null_model import build_error_model
-from alleleflux.scripts.analysis.ani.strain_turnover import (
-    alleles_present_at,
-    call_transitions,
-    scan_for_new_alleles,
-)
+from alleleflux.scripts.analysis.ani.strain_turnover import alleles_present_at, call_transitions
 
 # Q30 / FDR 1e-6: threshold is 3 reads for coverages 5..99 (see null_model docs).
 MODEL = build_error_model(min_base_quality=30, fdr=1e-6)
@@ -122,80 +118,6 @@ def _dense(rows, length):
     return arr
 
 
-class TestScanForNewAlleles(unittest.TestCase):
-    """One mouse, baseline (t1) vs later (t2) dense counts; min_freq 5 %, min_cov 5."""
-
-    def _scan(self, t1, t2, length=1):
-        return scan_for_new_alleles(_dense({0: t1}, length), _dense({0: t2}, length), MODEL, 0.05, 5)
-
-    def test_new_minor_allele_without_majority_flip(self):
-        """The case no SNP table can show: A stays consensus, C appears at 20 %."""
-        got = self._scan((30, 0, 0, 0), (24, 6, 0, 0), length=2)
-        self.assertEqual(list(got["position"]), [0])
-        self.assertEqual(list(got["base"]), ["C"])
-        self.assertEqual(list(got["t1_reads"]), [0])
-        self.assertEqual(list(got["t1_threshold"]), [int(MODEL[30])])
-        self.assertEqual(list(got["t1_evidence"]), ["absent"])
-        self.assertEqual(list(got["fully_replaced"]), [False])
-        self.assertEqual(list(got["t2_consensus"]), [False])          # A still leads at t2
-        self.assertEqual(list(got["t2_reads"]), [6])
-        self.assertEqual(list(got["t2_threshold"]), [int(MODEL[30])])
-        self.assertAlmostEqual(float(got["freq_t1"][0]), 0.0)
-        self.assertAlmostEqual(float(got["freq_t2"][0]), 0.2)
-
-    def test_full_sweep_is_flagged(self):
-        got = self._scan((30, 0, 0, 0), (0, 28, 0, 0))
-        self.assertEqual(list(got["fully_replaced"]), [True])
-        self.assertEqual(list(got["t1_evidence"]), ["absent"])
-
-    def test_majority_flip_with_old_allele_still_present_is_not_fully_replaced(self):
-        # C takes over but A (5/30 = 17 %) is still present at t2 -> shared allele.
-        got = self._scan((30, 0, 0, 0), (5, 25, 0, 0))
-        self.assertEqual(list(got["base"]), ["C"])
-        self.assertEqual(list(got["fully_replaced"]), [False])
-        self.assertEqual(list(got["t2_consensus"]), [True])           # ...but C IS the majority now
-
-    def test_thin_t1_majority_is_not_reported_as_new(self):
-        # A has 2 of 5 reads at t1 (bar 3): fails presence but IS the consensus -> credible.
-        got = self._scan((2, 1, 1, 1), (30, 0, 0, 0))
-        self.assertEqual(len(got["position"]), 0)
-
-    def test_below_min_cov_positions_are_never_scanned(self):
-        got = self._scan((3, 0, 0, 0), (10, 10, 0, 0))
-        self.assertEqual(len(got["position"]), 0)
-
-    def test_allele_already_present_at_t1_is_not_new(self):
-        # C had 5 of 25 at t1 (bar 3, 20 %) -> present -> credible -> not new.
-        got = self._scan((20, 5, 0, 0), (18, 9, 0, 0))
-        self.assertEqual(len(got["position"]), 0)
-
-    def test_one_read_short_at_t1_is_below_detection(self):
-        """t1 has 1 C read of 30 (bar 3): not credible, reported, and labelled so."""
-        got = self._scan((29, 1, 0, 0), (24, 6, 0, 0))
-        self.assertEqual(list(got["base"]), ["C"])
-        self.assertEqual(list(got["t1_reads"]), [1])
-        self.assertEqual(list(got["t1_threshold"]), [3])
-        self.assertEqual(list(got["t1_evidence"]), ["below_detection"])
-
-    def test_under_five_percent_at_t1_is_below_detection(self):
-        # 4 of 100 passes the bar (4 at 100x) but fails the 5 % floor.
-        got = self._scan((96, 4, 0, 0), (80, 20, 0, 0))
-        self.assertEqual(list(got["t1_evidence"]), ["below_detection"])
-        self.assertEqual(list(got["t1_reads"]), [4])
-
-    def test_raw_rows_ride_along(self):
-        got = self._scan((30, 0, 0, 0), (24, 6, 0, 0))
-        self.assertEqual(got["counts_t1_rows"].tolist(), [[30, 0, 0, 0]])
-        self.assertEqual(got["counts_t2_rows"].tolist(), [[24, 6, 0, 0]])
-        self.assertEqual((list(got["coverage_t1"]), list(got["coverage_t2"])), ([30], [30]))
-
-    def test_empty_result_has_every_key(self):
-        got = self._scan((30, 0, 0, 0), (30, 0, 0, 0))
-        for key in ("position", "base", "t1_reads", "t1_threshold", "t1_evidence", "freq_t1",
-                    "t2_reads", "t2_threshold", "freq_t2", "t2_consensus", "fully_replaced", "counts_t1_rows", "coverage_t1", "counts_t2_rows", "coverage_t2"):
-            self.assertEqual(len(got[key]), 0, key)
-
-
 class TestAllelesPresentAt(unittest.TestCase):
     def test_presence_lookup_at_named_positions(self):
         dense = _dense({0: (30, 0, 0, 0), 2: (24, 6, 0, 0)}, 3)
@@ -240,10 +162,10 @@ class TestStrainTurnoverCLI(unittest.TestCase):
     Two mice over a 6 bp contig, transition pre -> end:
       m1 (fat):     S1 pre = 20 A everywhere; S3 end = same except position 2
                     is 14 A + 6 C (a NEW allele at 30 %) and position 5 has 2
-                    reads (below min_cov).  -> stable background, 1 candidate.
+                    reads (below min_cov).  -> stable background.
       m2 (control): S2 pre = 20 A everywhere; S4 end = 20 G everywhere.
                     -> every compared base a fixed difference: strain_replacement
-                    + dominant_strain_change, NOT scanned.
+                    + dominant_strain_change.
     """
     MAG = "MAG_T"
 
@@ -287,7 +209,6 @@ class TestStrainTurnoverCLI(unittest.TestCase):
         return subprocess.run([
             "alleleflux-strain-turnover", "--mag", self.MAG,
             "--pair_table", os.path.join(self.pairwise, f"{self.MAG}_pairwise_ani.tsv"),
-            "--profiles_dir", self.profiles, "--fasta", self.fasta, "--mag_mapping", self.mag_mapping,
             "--output_dir", self.out, "--transitions", "pre:end", *extra,
         ], capture_output=True, text=True)
 
@@ -302,49 +223,29 @@ class TestStrainTurnoverCLI(unittest.TestCase):
         m1, m2 = table.loc["m1"], table.loc["m2"]
         self.assertEqual((m1.sample_t1, m1.sample_t2, m1.transition), ("S1", "S3", "pre_end"))
         self.assertEqual(m1.background, "stable")
-        self.assertEqual((int(m1.n_absent), int(m1.n_below_detection), int(m1.n_de_novo)), (1, 0, 1))
         self.assertEqual(m2.background, "strain_replacement+dominant_strain_change")
         self.assertTrue(bool(m2.strain_replacement) and bool(m2.dominant_strain_change))
-        self.assertTrue(pd.isna(m2.n_de_novo))          # not scanned -> blank, not 0
-        # provenance stamped on every row
+        # provenance stamped on every row; min_cov is the PAIR TABLE's value, carried over
         self.assertEqual((float(m1.min_compared), float(m1.pop_threshold), float(m1.con_threshold), int(m1.min_cov)),
                          (0.1, 0.99999, 0.999, 5))
         self.assertEqual(m1.replicate, "r1")
-
-    def test_candidates_file_has_the_new_allele_with_gene_and_counts(self):
-        self._run()
-        cand = self._read("_de_novo_candidates.tsv.gz")
-        self.assertEqual(len(cand), 1)
-        row = cand.iloc[0]
-        self.assertEqual((row.subjectID, row.group, row.transition, row.contig, int(row.position), row.base),
-                         ("m1", "fat", "pre_end", "c1", 2, "C"))
-        self.assertEqual(row.gene_id, "g1")
-        self.assertEqual((int(row.t1_reads), int(row.t1_threshold), row.t1_evidence), (0, 3, "absent"))
-        self.assertEqual((int(row.t2_reads), float(row.freq_t2)), (6, 0.3))
-        self.assertEqual([int(row[c]) for c in ("A_t1", "C_t1", "G_t1", "T_t1", "coverage_t1")], [20, 0, 0, 0, 20])
-        self.assertEqual([int(row[c]) for c in ("A_t2", "C_t2", "G_t2", "T_t2", "coverage_t2")], [14, 6, 0, 0, 20])
-        self.assertFalse(bool(row.t2_consensus) or bool(row.fully_replaced))
 
     def test_rollup_keeps_groups_separate(self):
         self._run()
         roll = self._read("_turnover_rollup.tsv").set_index("group")
         fat, control = roll.loc["fat"], roll.loc["control"]
         self.assertEqual((int(fat.n_pairs), int(fat.n_stable), int(fat.n_both)), (1, 1, 0))
-        self.assertEqual((int(fat.n_absent), int(fat.n_below_detection), int(fat.n_de_novo)), (1, 0, 1))
-        # 1 de novo over the 5 compared bases of the one scanned pair
-        self.assertAlmostEqual(float(fat.de_novo_per_mb), 1 / 5 * 1e6)
+        self.assertAlmostEqual(float(fat.median_percent_genome_compared), 5 / 6)
         self.assertEqual((int(control.n_pairs), int(control.n_both), int(control.n_stable)), (1, 1, 0))
-        self.assertTrue(pd.isna(control.de_novo_per_mb))   # nothing scanned in this group
-
-    def test_min_cov_must_match_the_pair_table(self):
-        done = self._run("--min_cov", "4")
-        self.assertNotEqual(done.returncode, 0)
-        self.assertIn("min_cov", done.stderr)
+        # the five buckets partition the pairs
+        for row in (fat, control):
+            self.assertEqual(int(row.n_undetermined + row.n_stable + row.n_strain_replacement
+                                 + row.n_dominant_strain_change + row.n_both), int(row.n_pairs))
 
     def test_no_matching_transition_gives_header_only_outputs(self):
         done = self._run("--transitions", "pre:post")
         self.assertEqual(done.returncode, 0, done.stderr)
-        for suffix in ("_strain_turnover.tsv", "_de_novo_candidates.tsv.gz", "_turnover_rollup.tsv"):
+        for suffix in ("_strain_turnover.tsv", "_turnover_rollup.tsv"):
             table = self._read(suffix)
             self.assertEqual(len(table), 0, suffix)
             self.assertGreater(len(table.columns), 5, suffix)
