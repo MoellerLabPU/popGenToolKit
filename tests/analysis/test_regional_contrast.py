@@ -17,7 +17,11 @@ from alleleflux.scripts.analysis.regional_contrast import (
     FISHER_PVAL_TREATMENT_COL,
     _fisher_merge_keys,
     aggregate_region_scores,
+    build_gene_regions,
     fisher_combine_empirical_pvalues,
+    load_input_table,
+    reshape_treatment_control,
+    write_outputs,
 )
 from alleleflux.scripts.analysis.regional_contrast import (
     test_region_contrasts as run_region_contrasts,
@@ -136,3 +140,160 @@ def test_summary_fisher_merge_joins_on_region_keys_only():
     assert FISHER_PVAL_TREATMENT_COL in merged.columns
     assert "n_replicates" in merged.columns  # summary payload preserved
     assert "n_replicates_treatment" in merged.columns  # fisher payload carried along
+
+
+def test_write_outputs_emits_empty_file_for_absent_region_type(tmp_path):
+    """Every --mode-expected per-type summary file must be written.
+
+    A MAG with no surviving window regions must still produce a
+    ``*_window_region_summary.tsv`` (empty, with header) so the Snakemake rule's
+    declared outputs all exist — otherwise the job fails with MissingOutputException.
+    """
+    per_host = pd.DataFrame(
+        {
+            "replicate": [1, 2],
+            "region_id": ["g1", "g1"],
+            "region_type": ["gene", "gene"],
+            "region_score": [0.1, 0.2],
+        }
+    )
+    summary = pd.DataFrame(
+        {
+            "region_id": ["g1"],
+            "region_type": ["gene"],  # note: no "window" rows
+            "n_replicates": [2],
+            "mean_contrast": [0.1],
+            "median_contrast": [0.1],
+            "p_value_wilcoxon_greater": [0.5],
+            "p_value_wilcoxon_less": [0.5],
+        }
+    )
+
+    write_outputs(
+        per_host,
+        summary,
+        output_dir=tmp_path,
+        prefix="rc",
+        region_types=["gene", "window"],
+    )
+
+    gene_path = tmp_path / "rc_gene_region_summary.tsv"
+    window_path = tmp_path / "rc_window_region_summary.tsv"
+    # Both files exist even though summary_df has no window rows.
+    assert gene_path.exists()
+    assert window_path.exists()
+
+    gene_df = pd.read_csv(gene_path, sep="\t")
+    window_df = pd.read_csv(window_path, sep="\t")
+    assert len(gene_df) == 1
+    assert len(window_df) == 0  # empty subset
+    # Empty file still carries the full header (same schema as the summary).
+    assert list(window_df.columns) == list(summary.columns)
+
+
+# ── null gene_id must never become the literal string "<NA>" ─────────────
+#
+# Production bug: load_input_table coerced the parquet gene_id column with
+# .astype(str).  On a nullable/pyarrow string column that renders every null as
+# the *string* "<NA>", which passes build_gene_regions' notna() guard.  Every
+# unannotated site on a contig then collapsed into one pseudo-gene sharing the
+# id "<NA>" across all contigs, and because reshape_treatment_control merged on
+# region_id without contig, the treatment×control join fanned out to
+# N_contigs**2 rows per host — inflating n_replicates from 3 to 458.
+
+
+def _write_parquet_with_null_genes(tmp_path):
+    """Parquet whose gene_id column is pyarrow-backed with real nulls."""
+    df = pd.DataFrame(
+        {
+            "replicate": [1, 1, 2, 2],
+            "group": ["fat", "control", "fat", "control"],
+            "contig": ["c1", "c1", "c2", "c2"],
+            "position": [10, 10, 20, 20],
+            "gene_id": pd.array(["g1", None, None, "g2"], dtype="string[pyarrow]"),
+            "A_frequency_diff_mean": [0.1, 0.2, 0.3, 0.4],
+            "T_frequency_diff_mean": [0.0, 0.0, 0.0, 0.0],
+            "G_frequency_diff_mean": [0.0, 0.0, 0.0, 0.0],
+            "C_frequency_diff_mean": [0.0, 0.0, 0.0, 0.0],
+        }
+    )
+    path = tmp_path / "input.parquet"
+    df.to_parquet(path)
+    return path
+
+
+def test_load_input_table_preserves_null_gene_ids(tmp_path):
+    """Nulls must survive loading as nulls, not as the string "<NA>"."""
+    path = _write_parquet_with_null_genes(tmp_path)
+    diff_cols = [
+        "A_frequency_diff_mean",
+        "T_frequency_diff_mean",
+        "G_frequency_diff_mean",
+        "C_frequency_diff_mean",
+    ]
+    df = load_input_table(
+        path, ["replicate", "group", "contig", "position", "gene_id"], diff_cols
+    )
+
+    assert (df["gene_id"] == "<NA>").sum() == 0, "nulls were stringified to '<NA>'"
+    assert df["gene_id"].isna().sum() == 2
+    # .str accessor must still work — that is why the coercion existed.
+    assert df["gene_id"].str.strip().tolist()[0] == "g1"
+
+
+@pytest.mark.parametrize("sentinel", ["<NA>", "nan", "NaN", "None", "NA", "  "])
+def test_build_gene_regions_rejects_null_sentinels(sentinel):
+    """String spellings of "missing" must not become a real gene region."""
+    df = pd.DataFrame(
+        {
+            "contig": ["c1", "c1", "c2", "c2"],
+            "position": [1, 2, 3, 4],
+            "gene_id": ["g1", sentinel, sentinel, "g2"],
+        }
+    )
+    mapping = build_gene_regions(df, "gene_id", "contig", "position")
+
+    assert set(mapping["region_id"]) == {"g1", "g2"}, (
+        f"sentinel {sentinel!r} leaked into the gene regions"
+    )
+
+
+def test_reshape_does_not_cross_join_contigs_sharing_a_region_id():
+    """A region_id repeated on two contigs must stay two separate regions.
+
+    One host, one region_id present on two contigs, both groups observed.
+    Correct output is 2 paired rows (one per contig).  Merging on region_id
+    without contig yields 2x2 = 4 rows of cross-contig garbage.
+    """
+    agg = pd.DataFrame(
+        {
+            "replicate": [1, 1, 1, 1],
+            "group": ["fat", "control", "fat", "control"],
+            "region_id": ["shared", "shared", "shared", "shared"],
+            "region_type": ["gene"] * 4,
+            "contig": ["c1", "c1", "c2", "c2"],
+            "region_start": [1, 1, 500, 500],
+            "region_end": [100, 100, 600, 600],
+            "region_score": [0.5, 0.1, 0.9, 0.2],
+            "percentile": [80.0, 20.0, 95.0, 30.0],
+            "n_informative_sites": [10, 10, 12, 12],
+            "informative_fraction": [0.5, 0.5, 0.6, 0.6],
+        }
+    )
+
+    paired = reshape_treatment_control(
+        agg,
+        host_col="replicate",
+        group_col="group",
+        contig_col="contig",
+        treatment_label="fat",
+        control_label="control",
+    )
+
+    assert len(paired) == 2, f"cross-contig fan-out: {len(paired)} rows, expected 2"
+    # Each contig keeps its own treatment/control pair.
+    by_contig = paired.set_index("contig")
+    assert by_contig.loc["c1", "region_score_treatment"] == 0.5
+    assert by_contig.loc["c1", "region_score_control"] == 0.1
+    assert by_contig.loc["c2", "region_score_treatment"] == 0.9
+    assert by_contig.loc["c2", "region_score_control"] == 0.2

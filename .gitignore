@@ -193,3 +193,9 @@ docs/source/examples/example_data_*/reference/combined_mags.fasta.*
 
 # Personal optimization notes — scratch doc kept local, not for the repo.
 OPTIMIZATION_CHANGES.md
+
+# Upstream inStrain bug-report materials (issue #223 / PR #224): patch, tests,
+# and draft correspondence. Kept locally for reference; the fix itself lives in
+# the inStrain repo, so none of it belongs in AlleleFlux's history.
+docs/superpowers/instrain-nullmodel-report/
+docs/superpowers/

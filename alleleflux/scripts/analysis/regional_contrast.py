@@ -145,7 +145,13 @@ def load_input_table(
     if path.suffix == ".parquet":
         df = pd.read_parquet(path)
         if "gene_id" in df.columns:
-            df["gene_id"] = df["gene_id"].astype(str)
+            # astype("string"), NOT astype(str): the parquet column is a nullable
+            # (pyarrow-backed) string, and astype(str) renders every null as the
+            # *literal string* "<NA>".  That sentinel passes the notna() guard in
+            # build_gene_regions, collapsing all unannotated sites into one
+            # pseudo-gene per contig that shares the id "<NA>" across contigs.
+            # StringDtype keeps nulls as pd.NA while still exposing .str.
+            df["gene_id"] = df["gene_id"].astype("string")
     else:
         df = pd.read_csv(path, sep="\t", dtype={"gene_id": str})
 
@@ -197,6 +203,22 @@ def compute_site_scores(
 # ── 3. Region definitions ───────────────────────────────────────────────
 
 
+# String spellings of "no annotation".  Compared case-insensitively against the
+# whitespace-stripped gene id.  Upstream tools (and any accidental astype(str) on
+# a nullable column) can serialize a missing gene as one of these instead of a
+# real null; treating them as gene names silently fabricates regions.
+_NULL_GENE_SENTINELS = frozenset(
+    {"", "na", "n/a", "nan", "none", "null", "<na>", "."}
+)
+
+
+def _is_missing_gene(values: pd.Series) -> pd.Series:
+    """Boolean mask: True where a gene id is absent or spells "missing"."""
+    stripped = values.astype("string").str.strip()
+    is_sentinel = stripped.str.lower().isin(_NULL_GENE_SENTINELS).fillna(False)
+    return (stripped.isna() | is_sentinel).astype(bool)
+
+
 def build_gene_regions(
     df: pd.DataFrame,
     gene_col: str,
@@ -220,8 +242,9 @@ def build_gene_regions(
         ``region_type``, ``region_start``, ``region_end``,
         ``region_length``.
     """
-    # Keep only rows that have a gene annotation
-    valid = df[df[gene_col].notna() & (df[gene_col] != "")].copy()
+    # Keep only rows that carry a real gene annotation.  Nulls *and* string
+    # spellings of "missing" are dropped — see _NULL_GENE_SENTINELS.
+    valid = df[~_is_missing_gene(df[gene_col])].copy()
     if valid.empty:
         logger.warning("No gene annotations found; skipping gene mode.")
         return pd.DataFrame()
@@ -233,9 +256,15 @@ def build_gene_regions(
         .drop_duplicates()
         .rename(columns={gene_col: "region_id"})
     )
-    mapping["region_id"] = mapping["region_id"].str.split(",")
+    mapping["region_id"] = mapping["region_id"].astype("string").str.split(",")
     mapping = mapping.explode("region_id")
     mapping["region_id"] = mapping["region_id"].str.strip()
+    # A multi-gene annotation can still carry a missing component ("g1,<NA>"),
+    # which the row-level filter above cannot see.
+    mapping = mapping[~_is_missing_gene(mapping["region_id"])]
+    if mapping.empty:
+        logger.warning("No gene annotations found; skipping gene mode.")
+        return pd.DataFrame()
     mapping = mapping.drop_duplicates()  # remove any duplicates from the explode
     mapping["region_type"] = "gene"
 
@@ -548,10 +577,14 @@ def reshape_treatment_control(
         0.3                   60                  0.2
         0.2                   45                  0.4
     """
-    # Define which columns to merge on (uniquely identifies a region per host)
-    merge_keys = [host_col, "region_id", "region_type"]
+    # Define which columns to merge on (uniquely identifies a region per host).
+    # contig_col is part of the key, not just carried metadata: a region_id is
+    # only unique *within* a contig, and any id shared across contigs would
+    # otherwise cross-join every contig's treatment row against every contig's
+    # control row (N_contigs**2 rows per host), fabricating replicates.
+    merge_keys = [host_col, contig_col, "region_id", "region_type"]
     # Metadata columns carried through from treatment data (control data has same values)
-    meta_cols = [contig_col, "region_start", "region_end"]
+    meta_cols = ["region_start", "region_end"]
     # Numeric columns to be suffixed with _treatment / _control
     value_cols = [
         "region_score",
@@ -1030,6 +1063,7 @@ def write_outputs(
     summary_df: pd.DataFrame,
     output_dir: str | Path,
     prefix: str,
+    region_types: list[str],
 ) -> None:
     """Serialize per-host and region-summary results to disk.
 
@@ -1054,6 +1088,12 @@ def write_outputs(
     prefix : str
         File-name prefix (e.g., ``"regional_contrast"``). Output files will be
         named ``{prefix}_per_host_region.tsv.gz`` and ``{prefix}_region_summary.tsv``.
+    region_types : list[str]
+        Region types the run is expected to produce (derived from ``--mode``:
+        ``["gene"]``, ``["window"]``, or ``["gene", "window"]``).  A per-type
+        summary file is written for **every** listed type, even when no region of
+        that type survived filtering — in that case an empty file with the correct
+        header is written so the Snakemake output contract is always satisfied.
     host_col : str
         Name of the host/replicate column in the input DataFrames (e.g., ``"replicate"``,
         ``"host_id"``). Passed through unchanged to output.
@@ -1096,11 +1136,22 @@ def write_outputs(
 
     # Write per-region-type summary files so downstream scoring rules can consume
     # each type independently without subprocess filtering or temp files.
-    if "region_type" in summary_df.columns:
-        for rt, rt_df in summary_df.groupby("region_type"):
-            rt_path = out / f"{prefix}_{rt}_region_summary.tsv"
-            rt_df.to_csv(rt_path, sep="\t", index=False)
-            logger.info(f"{rt} summary    → {rt_path} ({len(rt_df):,} rows)")
+    #
+    # Iterate the *expected* region_types (from --mode), not just the types
+    # present in summary_df.  A MAG can yield zero surviving regions of a type
+    # (e.g. no window region reaches min_replicates) — writing only the observed
+    # types would omit a file that the Snakemake rule declares as a mandatory
+    # output, failing the job with MissingOutputException.  An empty subset still
+    # serializes its header row, satisfying the output contract.
+    has_region_type = "region_type" in summary_df.columns
+    for rt in region_types:
+        if has_region_type:
+            rt_df = summary_df[summary_df["region_type"] == rt]
+        else:
+            rt_df = summary_df.iloc[0:0]  # empty, but preserves the column schema
+        rt_path = out / f"{prefix}_{rt}_region_summary.tsv"
+        rt_df.to_csv(rt_path, sep="\t", index=False)
+        logger.info(f"{rt} summary    → {rt_path} ({len(rt_df):,} rows)")
 
 
 # ── main ────────────────────────────────────────────────────────────────
@@ -1410,11 +1461,19 @@ def main() -> None:
 
     # 10. Write
     logger.info("── Step 10: Writing outputs ──")
+    # Per-type summary files are required for every type implied by --mode, even
+    # when a type has no surviving regions (see write_outputs).
+    mode_region_types = {
+        "gene": ["gene"],
+        "window": ["window"],
+        "both": ["gene", "window"],
+    }[args.mode]
     write_outputs(
         paired_df,
         summary_df,
         output_dir=args.output_dir,
         prefix=args.prefix,
+        region_types=mode_region_types,
     )
 
     logger.info("Done.")
