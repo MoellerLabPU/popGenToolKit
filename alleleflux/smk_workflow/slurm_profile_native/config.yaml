@@ -1,0 +1,108 @@
+# AlleleFlux native SLURM profile — snakemake-executor-plugin-slurm (>= 2.6.x)
+# =========================================================================
+#
+# This is the recommended profile for SLURM clusters. It replaces the older
+# cluster-generic profile (../slurm_profile/) which suffered from a known
+# unfixed bug in the cluster-generic plugin's status callback (signal-kill
+# fallthrough in job_status, see snakemake-executor-plugin-cluster-generic
+# issue #25). The plugin-slurm executor is officially maintained, doesn't
+# poll an external status-cmd, and handles SLURM job state via sacct/squeue
+# directly with proper async handling.
+#
+# Switching profiles is mechanical:
+#   alleleflux run --profile slurm_profile_native/        # this one
+#   alleleflux run --profile slurm_profile/               # legacy fallback
+#
+# Rules in alleleflux/smk_workflow/rules/ set BOTH `time=` (HH:MM:SS string,
+# consumed by cluster-generic) AND `runtime=` (int minutes, consumed by this
+# plugin). Each executor ignores the directive it doesn't recognize, so the
+# same rule files work under both profiles.
+#
+# References:
+#   https://snakemake.github.io/snakemake-plugin-catalog/plugins/executor/slurm.html
+#   https://github.com/snakemake/snakemake-executor-plugin-slurm
+
+executor: slurm
+
+jobs: 300
+# cores: 8                         # grouping experiment (disabled — see note below); ungrouped runs don't need it
+max-jobs-per-second: 10
+latency-wait: 60                   # cluster-generic needed 300; this plugin needs <60
+
+# --- Scheduler choice (greedy, NOT default ilp) ---------------------------
+# The default ILP scheduler (`cbc` solver) hangs at 100% CPU on large DAGs
+# (~30k jobs in the Drido run): the documented "fall back to greedy after
+# 10 s" mechanism does NOT reliably trigger, so the driver process just
+# spins forever and stops submitting jobs. We hit this on 2026-05-28 at
+# job 21% on driver 8837493 — 2+ hours of silent CPU burn, zero new sbatch
+# calls, zero jobs in queue, no log activity. Switching to greedy makes
+# scheduling O(n) and matches the recommendation in:
+#   https://github.com/snakemake/snakemake/issues/759
+#   https://github.com/snakemake/snakemake/issues/1374
+scheduler: greedy
+keep-going: True
+rerun-incomplete: True
+printshellcmds: True
+use-conda: True
+
+# --- Job grouping (TESTED 2026-05-27, DISABLED) --------------------------
+# Batches many tiny per-MAG jobs into one SLURM job. NOT enabled: on a contended
+# cluster the bottleneck is concurrent-slot availability, not job count, so
+# grouping didn't speed the run up (longer buses also backfill into fewer gaps).
+# Re-enable for a future, less-contended run: uncomment below AND restore cores:8.
+# Sizing: bus mem = (cores ÷ rule threads) × per-job mem; size N so each bus runs
+# ~62–90 min (Della <62 min → test QOS, cap 2/user).
+# groups:
+#   single_sample: stat
+#   two_sample_unpaired: stat
+#   two_sample_paired: stat
+#   significance_score_per_MAG_standard: score
+# group-components:
+#   stat: 10      # 4 threads → 2/bus
+#   score: 40     # 1 thread  → 8/bus
+
+# --- Job name prefix ---
+# Plugin-slurm hardcodes `--job-name=<run_uuid>` (same name for every job in
+# a single snakemake invocation, so `scancel --name=<uuid>` cancels all of
+# them). The only customization is this static prefix prepended to the UUID:
+# resulting job-name is "alleleflux_<uuid>" everywhere. Filter in squeue via
+# `squeue --name=alleleflux_*` to see only this workflow's jobs.
+# Constraint: alphanumeric + underscore + hyphen only, max 50 chars.
+slurm-jobname-prefix: "alleleflux"
+
+# --- Retries ---
+# Per-rule retries (mem_step / time_step) are configured in the AlleleFlux
+# config.yml under `resources.retries`. This profile-level cap is a safety net.
+restart-times: 2
+
+# --- SLURM log directory ---
+# Plugin-slurm writes one log file per job under <slurm-logdir>/<rule>/.
+# Unlike cluster-generic, you cannot template the path with {wildcards} —
+# see issue #11. But the plugin auto-deletes logs of successful jobs by
+# default and keeps the failing ones, so the directory stays small and
+# easy to investigate.
+slurm-logdir: "slurm_logs"
+slurm-keep-successful-logs: True
+slurm-delete-logfiles-older-than: -1    # days (default 10, if set to <=0, no old files will be deleted)
+
+# --- Default resources (safety net only; rules should set their own) ---
+# slurm_account is auto-detected by the plugin via `sacct -nu $USER -o Account`
+# (see accounts.py:get_account) — so we don't hardcode it. The profile stays
+# portable: any user with prior SLURM job history on the cluster gets their
+# own account picked up automatically.
+#
+# slurm_partition is omitted so SLURM falls back to the cluster's default
+# (Della: `cpu`, marked with `*` in `sinfo`).
+#
+# Override mechanisms in order of precedence:
+#   1. CLI per-run:   --set-resources <rule>:slurm_partition=gpu
+#   2. Shell env:     export SBATCH_ACCOUNT=foo  /  SBATCH_PARTITION=gpu
+#   3. Per-rule:      add `slurm_partition="gpu"` to a rule's `resources:` block
+#   4. Profile:       add `- slurm_account="foo"` here (cluster-wide default)
+default-resources:
+  - mem_mb=20000
+  # Explicit unit REQUIRED: snakemake >= 9.17 parses a bare number here as
+  # SECONDS (verified 2026-08-20 on 9.17.2: "runtime=120" -> 2-minute jobs,
+  # while "120min"/"2h"/"7200" -> 120 minutes). Rule-level `runtime=<int>`
+  # in the .smk files is still minutes and unaffected.
+  - runtime=120min

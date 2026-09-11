@@ -19,6 +19,12 @@ input:
   profiles_path: ""               # Optional: Path to pre-existing profiles directory
                                   # If provided, profiling step is skipped and these profiles are used
                                   # Useful for rerunning analysis with different parameters
+  reuse_from: ""                  # Optional: a completed run's data-type output dir
+                                  # (e.g. .../alleleflux_output_1/longitudinal). Reuses that run's
+                                  # profiles + QC + allele-frequency cache and recomputes only the
+                                  # group-dependent tail. REQUIRED for permuted/null runs (see the
+                                  # `permutation:` section). When set, profiles default to
+                                  # <reuse_from>/profiles unless profiles_path is given explicitly.
 
 # Output Directory
 # ----------------
@@ -39,6 +45,54 @@ analysis:
   use_lmm: True                   # Linear Mixed Models: Best for repeated measures, accounts for subject-level variation
   use_significance_tests: True    # Two-sample (t-test, Mann-Whitney) and single-sample tests: Simple comparisons
   use_cmh: True                   # Cochran-Mantel-Haenszel: Stratified categorical analysis, detects directional changes
+  use_regional_contrast: True     # Regional contrast: detect genes/windows with differential allele-frequency evolution
+                                  # Only applicable to longitudinal data; runs on raw allele-frequency changes (no preprocessing)
+  use_dnds: True                  # dN/dS (Nei-Gojobori) evolutionary-rate analysis on significant sites
+                                  # Only applicable to longitudinal data; set False to skip the dN/dS step entirely
+                                  # (parameters live under the top-level `dnds:` section below)
+  run_within_group_tests: True    # When False, skip the WITHIN-group / across-time tests
+                                  # (single_sample, lmm_across_time, cmh_across_time) and keep only the
+                                  # between-group comparison. Permuted/null runs default this to False
+                                  # (a divergence null only needs the between-group test).
+  use_gene_scores: False           # Compute gene-level significance scores (alleleflux-gene-scores); requires Prodigal annotations
+  use_outlier_detection: False     # Detect outlier genes by comparing gene vs MAG scores (alleleflux-outliers); requires use_gene_scores: True
+  use_pairwise_ani: False          # Pairwise conANI/popANI between QC-passing sample pairs per MAG (alleleflux-pairwise-ani);
+                                   # group- and timepoint-independent, one job per MAG
+
+  # Pairwise ANI settings (only used when use_pairwise_ani: True)
+  pairwise_ani:
+    min_cov: 5                     # Reads required in BOTH samples for a position to be compared (part of the metric; 1 disables the depth gate)
+    min_freq: 0.05                 # Minimum read fraction for an allele to count as present (popANI only)
+    fdr: 1.0e-6                    # Tolerated chance that sequencing error alone explains an allele (popANI only)
+    pairs: "within_subject"        # "within_subject" = every same-mouse pair across timepoints;
+                                   # "transitions" = only same-mouse pairs matching timepoints_combinations
+                                   #   (what strain-turnover consumes; DRiDO: 970 pairs instead of 2,570);
+                                   # "all" = every pair (needed for between-mouse strain-sharing analyses)
+    store_snp_locations: "within_subject"   # "none", "within_subject", or "all" (WARNING: "all" was 7.7 GB for 90 samples in inStrain)
+
+  use_strain_turnover: False       # Per-mouse strain-background calls per MAG (alleleflux-strain-turnover) + the
+                                   # all-MAG classification (alleleflux-replacement-classification); needs
+                                   # use_pairwise_ani and longitudinal data
+  strain_turnover:
+    min_compared: 0.1              # Fraction of the genome both samples must cover for a verdict
+    pop_threshold: 0.99999         # popANI below this = strain_replacement (inStrain same-strain line)
+    con_threshold: 0.999           # conANI below this = dominant_strain_change
+
+  use_baseline_presence: False     # For each significant site: was the allele present at the baseline timepoint?
+                                   # (alleleflux-baseline-presence; one job per timepoints-groups comparison, after the statistics)
+  baseline_presence:
+    summary: "two_sample_paired"   # p_value_summary family: two_sample_paired | two_sample_unpaired | single_sample | lmm | lmm_across_time
+    test_type: "two_sample_paired_tTest"   # row filter, spelled as the summary file does (e.g. LMM_abs)
+    threshold_column: "q_value"    # q_value (BH) or min_p_value
+    threshold: 0.05
+                                   # depth gate / presence rule reuse pairwise_ani.min_cov, min_freq, fdr
+  taxa_score_levels:               # Taxonomy levels at which to aggregate MAG scores (MAG level is always computed)
+    - phylum                       # Remove or comment out levels you don't need; set to [] for MAG level only
+    - class
+    - order
+    - family
+    - genus
+    - species
 
   # Timepoints and groups to analyze
   # For longitudinal analysis: specify pairs of timepoints and which one to focus on
@@ -54,7 +108,54 @@ analysis:
     # - timepoint: ["end"]        # For single timepoint analysis (set data_type: "single")
 
   groups_combinations:
-    - ["treatment", "control"]    # Groups to compare (e.g., treatment vs control)
+    - treatment: "treatment"      # Name of the treatment group as it appears in metadata
+      control: "control"          # Name of the control group as it appears in metadata
+
+# Permutation (null / control) runs
+# ----------------------------------
+# Optional. Builds a permutation null for the divergence score by shuffling group
+# labels and re-running ONLY the group-dependent tail, reusing the real run's
+# profiles/QC/allele-frequency cache. REQUIRES input.reuse_from (a completed run).
+# Each seed becomes one leaf run under <output.root_dir>/<output_subdir>/perm_<seed>/;
+# inside it the `permute_metadata` Snakemake rule generates one permuted sheet per
+# groups_combinations pair (tracked artifacts — regenerated only when the source
+# metadata or seed changes, and nothing is written on a dry run).
+# Labels are shuffled at the --unit level (counts preserved); only `group` changes.
+permutation:
+  enabled: False                  # Master switch. When True, this run produces permuted nulls
+                                  # (it does NOT run the real pipeline — point reuse_from at that).
+  unit: "subjectID"               # Randomization unit whose group assignment is shuffled.
+                                  # Use "subjectID" for independent subjects; a cage/plot column
+                                  # when subjects share a single-group unit (e.g. unit: "cage").
+  block: ""                       # Optional matched-pair stratum to swap WITHIN (e.g. "replicate"
+                                  # for diet cages-per-replicate or soil samples-per-plot). Each block
+                                  # must hold exactly two units, one per group. Leave "" for a global swap.
+  swaps: null                     # Number of unit-pairs to swap per pair (or blocks to flip with `block`).
+                                  # null/omitted -> half the available pairs (a solid default null).
+  n_permutations: 1               # How many permutations (seeds 1..N). Ignored if `seeds` is given.
+  # seeds: [1, 2, 3]              # Explicit seed list (overrides n_permutations) for a reproducible null set.
+  output_subdir: "permuted"       # Subdir under output.root_dir for the per-seed permuted runs.
+
+  # --- Bring-your-own permuted metadata (advanced; skips the generation step) ---
+  # By default (above) AlleleFlux GENERATES one permuted sheet per pair per seed
+  # via alleleflux-permute-metadata, using unit/block/swaps/n_permutations.
+  # If you already have permuted sheets (a fixed design, an external tool, or a
+  # reproducibility archive), drop them in a directory and point this key at it.
+  # The unit/block/swaps/seeds knobs above are then ignored; reuse_from is still
+  # required. Files MUST follow the naming convention so each pair is found:
+  #   permuted_metadata_<treatment>_<control>.tsv
+  #
+  # Example — point at a directory holding ONE sheet per groups_combinations pair
+  # (here the single "treatment" vs "control" pair defined above; add one file per
+  # additional pair). Each sheet is a copy of input.metadata_path with the `group`
+  # column shuffled; all other columns unchanged:
+  #
+  #   permuted_metadata_dir: "/scratch/me/drido/my_permuted_sheets"
+  #     # /scratch/me/drido/my_permuted_sheets/
+  #     #   permuted_metadata_treatment_control.tsv
+  #     #   permuted_metadata_drug_control.tsv      # if you also compare drug vs control
+  #
+  # permuted_metadata_dir: "/path/to/sheets"
 
 # Quality Control Parameters
 # --------------------------
@@ -91,6 +192,21 @@ dnds:
   p_value_column: "q_value"       # Column for filtering: "min_p_value" or "q_value"
   dn_ds_test_type: "two_sample_paired_tTest"  # Test type for filtering results
 
+# Regional Contrast Parameters
+# ----------------------------
+# Settings for regional contrast analysis (longitudinal data only).
+# Detects genes / sliding windows where treatment and control groups show
+# consistently different allele-frequency evolution across paired hosts.
+# Input: *_allele_frequency_changes_mean.tsv.gz (no preprocessing needed).
+regional_contrast:
+  mode: "both"                    # Region type: "gene", "window", or "both"
+  window_size: 1000               # Non-overlapping tile width in bp (used when mode is "window" or "both")
+  agg_method: "median"            # How to summarise site scores per region: "median", "mean", or "trimmed_mean"
+  # trim_fraction: 0.1              # Fraction to trim from each tail (trimmed_mean only)
+  min_informative_sites: 5        # Minimum sites present in the input per region (0 disables filter)
+  min_informative_fraction: 0.0   # Minimum fraction of region length covered by sites (0.0 disables)
+  use_fisher: True               # Also compute Fisher combined p-values from percentile ranks (secondary/exploratory)
+
 # Compute Resources
 # -----------------
 # Resources allocated per job. Adjust based on your system:
@@ -98,10 +214,17 @@ dnds:
 # - Cluster (SLURM): These are passed to sbatch; profile can override
 resources:
   threads_per_job: 16             # Threads per job (not total threads)
-  mem_per_job: "8G"               # Memory per job. Formats: "8G", "100G", "102400M"
+  mem_per_job: "8G"               # Memory per job (base allocation). Formats: "8G", "100G", "102400M"
                                   # Local: Keep low to avoid OOM (Snakemake auto-limits jobs)
                                   # Cluster: Can increase; SLURM allocates per-node
   time: "24:00:00"                # Wall time limit (HH:MM:SS)
+
+  # Retry configuration
+  # Jobs automatically retry with increased resources on failure.
+  # Memory/time increase additively: attempt N gets base + (N-1) * step.
+  retries: 2                      # Number of retries per job (0 = no retries)
+  mem_step: "4G"                  # Memory added per retry (e.g., 8G → 12G → 16G)
+  time_step: "4:00:00"            # Time added per retry (e.g., 24h → 28h → 32h)
 
 # Advanced: Per-rule resource overrides (power users only)
 # ---------------------------------------------------------
@@ -110,22 +233,68 @@ resources:
 # Most users should NOT need this section.
 #
 # resources_override:
+#   permute_metadata:              # Rule: permute_metadata (null-run sheet generation)
+#                                  # Sub-second label shuffle of one metadata TSV per pair;
+#                                  # the flat defaults are overkill. Keep it lean.
+#     threads_per_job: 1
+#     mem_per_job: "4G"
+#     time: "00:30:00"
 #   profile:                       # Rule: profile (sample profiling)
 #     threads_per_job: 8
 #     mem_per_job: "16G"
 #     time: "08:00:00"
 #   qc:                            # Rule: qc (quality control)
 #     mem_per_job: "100G"
+#   allele_freq_cache:             # Rule: compute_allele_freq_per_timepoint
+#                                  # Stage 1: reads raw profile TSVs in parallel and writes
+#                                  # per-(MAG, gr_combo, timepoint) Parquet cache files.
+#                                  # Peak memory = all per-sample DataFrames held in memory
+#                                  # simultaneously before concat. Scales with samples ×
+#                                  # genome size. Default 16G covers most MAGs with ≤40
+#                                  # samples/timepoint; raise to 32G+ for large MAGs or
+#                                  # datasets with many samples per group.
+#     threads_per_job: 16
+#     mem_per_job: "16G"
+#     mem_step: "8G"               # Add 8G per retry for large MAGs
+#     time: "04:00:00"
 #   allele_analysis:               # Rule: allele_analysis
-#     mem_per_job: "32G"
+#                                  # Stage 2: reads two Parquet cache files and computes
+#                                  # per-subject diffs and mean changes. Parquet loads more
+#                                  # compactly than TSV; intermediate frames are explicitly
+#                                  # freed between steps. Lighter than Stage 1.
+#     mem_per_job: "8G"
+#     mem_step: "8G"
 #   statistical_tests:             # All statistical test rules:
 #                                  # two_sample_unpaired, two_sample_paired, lmm_analysis,
 #                                  # cmh_test, single_sample, lmm_analysis_across_time,
 #                                  # cmh_test_across_time
 #     threads_per_job: 4
 #     mem_per_job: "64G"
+#     mem_step: "32G"              # Override step for memory-intensive rules
 #     time: "12:00:00"
 #   dnds_from_timepoints:          # Rule: dnds_from_timepoints
 #     threads_per_job: 1
 #     mem_per_job: "200G"
+#     mem_step: "50G"
 #     time: "48:00:00"
+#     retries: 3                   # Override retry count for this rule
+#   regional_contrast:             # Rule: regional_contrast
+#     mem_per_job: "16G"
+#     time: "04:00:00"
+#   baseline_presence:             # Rule: baseline_presence (per comparison; loads every sample's profile
+#                                  # once per MAG with significant sites; measured: one pre_end comparison of
+#                                  # 57 MAGs x 60 samples took 23 min on 8 threads, 6.4 GB)
+#     threads_per_job: 8
+#     mem_per_job: "16G"
+#     time: "04:00:00"
+#   pairwise_ani:                  # Rule: pairwise_ani
+#                                  # Holds dense per-contig count arrays for every sample that
+#                                  # takes part in a pair: genome_length x 4 x 2 bytes x n_samples
+#                                  # (~1 GB for a 3 Mb MAG x 43 samples; ~48 GB for a 4.3 Mb DRiDO
+#                                  # MAG x 1,403 within-subject samples) plus pandas frames while
+#                                  # loading. Loading dominates (~3.6 s per profile) and scales
+#                                  # with threads_per_job (--cpus); comparing is ~1 s per pair.
+#     threads_per_job: 8
+#     mem_per_job: "64G"
+#     mem_step: "48G"
+#     time: "02:00:00"

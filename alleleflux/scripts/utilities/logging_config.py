@@ -144,6 +144,15 @@ def setup_logging(
                 # our logs are NOT printed a second time by Snakemake.
                 "propagate": False,
             },
+            # When a script is run directly (`python script.py`), __name__ is
+            # "__main__" so the logger falls outside the "alleleflux" namespace.
+            # Wiring it here lets `python permute_metadata.py` show full logs
+            # without touching the root logger (which would pollute Snakemake).
+            "__main__": {
+                "handlers": ["console"],
+                "level": eff_level,
+                "propagate": False,
+            },
         },
     }
 

@@ -16,6 +16,9 @@ include: "shared/dynamic_targets.smk"
 # Profiling & QC rules (formerly Step 1)
 include: "rules/profiling.smk"
 include: "rules/metadata.smk"
+# Permuted (null) sheet generation — only active when permutation.seed is set
+# (generate mode); produces the per-pair sheets consumed by the rules below.
+include: "rules/permute_metadata.smk"
 include: "rules/quality_control.smk"
 include: "rules/eligibility.smk"
 
@@ -28,70 +31,155 @@ include: "rules/scoring.smk"
 include: "rules/gene_analysis.smk"
 include: "rules/p_value_summary.smk"
 include: "rules/dnds_analysis.smk"
+include: "rules/regional_contrast.smk"
+include: "rules/pairwise_ani.smk"
+include: "rules/strain_turnover.smk"
+include: "rules/baseline_presence.smk"
 
 # 3. Dynamic Output Function
 def get_final_pipeline_outputs(wildcards):
     final_targets = []
-    
-    # Check preprocessing config once
-    preprocess_between = config["statistics"].get("preprocess_between_groups", False)
-    preprocess_within = config["statistics"].get("preprocess_within_groups", False)
-    
+
     # Iterate over all configured analysis combinations
     for tp in timepoints_labels:
         for gr in groups_labels:
-            
-            # 1. Access the QC Eligibility Checkpoint
-            # This forces the upstream DAG (Step 1) to run for this combination
-            # and updates the DAG with the actual output file.
-            checkpoint_output = checkpoints.eligibility_table.get(
-                timepoints=tp, 
-                groups=gr
+
+            # 1. Force evaluation of the eligibility_table checkpoint for this
+            # combination.  ``.output.out_fPath`` raises
+            # IncompleteCheckpointException until the rule has actually run,
+            # which triggers DAG re-evaluation.
+            checkpoints.eligibility_table.get(
+                timepoints=tp, groups=gr
             ).output.out_fPath
-            
-            # 2. Generate Allele Analysis Targets (depends only on QC eligibility)
-            # This can run in parallel with preprocessing steps
+
+            # 2. Generate Allele Analysis Targets (depends only on QC eligibility).
+            # Path-only generator — does not read the eligibility tsv.
             final_targets.extend(generate_allele_analysis_targets(tp, gr))
-            
-            # 3. Trigger preprocessing eligibility checkpoints (if enabled)
-            # These checkpoint calls ensure the preprocessing eligibility files exist
-            # before any downstream functions try to read them.
-            if preprocess_between:
-                checkpoints.preprocessing_eligibility_between_groups.get(
-                    timepoints=tp,
-                    groups=gr
-                )
-            if preprocess_within and DATA_TYPE == "longitudinal":
-                checkpoints.preprocessing_eligibility_within_groups.get(
-                    timepoints=tp,
-                    groups=gr
-                )
-            
-            # 4. Generate Downstream Targets (depend on preprocessing eligibility)
-            # Now that the checkpoints have been evaluated (and files potentially created/updated),
-            # we can generate the targets for Step 2.
-            
-            # Taxa Score Targets
+
+            # 3. Downstream Targets that depend on preprocessing eligibility.
+            # The dynamic generators (mag_scores, taxa, gene, outlier, p_value
+            # summary, dN/dS) call get_eligible_mags / get_mags_by_preprocessing_eligibility
+            # internally; those readers now perform their own
+            # ``checkpoints.preprocessing_eligibility_*_groups.get(...).output``
+            # access, so we don't need defensive .get() calls here.
             if not config["analysis"].get("allele_analysis_only", False):
+                # MAG-level combined score targets (always computed)
+                final_targets.extend(generate_mag_scores_targets(tp, gr))
+
+                # Taxa Score Targets (only for levels listed in taxa_score_levels)
                 final_targets.extend(generate_taxa_scores_targets(tp, gr))
-            
-            # Outlier Targets
-            if not config["analysis"].get("allele_analysis_only", False):
+
+                # Gene Score Targets (gated by use_gene_scores)
+                final_targets.extend(generate_gene_scores_targets(tp, gr))
+
+                # Outlier Gene Targets (gated by use_outlier_detection)
                 final_targets.extend(generate_outlier_gene_targets(tp, gr))
-                
-            # P-value Summary Targets
-            if not config["analysis"].get("allele_analysis_only", False):
+
+                # P-value Summary Targets
                 final_targets.extend(generate_p_value_summary_targets(tp, gr))
+                # Baseline presence needs the summary above (checkpoint-dependent),
+                # so it lives here, not in the eager list.
+                final_targets.extend(generate_baseline_presence_targets(tp, gr))
                 
             # dN/dS Analysis Targets
             if not config["analysis"].get("allele_analysis_only", False):
                 final_targets.extend(generate_dnds_analysis_targets(tp, gr))
 
+            # Regional Contrast Targets (longitudinal only)
+            if not config["analysis"].get("allele_analysis_only", False):
+                final_targets.extend(generate_regional_contrast_targets(tp, gr))
+
+    # Run-once significant-sites rollup over ALL p_value_summary tables (not scoped per tp/gr;
+    # added after the loop since it is a single terminal target).  Guarded at the call site --
+    # mirroring the per-combo generators above -- so it is never requested when
+    # allele_analysis_only skips the p_value_summary step (the generator is internally guarded
+    # too, so this is belt-and-suspenders matching generate_p_value_summary_targets).
+    if not config["analysis"].get("allele_analysis_only", False):
+        final_targets.extend(generate_significant_sites_summary_targets())
+
+    # Pairwise conANI/popANI, strain turnover, replacement classification: one
+    # target per TESTED MAG (union over every comparison and enabled test), so the
+    # universe comes from the eligibility checkpoints and these belong here, after
+    # the loop above has forced them -- not in the eager list.  Run-once, not
+    # scoped per tp/gr, like the significant-sites rollup.
+    final_targets.extend(generate_pairwise_ani_targets())
+    final_targets.extend(generate_strain_turnover_targets())
+    final_targets.extend(generate_replacement_classification_targets())
+
     return final_targets
+
+# 3. Eager Upstream Targets
+# These are concrete file paths that Snakemake can resolve immediately
+# on the first DAG evaluation — no checkpoint needed.  Listing them here
+# ensures ALL metadata, QC, and eligibility jobs are submitted to SLURM
+# in parallel, rather than being discovered one-at-a-time as each
+# eligibility_table checkpoint fires.
+#
+# Without this, the loop in get_final_pipeline_outputs() blocks at the
+# first missing checkpoint and Snakemake only plans 1 combination at a
+# time — making the pre-checkpoint stage effectively serial.
+def get_upstream_targets(wildcards):
+    targets = []
+    # Metadata + QC: one per unique timepoints combination (group-independent
+    # after 2A).  Target the per-rule sentinel — see common.smk for why we
+    # gate on a sentinel file rather than the directory itself.
+    for tp in timepoints_labels:
+        targets.append(metadata_sentinel(tp))
+        targets.append(qc_sentinel(tp))
+    # eligibility_table is eager-listed for all 18 (tp, gr) combinations so
+    # the checkpoint jobs submit in one batch and run in parallel.  This is
+    # safe in practice because eligibility_table's upstream chain (metadata
+    # + QC) is short and fast — by the time downstream input functions read
+    # the file, the jobs have completed.
+    for tp in timepoints_labels:
+        for gr in groups_labels:
+            targets.append(
+                os.path.join(OUTDIR, f"eligibility_table_{tp}-{gr}.tsv")
+            )
+
+    # preprocessing_eligibility_*.tsv files are deliberately NOT eager-listed.
+    #
+    # Why: this is a "chained checkpoint" pattern — preprocessing_eligibility
+    # is a checkpoint whose own input function (get_between_groups_status_files
+    # in rules/preprocessing_eligibility.smk) calls ``checkpoints.eligibility_table.get(...)``.
+    # Snakemake's resolver does not handle this cleanly: when the outer
+    # checkpoint's output is eager-listed, Snakemake registers the rule as
+    # "planned" and ``checkpoints.X.get(...).output.out_fPath`` returns a
+    # path string for a file that does not yet exist on disk.  Downstream
+    # readers (``get_mags_by_preprocessing_eligibility``) then ``pd.read_csv``
+    # the missing file and crash at DAG-planning time.
+    #
+    # Snakemake bugs that describe variants of this:
+    #   - github.com/snakemake/snakemake/issues/2958 (chained checkpoints)
+    #   - github.com/snakemake/snakemake/issues/439  (multiple checkpoints
+    #     evaluated sequentially in the same input function)
+    #
+    # PR #3341 (merged into Snakemake 9.8.0) was expected to fix the
+    # ``.get().output`` short-circuit by checking actual ``created_output``
+    # rather than ``future_output``.  We tested this empirically on
+    # 2026-05-16 against Snakemake 9.14.5 with the live refactor in place
+    # (a fresh worktree, re-adding both preprocessing_eligibility outputs to
+    # this list, true cold start on the example dataset) and the same
+    # ``FileNotFoundError`` from ``pd.read_csv`` was raised.  Conclusion:
+    # PR #3341 does not cover this particular chained-checkpoint variant.
+    #
+    # Trade-off accepted by NOT eager-listing here: each (tp, gr)
+    # combination's preprocessing_eligibility is discovered sequentially via
+    # the natural checkpoint propagation in ``get_final_pipeline_outputs``.
+    # Per-MAG ``preprocess_between/within_groups`` jobs WITHIN a combination
+    # still run in parallel; inter-combination scheduling for the
+    # preprocessing stages becomes serial (combo 1 -> combo 2 -> ...).
+    # Wall-clock cost on DRIDO-scale runs is a serial waterfall of N combos
+    # through the preprocessing chain.
+
+    return targets
+
+
 
 # 4. Rule All (The Driver)
 localrules: all
 
 rule all:
     input:
-        get_final_pipeline_outputs
+        get_upstream_targets,
+        get_final_pipeline_outputs,

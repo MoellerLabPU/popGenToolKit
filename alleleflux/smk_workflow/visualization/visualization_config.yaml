@@ -104,7 +104,11 @@ plotting_params:
   output_format: "png"       # Output format (png, pdf, svg)
 
   # Advanced plotting options
-  bin_width_days: 10         # Optional: Bin width in days (requires x_col="day")
+  # Optional: Bin width in days (requires x_col="day"). Accepts a single width
+  # or a list for a sensitivity sweep — one full plotting pass runs per width
+  # and every binned output filename carries a _bin<W>d tag.
+  # bin_width_days: [10, 20, 30]
+  bin_width_days: 10
   min_samples_per_bin: 2     # Minimum valid samples required per bin
   group_by_replicate: True   # Group by replicate in per-site plots
   line_alpha: 0.1            # Line transparency (0-1)

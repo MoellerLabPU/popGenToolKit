@@ -1,0 +1,86 @@
+# AlleleFlux Example Configuration — profiles-based, single-timepoint (OLD format for `main` branch)
+# ====================================================================================================
+# Identical to config_generated_single.yml except that `groups_combinations` uses the
+# pre-refactor list-of-list format expected by `common.smk` on the `main` branch.
+# Paths are relative so the file can be copied into any worktree without rewriting.
+# Used by the regression test harness when generating the golden snapshot from `main`.
+
+run_name: "example_analysis_single"
+
+input:
+  fasta_path: "reference/combined_mags.fasta"
+  prodigal_path: "reference/prodigal_genes.fna"
+  metadata_path: "metadata/sample_metadata.tsv"
+  gtdb_path: "reference/gtdbtk_taxonomy.tsv"
+  mag_mapping_path: "reference/mag_mapping.tsv"
+  profiles_path: "profiles"
+
+output:
+  root_dir: "./example_output"
+
+log_level: "INFO"
+
+analysis:
+  data_type: "single"
+  allele_analysis_only: False
+
+  use_lmm: False
+  use_significance_tests: True
+  use_cmh: False
+  use_regional_contrast: False
+  use_gene_scores: False
+  use_outlier_detection: False
+
+  taxa_score_levels:
+    - phylum
+    - genus
+
+  timepoints_combinations:
+    - timepoint: ['t1']
+      focus: "t1"
+
+  # OLD format — list of pairs [treatment, control]
+  groups_combinations:
+    - ["treatment", "control"]
+
+quality_control:
+  min_sample_num: 2
+  breadth_threshold: 0.1
+  coverage_threshold: 1
+  disable_zero_diff_filtering: False
+
+profiling:
+  ignore_orphans: True
+  min_base_quality: 30
+  min_mapping_quality: 2
+  ignore_overlaps: True
+
+statistics:
+  filter_type: "t-test"
+  preprocess_between_groups: True
+  preprocess_within_groups: True
+  max_zero_count: 2
+  p_value_threshold: 0.05
+  fdr_group_by_mag_id: False
+  min_positions_after_preprocess: 1
+
+dnds:
+  p_value_column: "q_value"
+  # dN/dS is only run when data_type == "longitudinal"; ignored for single mode.
+  dn_ds_test_type: "two_sample_unpaired_tTest"
+
+regional_contrast:
+  mode: "both"
+  window_size: 500
+  agg_method: "median"
+  min_informative_sites: 2
+  min_informative_fraction: 0.0
+  use_fisher: True
+
+resources:
+  threads_per_job: 4
+  mem_per_job: "4G"
+  time: "01:00:00"
+  retries: 1
+  mem_step: "2G"
+  time_step: "0:30:00"

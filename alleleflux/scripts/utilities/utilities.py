@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 import logging
+import os
 from collections import defaultdict
 from functools import reduce
+from pathlib import Path
 
 import pandas as pd
+import pyarrow.parquet as pq
 from Bio import SeqIO
 
 # Set up logger for this module
@@ -46,6 +49,13 @@ def build_contig_length_index(fasta_file, mag_mapping_file):
     """
     Build an index of contig lengths limited to contigs present in the mapping file.
 
+    Prefers the samtools ``.fai`` index beside the FASTA (``{fasta_file}.fai``)
+    when it exists: its second column is the sequence length, so the whole index
+    parses in milliseconds, versus a full Biopython parse of a multi-hundred-MB
+    reference.  ``profile_mags.py`` creates the ``.fai`` during profiling, so
+    pipeline runs always have it; the FASTA parse remains as the fallback.  Both
+    paths return identical contents because the index is generated from the FASTA.
+
     Parameters
     ----------
     fasta_file : str
@@ -68,10 +78,31 @@ def build_contig_length_index(fasta_file, mag_mapping_file):
         )
 
     contig_whitelist = set(mag_mapping_df["contig_id"].tolist())
-    contig_lengths = {}
-    for record in SeqIO.parse(fasta_file, "fasta"):
-        if record.id in contig_whitelist:
-            contig_lengths[record.id] = len(record.seq)
+
+    fai_file = f"{fasta_file}.fai"
+    if os.path.exists(fai_file):
+        # Fast path: .fai columns are name, length, offset, linebases, linewidth;
+        # only the first two are needed.  Names read as str so a numeric-looking
+        # contig id cannot become int64 and miss the whitelist.
+        fai_df = pd.read_csv(
+            fai_file, sep="\t", header=None, usecols=[0, 1],
+            names=["contig", "length"], dtype={"contig": str, "length": "int64"},
+        )
+        # Filter while walking the index: keep only mapped contigs.
+        contig_lengths = {
+            contig: int(length)
+            for contig, length in zip(fai_df["contig"], fai_df["length"])
+            if contig in contig_whitelist
+        }
+    else:
+        logger.warning(
+            f"No .fai index beside {fasta_file}; parsing the FASTA instead "
+            "(run `samtools faidx` once to speed this up)"
+        )
+        contig_lengths = {}
+        for record in SeqIO.parse(fasta_file, "fasta"):
+            if record.id in contig_whitelist:
+                contig_lengths[record.id] = len(record.seq)
 
     logger.info(
         f"Indexed {len(contig_lengths):,} contigs with lengths for coverage weighting."
@@ -364,8 +395,60 @@ def parse_classification(classification_str):
     return taxon_dict
 
 
+def load_allele_freq_inputs(paths, usecols=None, dtype=None):
+    """Load one or more allele-frequency input files and concatenate.
+
+    Files ending in ``.parquet`` are read with :func:`pandas.read_parquet`
+    (using ``columns=usecols`` when provided); other extensions fall back to
+    :func:`pandas.read_csv` with TSV settings.
+
+    Parameters
+    ----------
+    paths : str or list of str
+        Single path or list of paths.
+    usecols : list of str, optional
+        Columns to keep on read.
+    dtype : dict, optional
+        Dtype map applied after read (always after read for parquet, since
+        parquet preserves dtypes from write).
+
+    Returns
+    -------
+    pandas.DataFrame
+    """
+    if isinstance(paths, str):
+        paths = [paths]
+
+    frames = []
+    for p in paths:
+        path_str = str(p)
+        if path_str.endswith(".parquet"):
+            logger.info(f"Reading parquet input {path_str}")
+            df = pd.read_parquet(
+                path_str,
+                columns=list(usecols) if usecols is not None else None,
+            )
+            if dtype:
+                cast = {c: t for c, t in dtype.items() if c in df.columns}
+                if cast:
+                    df = df.astype(cast)
+        else:
+            logger.info(f"Reading TSV input {path_str}")
+            df = pd.read_csv(
+                path_str,
+                sep="\t",
+                usecols=list(usecols) if usecols is not None else None,
+                dtype=dtype,
+            )
+        frames.append(df)
+
+    if len(frames) == 1:
+        return frames[0]
+    return pd.concat(frames, ignore_index=True)
+
+
 def load_and_filter_data(
-    input_df_path: str,
+    input_df_path,
     preprocessed_df_path: str,
     mag_id: str,
     dtype_map: dict,
@@ -375,7 +458,8 @@ def load_and_filter_data(
     Load raw allele count data and filter it to include only positions present in a preprocessed dataset.
 
     Parameters:
-        input_df_path (str): Path to the raw allele count data file (tab-separated values).
+        input_df_path (str or list of str): Path(s) to raw allele count data file(s)
+            (TSV.gz or Parquet). Multiple paths are concatenated.
         preprocessed_df_path (str): Path to the preprocessed positions file (tab-separated values).
         mag_id (str): Identifier for the metagenome-assembled genome (MAG), used for logging and error messages.
 
@@ -401,18 +485,14 @@ def load_and_filter_data(
 
     preprocessed_df.drop(columns=["group"], inplace=True)
 
-    # Read the raw allele count data
+    # Read the raw allele count data (TSV.gz or Parquet, single path or list).
     logger.info(f"Loading raw count data from {input_df_path}")
-    raw_counts_df = pd.read_csv(
+    raw_counts_df = load_allele_freq_inputs(
         input_df_path,
-        sep="\t",
-        usecols=dtype_map.keys(),
+        usecols=list(dtype_map.keys()),
         dtype=dtype_map,
-        index_col=["contig", "position"],
-        memory_map=True,
-        # low_memory=False,
-        # nrows=20000000,
     )
+    raw_counts_df = raw_counts_df.set_index(["contig", "position"])
     # Log basic row count quickly
     logger.info(f"Loaded {raw_counts_df.shape[0]:,} rows of raw count data.")
     # Detailed stats are debug level for performance
@@ -448,3 +528,126 @@ def load_and_filter_data(
         f"{len(filtered_counts_df.groupby(['contig', 'position'], dropna=False)):,} unique positions remaining after filtering."
     )
     return filtered_counts_df
+
+
+def input_has_column(paths, column: str) -> bool:
+    """Return True if the first input file's header exposes ``column``.
+
+    Cheap header/schema probe (no full data read): reads a parquet file's
+    schema or a TSV's header row only.  This is the guard for the *other* half
+    of the reuse-based null seam (see :func:`relabel_groups_from_metadata`): a
+    permuted run forces the per-sample join key (``sample_id``) into the
+    usecols-based read so the cache can be relabeled, but the wide
+    ``across_time`` inputs (the ``allele_analysis`` output, already relabeled
+    upstream) carry **no** ``sample_id`` — demanding it there would break the
+    parquet read with ``ArrowInvalid``.  Probe first, force only when present.
+
+    Parameters
+    ----------
+    paths : str | pathlib.Path | list | tuple
+        Input path or list of paths; only the first is probed.
+    column : str
+        Column name to look for in the header/schema.
+
+    Returns
+    -------
+    bool
+        True if the (first) input file exposes ``column``.
+    """
+    sample_path = paths[0] if isinstance(paths, (list, tuple)) else paths
+    sample_path = str(sample_path)
+    if sample_path.endswith(".parquet"):
+        return column in pq.read_schema(sample_path).names
+    return column in pd.read_csv(sample_path, sep="\t", nrows=0).columns
+
+
+def relabel_groups_from_metadata(df, permuted_metadata, key="sample_id"):
+    """Overwrite the ``group`` column in ``df`` from a permuted metadata sheet.
+
+    This is the in-memory seam of AlleleFlux's reuse-based null/permutation
+    feature.  A permuted run **reuses** the real run's profiles / QC / allele-
+    frequency cache, which still carry the *original* ``group`` labels.  Each
+    group-dependent consumer (Stage-2 ``allele_freq``, ``eligibility``, ``CMH``,
+    ``LMM`` across-time) calls this right after loading to re-derive the
+    *permuted* group from the run's permuted metadata — joined on ``key``
+    (``sample_id``) — before any group-dependent computation.  The expensive
+    group-independent numbers (frequencies, coverage) are reused verbatim while
+    the labels reflect the permutation.
+
+    **Only ``group`` is overwritten.**  AlleleFlux's permutation
+    (``permute_metadata.py``) relabels group assignments *only* — ``subjectID``,
+    ``replicate``, ``sample_id`` and ``bam_path`` always stay tied to their
+    original rows.  We therefore deliberately leave those columns untouched:
+    rewriting an identity-valued ``subjectID`` would needlessly re-coerce its
+    dtype (e.g. a numeric subjectID → ``str``), which could silently break the
+    longitudinal merge key in Stage-2 that pairs timepoints on ``subjectID``.
+
+    Rows whose ``key`` is absent from the metadata keep their existing group
+    (logged).  The function is **idempotent** (applying the same metadata twice
+    is a no-op) and preserves categorical dtype on ``group``.
+
+    The join key and the replacement group values are cast to ``str`` on both
+    sides to dodge the numeric-group coercion trap (e.g. DRIDO groups ``20`` /
+    ``40`` sniffing as int64 on TSV read) that would otherwise silently fail to
+    match the string group names used everywhere downstream.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        The just-loaded frame to relabel **in place**.  Must contain ``key`` and
+        ``group`` for relabeling to occur; if ``key`` is missing (e.g. an
+        already-aggregated Stage-2 output that dropped ``sample_id``), the frame
+        is returned unchanged with a warning — such inputs are already
+        relabeled upstream.
+    permuted_metadata : str | pathlib.Path | pd.DataFrame
+        The permuted metadata sheet (path to a TSV, or an in-memory frame).
+    key : str, default "sample_id"
+        The per-sample join column linking ``df`` rows to metadata rows.
+
+    Returns
+    -------
+    pd.DataFrame
+        ``df`` with the ``group`` column relabeled (same object; mutated in place).
+    """
+    if key not in df.columns:
+        logger.warning(
+            f"relabel_groups_from_metadata: key '{key}' not in dataframe columns "
+            f"{list(df.columns)}; returning unchanged (input is already relabeled "
+            "or lacks the per-sample key)."
+        )
+        return df
+    if "group" not in df.columns:
+        logger.warning(
+            "relabel_groups_from_metadata: no 'group' column in dataframe; "
+            "returning unchanged."
+        )
+        return df
+
+    if isinstance(permuted_metadata, (str, Path)):
+        logger.info(f"Relabeling groups from permuted metadata: {permuted_metadata}")
+        meta = pd.read_csv(permuted_metadata, sep="\t")
+    else:
+        meta = permuted_metadata
+
+    for col in (key, "group"):
+        if col not in meta.columns:
+            raise ValueError(
+                f"Permuted metadata is missing the required column '{col}'. "
+                f"Present columns: {list(meta.columns)}."
+            )
+
+    # Build {sample_id -> permuted group} as strings (str-cast both sides for a
+    # dtype-agnostic match), then map onto df's rows.
+    group_map = dict(zip(meta[key].astype(str), meta["group"].astype(str)))
+    mapped = df[key].astype(str).map(group_map)
+    missing = sorted(df.loc[mapped.isna(), key].astype(str).unique())
+    if missing:
+        raise ValueError(
+            f"relabel_groups_from_metadata: {len(missing)} sample(s) in the "
+            f"dataframe have no entry in the permuted metadata — the permuted "
+            f"sheet must cover every sample. Missing: {missing}"
+        )
+    was_categorical = isinstance(df["group"].dtype, pd.CategoricalDtype)
+    df["group"] = mapped.astype("category") if was_categorical else mapped
+    logger.info("Relabeled 'group' from permuted metadata.")
+    return df

@@ -1,0 +1,97 @@
+# AlleleFlux Configuration (Generated, BAM mode)
+# =================================================
+# Paths are RELATIVE to this config's directory (example_data_<dt>/).
+# This config runs the FULL pipeline starting from BAM files — the
+# profiling step is NOT skipped. Generate the BAMs first with:
+#
+#   bash generate_bams.sh --data-dir example_data_longitudinal
+#
+# Then run the pipeline from inside example_data_<dt>/:
+#   cd docs/source/examples/example_data_longitudinal
+#   alleleflux run --config config_with_bams_longitudinal.yml
+
+run_name: "generated_test_bams"
+
+input:
+  fasta_path: "reference/combined_mags.fasta"
+  prodigal_path: "reference/prodigal_genes.fna"
+  metadata_path: "metadata/sample_metadata_bams.tsv"
+  gtdb_path: "reference/gtdbtk_taxonomy.tsv"
+  mag_mapping_path: "reference/mag_mapping.tsv"
+  # profiles_path intentionally omitted — pipeline profiles directly from BAMs.
+
+output:
+  root_dir: "./output_bams"
+
+log_level: "INFO"
+
+analysis:
+  data_type: "longitudinal"
+  allele_analysis_only: False
+  # LMM and CMH require more replicates than the small example provides.
+  # Enable them when you generate larger datasets.
+  use_lmm: False
+  use_significance_tests: True
+  use_cmh: False
+  # Regional contrast requires min_replicates per group (default 4). The small
+  # synthetic dataset has only 2 subjects per group by default, so this is
+  # off out of the box — enable it after generating a larger dataset
+  # (e.g. --num_samples 20 in longitudinal mode → 5 subjects per group).
+  use_regional_contrast: False
+  use_gene_scores: False
+  use_outlier_detection: False
+
+  taxa_score_levels:
+    - phylum
+    - genus
+
+  timepoints_combinations:
+    - timepoint: ['pre', 'post']
+      focus: "post"
+
+  groups_combinations:
+    - treatment: "treatment"
+      control: "control"
+
+quality_control:
+  min_sample_num: 2
+  breadth_threshold: 0.1
+  coverage_threshold: 1
+  disable_zero_diff_filtering: False
+
+profiling:
+  ignore_orphans: True
+  # wgsim writes Phred ~23 to every base; raise to ≥20 for real data.
+  min_base_quality: 0
+  min_mapping_quality: 2
+  ignore_overlaps: True
+
+statistics:
+  filter_type: "t-test"
+  preprocess_between_groups: True
+  preprocess_within_groups: True
+  max_zero_count: 2
+  p_value_threshold: 0.05
+  fdr_group_by_mag_id: False
+  min_positions_after_preprocess: 1
+
+dnds:
+  p_value_column: "q_value"
+  # dN/dS is only run when data_type == "longitudinal"; ignored for single mode.
+  dn_ds_test_type: "two_sample_paired_tTest"
+
+regional_contrast:
+  mode: "both"
+  window_size: 500
+  agg_method: "median"
+  min_informative_sites: 2
+  min_informative_fraction: 0.0
+  use_fisher: True
+
+resources:
+  threads_per_job: 4
+  mem_per_job: "4G"
+  time: "01:00:00"
+  retries: 1
+  mem_step: "2G"
+  time_step: "0:30:00"

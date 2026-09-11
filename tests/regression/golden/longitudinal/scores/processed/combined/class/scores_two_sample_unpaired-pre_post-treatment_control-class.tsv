@@ -1,0 +1,2 @@
+domain	phylum	class	total_sites_per_group_tTest	significant_sites_per_group_tTest	total_sites_per_group_MannWhitney	significant_sites_per_group_MannWhitney	total_sites_per_group_tTest_abs	significant_sites_per_group_tTest_abs	total_sites_per_group_MannWhitney_abs	significant_sites_per_group_MannWhitney_abs	unique_MAGs	score_tTest (%)	score_MannWhitney (%)	score_tTest_abs (%)	score_MannWhitney_abs (%)	grouped_by
+Bacteria	Bacteroidota	Bacteroidia	1106	203	1106	0	1106	346	1106	0	2	18.354430379746837	0.0	31.28390596745027	0.0	class

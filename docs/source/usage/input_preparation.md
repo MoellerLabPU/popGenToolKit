@@ -99,4 +99,4 @@ Once inputs are prepared:
 
 1. Create configuration file: [Configuration Reference](../reference/configuration.md)
 2. Run the pipeline: [Running the Workflow](running_workflow.md)
-3. Examine example data: [Example Data](../examples/example_data/README.md)
+3. Examine example data: [Example Data](../examples/example_data_longitudinal/README.md)

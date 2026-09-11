@@ -35,25 +35,21 @@ rule significance_score_per_MAG_standard:
     params:
         group_by_column="MAG_ID",
         pValue_threshold=config["statistics"].get("p_value_threshold", 0.05),
+    retries: get_retries("significance_score_per_MAG_standard")
     resources:
         mem_mb=get_mem_mb("significance_score_per_MAG_standard"),
         time=get_time("significance_score_per_MAG_standard"),
-    run:    
-        cmd = f"""
-        alleleflux-scores \\
-            --gtdb_taxonomy {input.gtdb_taxonomy} \\
-            --pValue_table {input.pvalue_table} \\
-            --group_by_column {params.group_by_column} \\
-            --pValue_threshold {params.pValue_threshold} \\
-            --out_fPath {output} \\
+        runtime=get_runtime("significance_score_per_MAG_standard"),
+    shell:
+        """
+        alleleflux-scores \
+            --gtdb_taxonomy {input.gtdb_taxonomy} \
+            --pValue_table {input.pvalue_table} \
+            --group_by_column {params.group_by_column} \
+            --pValue_threshold {params.pValue_threshold} \
+            --out_fPath {output} \
             --mag_mapping_file {input.mag_mapping}
         """
-        logger.info(f"Executing: {cmd}")
-        try:
-            subprocess.run(cmd, shell=True, check=True, executable="/bin/bash")
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Command failed with exit code {e.returncode}")
-            raise e
 
 
 rule significance_score_per_MAG_cmh:
@@ -81,9 +77,11 @@ rule significance_score_per_MAG_cmh:
         pValue_threshold=config["statistics"].get("p_value_threshold", 0.05),
         group_by_column="MAG_ID",
         data_type=DATA_TYPE,
+    retries: get_retries("significance_score_per_MAG_cmh")
     resources:
         mem_mb=get_mem_mb("significance_score_per_MAG_cmh"),
         time=get_time("significance_score_per_MAG_cmh"),
+        runtime=get_runtime("significance_score_per_MAG_cmh"),
     run:
         if params.data_type == "single":
             cmd = f"""
@@ -155,9 +153,11 @@ rule combine_MAG_scores:
             "MAG",
             "scores_{test_type}-{timepoints}-{groups}{group_str}-MAGs.tsv",
         ),
+    retries: get_retries("combine_MAG_scores")
     resources:
         mem_mb=get_mem_mb("combine_MAG_scores"),
         time=get_time("combine_MAG_scores"),
+        runtime=get_runtime("combine_MAG_scores"),
     run:
         dfs = []
         for file in input.scores:
@@ -200,9 +200,11 @@ rule combine_MAG_scores_cmh:
             "MAG",
             "scores_cmh-{timepoints}-{groups}-MAGs-{focus_tp}.tsv",
         ),
+    retries: get_retries("combine_MAG_scores_cmh")
     resources:
         mem_mb=get_mem_mb("combine_MAG_scores_cmh"),
         time=get_time("combine_MAG_scores_cmh"),
+        runtime=get_runtime("combine_MAG_scores_cmh"),
     run:
         dfs = []
         insufficient_data_mags = []
@@ -258,22 +260,18 @@ rule taxa_scores:
             "{taxon}",
             "scores_{test_type}-{timepoints}-{groups}{group_str}-{taxon}.tsv",
         ),
+    retries: get_retries("taxa_scores")
     resources:
         mem_mb=get_mem_mb("taxa_scores"),
         time=get_time("taxa_scores"),
-    run:
-        cmd = f"""
-        alleleflux-taxa-scores \\
-            --input_df {input.concatenated} \\
-            --group_by_column {wildcards.taxon} \\
-            --out_fPath {output} 
+        runtime=get_runtime("taxa_scores"),
+    shell:
         """
-        logger.info(f"Executing: {cmd}")
-        try:
-            subprocess.run(cmd, shell=True, check=True, executable="/bin/bash")
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Command failed with exit code {e.returncode}")
-            raise e
+        alleleflux-taxa-scores \
+            --input_df {input.concatenated} \
+            --group_by_column {wildcards.taxon} \
+            --out_fPath {output}
+        """
 
 
 rule taxa_scores_cmh:
@@ -295,19 +293,15 @@ rule taxa_scores_cmh:
             "{taxon}",
             "scores_cmh-{timepoints}-{groups}-{taxon}-{focus_tp}.tsv",
         ),
+    retries: get_retries("taxa_scores_cmh")
     resources:
         mem_mb=get_mem_mb("taxa_scores_cmh"),
         time=get_time("taxa_scores_cmh"),
-    run:
-        cmd = f"""
-        alleleflux-taxa-scores \\
-            --input_df {input.concatenated} \\
-            --group_by_column {wildcards.taxon} \\
-            --out_fPath {output} 
+        runtime=get_runtime("taxa_scores_cmh"),
+    shell:
         """
-        logger.info(f"Executing: {cmd}")
-        try:
-            subprocess.run(cmd, shell=True, check=True, executable="/bin/bash")
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Command failed with exit code {e.returncode}")
-            raise e
+        alleleflux-taxa-scores \
+            --input_df {input.concatenated} \
+            --group_by_column {wildcards.taxon} \
+            --out_fPath {output}
+        """

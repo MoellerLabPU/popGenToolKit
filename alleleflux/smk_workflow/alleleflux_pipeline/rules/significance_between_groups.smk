@@ -10,26 +10,37 @@ between experimental groups:
 """
 
 
+def _cache_paths_for_combination_between(wildcards):
+    """Resolve the per-timepoint (group-independent) Parquet cache paths for one combination."""
+    tps = wildcards.timepoints.split("_") if DATA_TYPE == "longitudinal" else [wildcards.timepoints]
+    return [
+        get_allele_freq_cache_path(
+            mag_wildcard=wildcards.mag,
+            timepoint_wildcard=tp,
+        )
+        for tp in tps
+    ]
+
+
 def get_between_group_inputs(test_type=None):
     """Get the appropriate input file path for between-group statistical tests.
-    
+
     Uses helper functions from common.smk for centralized path construction.
-    
+
     Parameters:
         test_type: Optional test type. If "cmh" with longitudinal data,
-                   returns the full longitudinal file instead of mean changes.
-    
+                   returns the per-timepoint cache files (replaces longitudinal).
+
     Returns:
-        str: Path to the appropriate input file with Snakemake wildcards.
+        str or callable: Path (or input function returning a list of paths) for the rule input.
     """
-    # CMH test needs full longitudinal data (not mean changes)
+    # CMH test needs per-sample/per-timepoint data (not mean changes)
     if test_type == "cmh" and DATA_TYPE == "longitudinal":
-        # For CMH don't use the preprocessed file
-        return get_longitudinal_input_path()
-    
+        return _cache_paths_for_combination_between
+
     # Check if preprocessing is enabled
     preprocess_enabled = config["statistics"].get("preprocess_between_groups", False)
-    
+
     if preprocess_enabled:
         return get_preprocessed_between_groups_path()
     else:
@@ -53,9 +64,11 @@ rule preprocess_between_groups:
         min_positions=config["statistics"].get("min_positions_after_preprocess", 1),
         min_sample_num=config["quality_control"]["min_sample_num"],
     threads: get_threads("preprocess_between_groups")
+    retries: get_retries("preprocess_between_groups")
     resources:
         mem_mb=get_mem_mb("preprocess_between_groups"),
         time=get_time("preprocess_between_groups"),
+        runtime=get_runtime("preprocess_between_groups"),
     shell:
         """
         alleleflux-preprocess-between-groups \
@@ -86,9 +99,11 @@ rule two_sample_unpaired:
         ),
         data_type=DATA_TYPE,
     threads: get_threads("statistical_tests")
+    retries: get_retries("statistical_tests")
     resources:
         mem_mb=get_mem_mb("statistical_tests"),
         time=get_time("statistical_tests"),
+        runtime=get_runtime("statistical_tests"),
     shell:
         """
         alleleflux-two-sample-unpaired \
@@ -117,9 +132,11 @@ rule two_sample_paired:
         ),
         data_type=DATA_TYPE,
     threads: get_threads("statistical_tests")
+    retries: get_retries("statistical_tests")
     resources:
         mem_mb=get_mem_mb("statistical_tests"),
         time=get_time("statistical_tests"),
+        runtime=get_runtime("statistical_tests"),
     shell:
         """
         alleleflux-two-sample-paired \
@@ -148,9 +165,11 @@ rule lmm_analysis:
         ),
         data_type=DATA_TYPE,
     threads: get_threads("statistical_tests")
+    retries: get_retries("statistical_tests")
     resources:
         mem_mb=get_mem_mb("statistical_tests"),
         time=get_time("statistical_tests"),
+        runtime=get_runtime("statistical_tests"),
     shell:
         """
         alleleflux-lmm \
@@ -173,7 +192,8 @@ rule cmh_test:
             )
             if config["statistics"].get("preprocess_between_groups", True) and DATA_TYPE == "longitudinal"
             else [],
-    
+        # Permuted (null) run: depend on the per-pair sheet (generate mode only).
+        permuted_md=lambda wildcards: permuted_metadata_input(wildcards.groups),
     output:
         os.path.join(
             OUTDIR,
@@ -187,6 +207,9 @@ rule cmh_test:
             OUTDIR, "significance_tests", "cmh_{timepoints}-{groups}"
         ),
         data_type=DATA_TYPE,
+        groups_arg=lambda wildcards: "--groups " + " ".join(wildcards.groups.split("_")),
+        # Permuted (null) run: relabel the reused cache from the per-pair sheet.
+        permuted_metadata=lambda wildcards: permuted_metadata_flag(wildcards.groups),
         # Conditionally include the preprocessed file argument.
         preprocessed_flag=(
             ("--preprocessed_df")
@@ -194,8 +217,10 @@ rule cmh_test:
             else ""
         ),
     threads: get_threads("statistical_tests")
+    retries: get_retries("statistical_tests")
     resources:
         time=get_time("statistical_tests"),
+        runtime=get_runtime("statistical_tests"),
         mem_mb=get_mem_mb("statistical_tests"),
     shell:
         """
@@ -204,9 +229,11 @@ rule cmh_test:
             --min_sample_num {params.min_sample_num} \
             --mag_id {wildcards.mag} \
             --data_type {params.data_type} \
+            {params.groups_arg} \
+            {params.permuted_metadata} \
             --cpus {threads} \
             --output_dir {params.outDir} \
             {params.preprocessed_flag} {input.preprocessed_df}
-            
+
         """
 

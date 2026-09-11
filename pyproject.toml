@@ -16,6 +16,7 @@ requires-python = ">=3.9"
 dependencies = [
     "numpy",
     "pandas",
+    "pyarrow",
     "scipy",
     "matplotlib",
     "seaborn",
@@ -32,26 +33,50 @@ dependencies = [
     "pyyaml",
 ]
 
+[project.optional-dependencies]
+# Test dependencies — installed via `pip install -e ".[test]"`.
+# Kept out of `dependencies` and environment.yml so production / end-user
+# installs don't pull pytest in.  CI workflows + local test runs use this.
+test = [
+    "pytest",
+    "pytest-cov",
+]
+# Dev convenience extra: bundles test plus any future linters/formatters.
+dev = [
+    "AlleleFlux[test]",
+]
+
 [project.scripts]
 alleleflux = "alleleflux.cli:main"
 
 # Analysis scripts
 alleleflux-profile = "alleleflux.scripts.analysis.profile_mags:main"
-alleleflux-allele-freq = "alleleflux.scripts.analysis.allele_freq:main"
-alleleflux-scores = "alleleflux.scripts.analysis.scores:main"
-alleleflux-taxa-scores = "alleleflux.scripts.analysis.taxa_scores:main"
-alleleflux-gene-scores = "alleleflux.scripts.analysis.gene_scores:main"
-alleleflux-outliers = "alleleflux.scripts.analysis.outliers_genes:main"
-alleleflux-cmh-scores = "alleleflux.scripts.analysis.cmh_scores:main"
+alleleflux-allele-freq = "alleleflux.scripts.analysis.allele_frequency.allele_freq:main"
+alleleflux-cache-allele-freq = "alleleflux.scripts.analysis.allele_frequency.allele_freq_cache:main"
+alleleflux-scores = "alleleflux.scripts.analysis.scoring.scores:main"
+alleleflux-taxa-scores = "alleleflux.scripts.analysis.scoring.taxa_scores:main"
+alleleflux-gene-scores = "alleleflux.scripts.analysis.scoring.gene_scores:main"
+alleleflux-outliers = "alleleflux.scripts.analysis.scoring.outliers_genes:main"
+alleleflux-cmh-scores = "alleleflux.scripts.analysis.scoring.cmh_scores:main"
+alleleflux-regional-contrast = "alleleflux.scripts.analysis.regional_contrast:main"
+alleleflux-regional-contrast-summary = "alleleflux.scripts.preprocessing.regional_contrast_summary:main"
+alleleflux-pairwise-ani = "alleleflux.scripts.analysis.ani.pairwise_ani:main"
+alleleflux-strain-turnover = "alleleflux.scripts.analysis.ani.strain_turnover:main"
+alleleflux-replacement-classification = "alleleflux.scripts.analysis.ani.replacement_classification:main"
+alleleflux-baseline-presence = "alleleflux.scripts.analysis.baseline_presence:main"
 
 # Preprocessing scripts
 alleleflux-metadata = "alleleflux.scripts.preprocessing.mag_metadata:main"
 alleleflux-qc = "alleleflux.scripts.preprocessing.quality_control:main"
 alleleflux-eligibility = "alleleflux.scripts.preprocessing.eligibility_table:main"
+alleleflux-permute-metadata = "alleleflux.scripts.preprocessing.permute_metadata:main"
 alleleflux-preprocess-between-groups = "alleleflux.scripts.preprocessing.preprocess_between_groups:main"
 alleleflux-preprocess-within-group = "alleleflux.scripts.preprocessing.preprocess_within_group:main"
 alleleflux-preprocessing-eligibility = "alleleflux.scripts.preprocessing.preprocessing_eligibility:main"
-alleleflux-p-value-summary = "alleleflux.scripts.preprocessing.p_value_summary:main"
+
+# Summary scripts (roll up results produced after the statistics step)
+alleleflux-p-value-summary = "alleleflux.scripts.summary.p_value_summary:main"
+alleleflux-significant-sites-summary = "alleleflux.scripts.summary.significant_sites_summary:main"
 
 # Statistics scripts
 alleleflux-lmm = "alleleflux.scripts.statistics.LMM:main"
@@ -107,4 +132,9 @@ alleleflux = [
 
 [tool.isort]
 profile = "black"
-line_length = 88 
+line_length = 88
+
+[tool.pytest.ini_options]
+markers = [
+    "regression: end-to-end regression test (slow; runs the full pipeline)",
+] 

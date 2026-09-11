@@ -171,8 +171,31 @@ logs/
 .kilocode/*
 alleleflux/smk_workflow/config_*
 alleleflux_config*
-# Kilo configuration
 .kilo/
-
-# Visualization configs (generated/temporary)
+.claude/
+.github/prompts/
 alleleflux/smk_workflow/visualization/visualization_config_*.yaml
+
+# Pipeline outputs inside the bundled example datasets — written by the
+# regression test (or anyone running `alleleflux run` against the bundled
+# configs).  Transient; committed input data lives in reference/, metadata/,
+# profiles/, bams/, significant_sites/ inside the same dirs.
+docs/source/examples/example_data_*/output_bams/
+docs/source/examples/example_data_*/output/
+docs/source/examples/example_data_*/config_runtime_*.yml
+tests/regression/__pycache__*
+
+# bwa / samtools index files for the bundled FASTA.  Regenerated idempotently
+# by generate_bams.sh from combined_mags.fasta, so safe to gitignore — saves
+# ~hundreds of KB per scenario from cluttering the tree.  Pattern matches
+# .amb / .ann / .bwt / .pac / .sa / .fai but NOT combined_mags.fasta itself.
+docs/source/examples/example_data_*/reference/combined_mags.fasta.*
+
+# Personal optimization notes — scratch doc kept local, not for the repo.
+OPTIMIZATION_CHANGES.md
+
+# Upstream inStrain bug-report materials (issue #223 / PR #224): patch, tests,
+# and draft correspondence. Kept locally for reference; the fix itself lives in
+# the inStrain repo, so none of it belongs in AlleleFlux's history.
+docs/superpowers/instrain-nullmodel-report/
+docs/superpowers/

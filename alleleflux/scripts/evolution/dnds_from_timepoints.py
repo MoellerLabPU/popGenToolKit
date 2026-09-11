@@ -62,6 +62,9 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from tqdm import tqdm
 
+from alleleflux.scripts.analysis.allele_frequency._allele_freq_common import (
+    PROFILE_READ_DTYPES,
+)
 from alleleflux.scripts.utilities.logging_config import setup_logging
 
 # Set up logger for this script
@@ -1744,8 +1747,12 @@ def process_mag(mag_id, args, prodigal_records):
         )
         return
 
-    ancestral_profile_df = pd.read_csv(ancestral_profile_path, sep="\t")
-    derived_profile_df = pd.read_csv(derived_profile_path, sep="\t")
+    ancestral_profile_df = pd.read_csv(
+        ancestral_profile_path, sep="\t", dtype=PROFILE_READ_DTYPES
+    )
+    derived_profile_df = pd.read_csv(
+        derived_profile_path, sep="\t", dtype=PROFILE_READ_DTYPES
+    )
 
     # 3. Reconstruct Ancestral Sequences
     logger.info(

@@ -1,0 +1,65 @@
+# Fast unit-test suite for AlleleFlux.
+#
+# Runs every unit test EXCEPT the regression suite (which is too slow for
+# the per-push inner loop and lives in a separate workflow).  Triggered on
+# every PR and every push to main; gives developers ~30 s feedback on
+# whether their change breaks any module-level test.
+#
+# Companion workflow: .github/workflows/regression.yml runs the slow
+# end-to-end regression suite (pipeline + golden diff).  See
+# tests/regression/README.md § "Live vs snapshot" for the full split.
+
+name: Unit Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Manual trigger — fire from any branch via:
+  #   conda run -n alleleflux gh workflow run unit-tests.yml --ref <branch>
+  workflow_dispatch:
+
+# Cancel superseded runs on the same ref — only the latest push matters.
+concurrency:
+  group: unit-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Unit tests (regression excluded)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    defaults:
+      run:
+        # Login shell so `conda activate` works; errexit so failures fail.
+        shell: bash -el {0}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Miniforge + alleleflux env
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          environment-file: environment.yml
+          activate-environment: alleleflux
+          auto-activate-base: false
+          use-mamba: true
+
+      - name: Install AlleleFlux + test extras
+        # Pulls pytest/pytest-cov via pyproject.toml's [test] extra.
+        run: pip install -e ".[test]"
+
+      - name: Run unit tests (regression excluded)
+        # -m "not regression" excludes the slow end-to-end suite — that
+        # lives in regression.yml and needs different setup (committed
+        # goldens, bundled example data).  Keep this workflow fast.
+        run: pytest tests/ -v --tb=short -m "not regression"
+
+      - name: Test CLI commands
+        run: |
+          alleleflux --help
+          alleleflux --version
+          alleleflux tools

@@ -70,9 +70,11 @@ rule gene_scores:
         outDir=os.path.join(
             OUTDIR, "scores", "processed", "gene_scores_{timepoints}-{groups}"
         ),
+    retries: get_retries("gene_scores")
     resources:
         mem_mb=get_mem_mb("gene_scores"),
         time=get_time("gene_scores"),
+        runtime=get_runtime("gene_scores"),
     run:
         # Check if input file exists and has gene IDs
         if check_for_gene_ids(input.pvalue_table):
@@ -175,9 +177,11 @@ rule detect_outlier_genes:
             "{timepoints}-{groups}",
             "{mag}_{test_type}{group_str}_outlier_genes.tsv",
         ),
+    retries: get_retries("detect_outlier_genes")
     resources:
         mem_mb=get_mem_mb("detect_outlier_genes"),
         time=get_time("detect_outlier_genes"),
+        runtime=get_runtime("detect_outlier_genes"),
     run:
         gene_df = pd.read_csv(input.gene_scores, sep='\t')
         if len(gene_df) == 0 or gene_df['gene_id'].isna().all():
@@ -294,9 +298,11 @@ rule cmh_gene_scores:
         outDir=os.path.join(
             OUTDIR, "scores", "processed", "gene_scores_{timepoints}-{groups}"
         ),
+    retries: get_retries("cmh_gene_scores")
     resources:
         mem_mb=get_mem_mb("cmh_gene_scores"),
         time=get_time("cmh_gene_scores"),
+        runtime=get_runtime("cmh_gene_scores"),
     run:
         # Check if input file exists and has gene IDs
         if check_for_gene_ids(input.pvalue_table):
@@ -351,9 +357,11 @@ rule detect_cmh_outlier_genes:
             "{timepoints}-{groups}",
             "{mag}_cmh_{focus_tp}_outlier_genes.tsv",
         ),
+    retries: get_retries("detect_cmh_outlier_genes")
     resources:
         mem_mb=get_mem_mb("detect_cmh_outlier_genes"),
         time=get_time("detect_cmh_outlier_genes"),
+        runtime=get_runtime("detect_cmh_outlier_genes"),
     run:
         gene_df = pd.read_csv(input.gene_scores, sep='\t')
         if len(gene_df) == 0 or gene_df['gene_id'].isna().all():

@@ -1,0 +1,2 @@
+domain	phylum	class	order	family	total_sites_per_group_tTest_treatment	significant_sites_per_group_tTest_treatment	total_sites_per_group_Wilcoxon_treatment	significant_sites_per_group_Wilcoxon_treatment	unique_MAGs	score_tTest_treatment (%)	score_Wilcoxon_treatment (%)	grouped_by
+Bacteria	Bacteroidota	Bacteroidia	Bacteroidales	Bacteroidaceae	4046	240	4046	0	2	5.931784478497281	0.0	family

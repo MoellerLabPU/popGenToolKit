@@ -6,6 +6,7 @@ import os
 import pandas as pd
 
 from alleleflux.scripts.utilities.logging_config import setup_logging
+from alleleflux.scripts.utilities.utilities import load_allele_freq_inputs
 
 # Constants
 NUCLEOTIDES = ["A_frequency", "T_frequency", "G_frequency", "C_frequency"]
@@ -200,7 +201,7 @@ def main():
 
     args = parser.parse_args()
 
-    input_df = pd.read_csv(args.df_fPath, sep="\t", dtype={"gene_id": str})
+    input_df = load_allele_freq_inputs(args.df_fPath)
 
     # Filter the dataframe to only include positions from the specified group.
     input_df = input_df[input_df["group"] == args.group]

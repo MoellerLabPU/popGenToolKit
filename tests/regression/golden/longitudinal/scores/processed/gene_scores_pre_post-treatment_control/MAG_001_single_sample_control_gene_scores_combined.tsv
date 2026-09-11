@@ -1,0 +1,8 @@
+gene_id	total_sites_per_group_tTest_control	significant_sites_per_group_tTest_control	score_tTest_control (%)	total_sites_per_group_Wilcoxon_control	significant_sites_per_group_Wilcoxon_control	score_Wilcoxon_control (%)
+MAG_001.fa_contig1_gene1 	157	6	3.821656050955414	157	0	0.0
+MAG_001.fa_contig1_gene2 	351	26	7.4074074074074066	351	0	0.0
+MAG_001.fa_contig1_gene3 	139	4	2.877697841726619	139	0	0.0
+MAG_001.fa_contig2_gene1 	313	10	3.1948881789137378	313	0	0.0
+MAG_001.fa_contig2_gene2 	193	11	5.699481865284974	193	0	0.0
+MAG_001.fa_contig2_gene3 	226	20	8.849557522123893	226	0	0.0
+	959	29	3.023983315954119	959	0	0.0

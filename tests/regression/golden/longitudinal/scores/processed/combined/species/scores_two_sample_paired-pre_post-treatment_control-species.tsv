@@ -1,0 +1,3 @@
+domain	phylum	class	order	family	genus	species	total_sites_per_group_tTest	significant_sites_per_group_tTest	total_sites_per_group_Wilcoxon	significant_sites_per_group_Wilcoxon	total_sites_per_group_tTest_abs	significant_sites_per_group_tTest_abs	total_sites_per_group_Wilcoxon_abs	significant_sites_per_group_Wilcoxon_abs	unique_MAGs	score_tTest (%)	score_Wilcoxon (%)	score_tTest_abs (%)	score_Wilcoxon_abs (%)	grouped_by
+Bacteria	Bacteroidota	Bacteroidia	Bacteroidales	Bacteroidaceae	Bacteroides	Bacteroides fragilis	429	125	429	0	429	135	429	0	1	29.13752913752914	0.0	31.46853146853147	0.0	species
+Bacteria	Bacteroidota	Bacteroidia	Bacteroidales	Bacteroidaceae	Bacteroides	Bacteroides vulgatus	677	245	677	0	677	225	677	0	1	36.1890694239291	0.0	33.23485967503693	0.0	species

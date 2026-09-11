@@ -13,6 +13,7 @@ from tqdm import tqdm
 
 import alleleflux.scripts.utilities.supress_warning as supress_warning
 from alleleflux.scripts.utilities.logging_config import setup_logging
+from alleleflux.scripts.utilities.utilities import load_allele_freq_inputs
 
 NUCLEOTIDES = ["A_frequency", "T_frequency", "G_frequency", "C_frequency"]
 
@@ -134,43 +135,36 @@ def paired_test_for_nucleotide(values, filter_type):
         return (t_p, w_p)
 
 
-def process_group(group_df, filter_type, data_type="longitudinal"):
+def process_group(site_values, filter_type):
     """
-    Processes a group of nucleotide data and performs paired tests for each nucleotide.
+    Run the paired statistical test for each nucleotide at a single site.
 
     Parameters:
-        group_df (pd.DataFrame): A DataFrame containing nucleotide data.
+        site_values (dict): Mapping of nucleotide -> 1D numpy array of values for
+            that site. The caller (``filter_sites_parallel``) resolves which
+            column backs each nucleotide (the ``data_type``-dependent
+            ``{nuc}_diff_mean`` vs ``{nuc}`` choice) and extracts the arrays, so
+            the worker receives only the minimal data it needs.
         filter_type (str): The type of test to perform on the nucleotide values.
-        data_type (str): The type of data ('longitudinal' or 'single').
 
     Returns:
-        dict: A dictionary where keys are nucleotides and values are lists of p-values
-              resulting from the paired tests.
+        dict: A dictionary where keys are nucleotides and values are the
+              (t_p, w_p) tuples resulting from the paired tests.
 
     Raises:
-        ValueError: If any NA values are found in the required columns or if any NaN p-values
-                    are encountered in the results.
+        ValueError: If any NA values are found, or if any NaN p-values are
+                    encountered in the results.
     """
     pvalues = {}
     for nuc in NUCLEOTIDES:
-        # Column name varies depending on data_type
-        if data_type == "longitudinal":
-            col = f"{nuc}_diff_mean"
-        else:  # single
-            col = f"{nuc}"
-
-        values = group_df[col].values
+        values = site_values[nuc]
         if pd.isnull(values).any():
-            raise ValueError(f"NA values found in column '{col}'")
-        # pvalues[nuc] = paired_test_for_nucleotide(values, filter_type=filter_type)
+            raise ValueError(f"NA values found for nucleotide '{nuc}'")
         nuc_pvals = paired_test_for_nucleotide(values, filter_type=filter_type)
         # Check that none of the returned p-values are NaN (ignoring None values)
         for p in nuc_pvals:
             if p is not None and np.isnan(p):
-                raise ValueError(
-                    f"NaN p-value encountered for nucleotide {nuc} at site: "
-                    f"{group_df[['contig', 'position']].iloc[0].to_dict()}"
-                )
+                raise ValueError(f"NaN p-value encountered for nucleotide {nuc}")
         pvalues[nuc] = nuc_pvals
     return pvalues
 
@@ -184,18 +178,18 @@ def process_site(args):
     Parameters:
         args (tuple): A tuple containing:
             - (contig, position) (tuple): The contig and position of the site.
-            - group_df (DataFrame): A DataFrame containing the group data for the site.
+            - site_values (dict): Mapping of nucleotide -> 1D numpy array of values
+              for the site (extracted by the caller).
             - alpha (float): The significance level for the statistical tests.
             - filter_type (str): The type of statistical test to perform. Can be "t-test", "wilcoxon", "both", or "either".
-            - data_type (str): The type of data ('longitudinal' or 'single').
 
     Returns:
         tuple: A tuple containing:
             - (contig, position) (tuple): The contig and position of the site.
             - remove_site (bool): A boolean indicating whether the site should be removed (True) or not (False).
     """
-    (contig, position), group_df, alpha, filter_type, data_type = args
-    pvals = process_group(group_df, filter_type=filter_type, data_type=data_type)
+    (contig, position), site_values, alpha, filter_type = args
+    pvals = process_group(site_values, filter_type=filter_type)
     remove_site = True  # assume removal unless one nucleotide prevents it
     for nuc, (t_p, w_p) in pvals.items():
         if filter_type == "t-test":
@@ -230,16 +224,38 @@ def filter_sites_parallel(grouped, alpha, filter_type, cpus, data_type="longitud
     Returns:
         list: A list of sites to remove, where each site is represented by its (contig, position).
     """
-    groups = list(grouped)  # list of ((contig, position), group_df)
-    args_list = [
-        ((contig, position), group_df, alpha, filter_type, data_type)
-        for (contig, position), group_df in groups
-    ]
+    # Resolve, once in the parent, which column backs each nucleotide. The
+    # data_type-dependent choice happens here so workers receive only the
+    # per-nucleotide value arrays they need -- never whole per-site DataFrames.
+    if data_type == "longitudinal":
+        nuc_cols = {nuc: f"{nuc}_diff_mean" for nuc in NUCLEOTIDES}
+    else:  # single
+        nuc_cols = {nuc: nuc for nuc in NUCLEOTIDES}
+
+    def _iter_site_tasks():
+        # Lazily extract the minimal payload per site. Crucially we do NOT
+        # materialise list(grouped): that would hold ~1 DataFrame object per
+        # site (millions for large MAGs), and pickling whole DataFrames through
+        # imap drove the process past its memory limit -- an OOM-killed worker
+        # then left imap_unordered deadlocked. Shipping a handful of short
+        # arrays per site keeps peak memory bounded.
+        for (contig, position), group_df in grouped:
+            site_values = {
+                nuc: group_df[col].values for nuc, col in nuc_cols.items()
+            }
+            yield ((contig, position), site_values, alpha, filter_type)
+
+    n_sites = grouped.ngroups
+    # Batch tasks so 1.7M-site MAGs don't pay per-task IPC overhead. Correctness
+    # is independent of chunksize (results are reduced order-independently).
+    chunksize = max(1, min(1000, (n_sites // (cpus * 8)) or 1))
     with Pool(processes=cpus) as pool:
         results = list(
             tqdm(
-                pool.imap_unordered(process_site, args_list),
-                total=len(args_list),
+                pool.imap_unordered(
+                    process_site, _iter_site_tasks(), chunksize=chunksize
+                ),
+                total=n_sites,
                 desc="Processing sites",
             )
         )
@@ -385,8 +401,7 @@ def main():
     args = parser.parse_args()
     start_time = time.time()
 
-    logger.info("Reading input file")
-    df = pd.read_csv(args.mean_changes_fPath, sep="\t", dtype={"gene_id": str})
+    df = load_allele_freq_inputs(args.mean_changes_fPath)
 
     # Group data by "contig" and "position" (including groups with NA keys).
     grouped = df.groupby(["contig", "position"], dropna=False)

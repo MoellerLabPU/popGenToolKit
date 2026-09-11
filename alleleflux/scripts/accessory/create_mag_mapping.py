@@ -72,6 +72,7 @@ def process_and_concatenate_fastas(
     output_genomes_dir,
     extension,
     headers_unique=False,
+    sanitize_headers=False,
 ):
     """
     Process each FASTA file, modify headers, and concatenate into one file.
@@ -84,6 +85,7 @@ def process_and_concatenate_fastas(
         output_genomes_dir (str): Directory to store individual genome files with modified headers
         extension (str): File extension to match (without leading dot)
         headers_unique (bool): If True, headers are already in MAGID_contigID format
+        sanitize_headers (bool): If True, replace '|' with '_' in contig IDs
 
     Returns:
         tuple: (total_seqs, total_mags) - Count of sequences and MAGs processed
@@ -143,6 +145,9 @@ def process_and_concatenate_fastas(
                         new_id = record.id
                     else:
                         new_id = f"{mag_basename}_{record.id}"
+
+                    if sanitize_headers:
+                        new_id = new_id.replace("|", "_")
 
                     new_record = SeqRecord(record.seq, id=new_id, description="")
 
@@ -246,6 +251,13 @@ def main():
         default=None,
     )
 
+    parser.add_argument(
+        "--sanitize-headers",
+        help="Replace '|' with '_' in contig IDs (recommended for downstream compatibility)",
+        action="store_true",
+        default=False,
+    )
+
     args = parser.parse_args()
 
     # Validate input directory
@@ -271,6 +283,7 @@ def main():
         args.output_genomes_dir,
         args.extension,
         headers_unique=headers_unique,
+        sanitize_headers=args.sanitize_headers,
     )
 
     if total_seqs == 0:

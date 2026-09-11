@@ -1,0 +1,1015 @@
+period	mag_id	contig	position	gene_id	test_type	min_p_value	source_file	q_value
+t1	MAG_002	MAG_002.fa_contig1	630	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	632	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.2203846516937907	MAG_002_two_sample_unpaired.tsv.gz	0.5379475716258031
+t1	MAG_002	MAG_002.fa_contig1	636	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.1817023935795771	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	638	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.665347105934607	MAG_002_two_sample_unpaired.tsv.gz	0.799362518267407
+t1	MAG_002	MAG_002.fa_contig1	644	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.8912455370758645	MAG_002_two_sample_unpaired.tsv.gz	0.9595587702269376
+t1	MAG_002	MAG_002.fa_contig1	652	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.1626191381503188	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	648	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.8507410071021364	MAG_002_two_sample_unpaired.tsv.gz	0.9397073869298108
+t1	MAG_002	MAG_002.fa_contig1	653	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.0611784476024203	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	666	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3183373847664885	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	675	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.2377785523887011	MAG_002_two_sample_unpaired.tsv.gz	0.5454919731270201
+t1	MAG_002	MAG_002.fa_contig1	667	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	680	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	683	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.340250225977178	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	687	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	693	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.2491564523488038	MAG_002_two_sample_unpaired.tsv.gz	0.5639389345573371
+t1	MAG_002	MAG_002.fa_contig1	696	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.6378946486515	MAG_002_two_sample_unpaired.tsv.gz	0.7866250377871045
+t1	MAG_002	MAG_002.fa_contig1	698	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.1393123728698195	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	702	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	703	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.1820683786394903	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	707	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.7156665236611965	MAG_002_two_sample_unpaired.tsv.gz	0.8381550796452396
+t1	MAG_002	MAG_002.fa_contig1	711	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.8435340502452519	MAG_002_two_sample_unpaired.tsv.gz	0.9361915582070185
+t1	MAG_002	MAG_002.fa_contig1	712	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.1817027044412173	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	713	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3429178875798442	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	717	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.0833944429610899	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	721	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	730	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.6783153365846866	MAG_002_two_sample_unpaired.tsv.gz	0.8091902956433791
+t1	MAG_002	MAG_002.fa_contig1	734	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.0586010725440962	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	735	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	736	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.8883729191299192	MAG_002_two_sample_unpaired.tsv.gz	0.9595587702269376
+t1	MAG_002	MAG_002.fa_contig1	741	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.4823858718351889	MAG_002_two_sample_unpaired.tsv.gz	0.6746668097467886
+t1	MAG_002	MAG_002.fa_contig1	746	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.2206964396413551	MAG_002_two_sample_unpaired.tsv.gz	0.5379475716258031
+t1	MAG_002	MAG_002.fa_contig1	748	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	751	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	753	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.1841824943829101	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	755	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.224900123475999	MAG_002_two_sample_unpaired.tsv.gz	0.5449444712116245
+t1	MAG_002	MAG_002.fa_contig1	757	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.4348665169774194	MAG_002_two_sample_unpaired.tsv.gz	0.6263560343964535
+t1	MAG_002	MAG_002.fa_contig1	763	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.1826590565232309	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	765	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.0609057939103093	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	767	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.874466239989152	MAG_002_two_sample_unpaired.tsv.gz	0.9555051372295259
+t1	MAG_002	MAG_002.fa_contig1	786	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.182802407329894	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	808	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.0923617791571188	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	787	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	791	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.2345719692678099	MAG_002_two_sample_unpaired.tsv.gz	0.5454919731270201
+t1	MAG_002	MAG_002.fa_contig1	812	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	816	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3679957296977301	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	844	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3695573945478881	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	842	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.1563904686684534	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	854	MAG_002.fa_contig1_gene1 	two_sample_unpaired_tTest	0.9522178864806136	MAG_002_two_sample_unpaired.tsv.gz	0.9802166088459658
+t1	MAG_002	MAG_002.fa_contig1	1041	MAG_002.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1455689383747779	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	1004	MAG_002.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1018605315467613	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	1037	MAG_002.fa_contig1_gene2 	two_sample_unpaired_tTest	0.7733788243892313	MAG_002_two_sample_unpaired.tsv.gz	0.8811304808209893
+t1	MAG_002	MAG_002.fa_contig1	1075	MAG_002.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1368247530927937	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	1076	MAG_002.fa_contig1_gene2 	two_sample_unpaired_tTest	0.8047686859039604	MAG_002_two_sample_unpaired.tsv.gz	0.9046956180782881
+t1	MAG_002	MAG_002.fa_contig1	1118	MAG_002.fa_contig1_gene2 	two_sample_unpaired_tTest	0.955803444570042	MAG_002_two_sample_unpaired.tsv.gz	0.9806400020985249
+t1	MAG_002	MAG_002.fa_contig1	1085	MAG_002.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1534170314698301	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	266	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.2327923500213861	MAG_002_two_sample_unpaired.tsv.gz	0.5454919731270201
+t1	MAG_002	MAG_002.fa_contig1	274	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.9906920927476204	MAG_002_two_sample_unpaired.tsv.gz	0.9946156257882051
+t1	MAG_002	MAG_002.fa_contig1	277	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.097835762817155	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	285	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.2897779142570544	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	305	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.2125657716881289	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	361	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.2670067446441468	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	390	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.2070903319896149	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	394	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	395	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.145727458112084	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	415	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.9531494835523888	MAG_002_two_sample_unpaired.tsv.gz	0.9802166088459658
+t1	MAG_002	MAG_002.fa_contig1	405	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.2316853945358326	MAG_002_two_sample_unpaired.tsv.gz	0.5454919731270201
+t1	MAG_002	MAG_002.fa_contig1	408	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.1462025789940462	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	426	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.1384787213116129	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	432	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.8799167581076504	MAG_002_two_sample_unpaired.tsv.gz	0.9573343269540315
+t1	MAG_002	MAG_002.fa_contig1	445	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	449	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	453	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	485	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.1637794104111735	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	470	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.2278663272127503	MAG_002_two_sample_unpaired.tsv.gz	0.5449444712116245
+t1	MAG_002	MAG_002.fa_contig1	486	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.1487118485210306	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	487	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.2070021044382366	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	491	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.0334106183639787	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	492	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.3285182884942852	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	494	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.1933294530294662	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	498	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.7565813337199561	MAG_002_two_sample_unpaired.tsv.gz	0.8658842803521845
+t1	MAG_002	MAG_002.fa_contig1	501	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.4085787737101106	MAG_002_two_sample_unpaired.tsv.gz	0.6064274756811217
+t1	MAG_002	MAG_002.fa_contig1	502	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.1994324549622142	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	508	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.3309218893341273	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	509	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.1499568700153159	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	510	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.3366873165991361	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	511	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	514	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	515	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.1819736229368229	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	518	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.0829897957644638	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	141		two_sample_unpaired_tTest	0.964796185695665	MAG_002_two_sample_unpaired.tsv.gz	0.9822322613407675
+t1	MAG_002	MAG_002.fa_contig1	149		two_sample_unpaired_tTest	0.7983246171775106	MAG_002_two_sample_unpaired.tsv.gz	0.8994457353533286
+t1	MAG_002	MAG_002.fa_contig1	519	MAG_002.fa_contig1_gene3 	two_sample_unpaired_tTest	0.4160497136128345	MAG_002_two_sample_unpaired.tsv.gz	0.6149772734743647
+t1	MAG_002	MAG_002.fa_contig1	164		two_sample_unpaired_tTest	0.7197145361502162	MAG_002_two_sample_unpaired.tsv.gz	0.8388397007543898
+t1	MAG_002	MAG_002.fa_contig1	176		two_sample_unpaired_tTest	0.7525901162147552	MAG_002_two_sample_unpaired.tsv.gz	0.8632651333051604
+t1	MAG_002	MAG_002.fa_contig1	226		two_sample_unpaired_tTest	0.2013508995316366	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	239		two_sample_unpaired_tTest	0.2012707771602206	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	253		two_sample_unpaired_tTest	0.172616914729394	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	543		two_sample_unpaired_tTest	0.2895557616307765	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	524		two_sample_unpaired_tTest	0.4239246117236379	MAG_002_two_sample_unpaired.tsv.gz	0.6193941733253152
+t1	MAG_002	MAG_002.fa_contig1	551		two_sample_unpaired_tTest	0.7181469045085523	MAG_002_two_sample_unpaired.tsv.gz	0.8388397007543898
+t1	MAG_002	MAG_002.fa_contig1	552		two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	558		two_sample_unpaired_tTest	0.0668480700432935	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	565		two_sample_unpaired_tTest	0.6124687208000861	MAG_002_two_sample_unpaired.tsv.gz	0.7743681831562185
+t1	MAG_002	MAG_002.fa_contig1	559		two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	566		two_sample_unpaired_tTest	0.3589791251361435	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	573		two_sample_unpaired_tTest	0.8679830324892226	MAG_002_two_sample_unpaired.tsv.gz	0.9504695409763193
+t1	MAG_002	MAG_002.fa_contig1	581		two_sample_unpaired_tTest	0.1820047300815623	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	587		two_sample_unpaired_tTest	0.1715611428465334	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	589		two_sample_unpaired_tTest	0.1824285444241266	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	590		two_sample_unpaired_tTest	0.9578907399559686	MAG_002_two_sample_unpaired.tsv.gz	0.9806400020985249
+t1	MAG_002	MAG_002.fa_contig1	594		two_sample_unpaired_tTest	0.4650447891721017	MAG_002_two_sample_unpaired.tsv.gz	0.6641625580570578
+t1	MAG_002	MAG_002.fa_contig1	595		two_sample_unpaired_tTest	0.0301094096153863	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	597		two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	598		two_sample_unpaired_tTest	0.1817352225649728	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	599		two_sample_unpaired_tTest	0.5103138951108044	MAG_002_two_sample_unpaired.tsv.gz	0.6992109742468471
+t1	MAG_002	MAG_002.fa_contig1	604		two_sample_unpaired_tTest	0.0524918086401073	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	607		two_sample_unpaired_tTest	0.1844751622834672	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	619		two_sample_unpaired_tTest	0.1842017815180135	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	622		two_sample_unpaired_tTest	0.0579318731755129	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	625		two_sample_unpaired_tTest	0.190851787567111	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	626		two_sample_unpaired_tTest	0.3458597376664449	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	627		two_sample_unpaired_tTest	5.5095085065165287e-05	MAG_002_two_sample_unpaired.tsv.gz	0.013919270202626345
+t1	MAG_002	MAG_002.fa_contig1	628		two_sample_unpaired_tTest	0.6545535268838206	MAG_002_two_sample_unpaired.tsv.gz	0.7977371108896564
+t1	MAG_002	MAG_002.fa_contig1	855		two_sample_unpaired_tTest	0.1719996267933891	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	865		two_sample_unpaired_tTest	0.8189034917381233	MAG_002_two_sample_unpaired.tsv.gz	0.9150072618506865
+t1	MAG_002	MAG_002.fa_contig1	884		two_sample_unpaired_tTest	0.3096493748207795	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig1	909		two_sample_unpaired_tTest	0.6077543381186159	MAG_002_two_sample_unpaired.tsv.gz	0.7722592717447074
+t1	MAG_002	MAG_002.fa_contig1	894		two_sample_unpaired_tTest	0.1818794149620971	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	921		two_sample_unpaired_tTest	0.8193556151483465	MAG_002_two_sample_unpaired.tsv.gz	0.9150072618506865
+t1	MAG_002	MAG_002.fa_contig1	924		two_sample_unpaired_tTest	0.5745520211817676	MAG_002_two_sample_unpaired.tsv.gz	0.7482350223272414
+t1	MAG_002	MAG_002.fa_contig1	939		two_sample_unpaired_tTest	0.5936504690803996	MAG_002_two_sample_unpaired.tsv.gz	0.7600524945044511
+t1	MAG_002	MAG_002.fa_contig1	959		two_sample_unpaired_tTest	0.1689075849736068	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	328	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.0170086577447449	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	329	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1713905655018815	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	340	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.421427660908735	MAG_002_two_sample_unpaired.tsv.gz	0.6193154321180541
+t1	MAG_002	MAG_002.fa_contig2	338	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3348302118020655	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig2	347	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1713700864454313	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	374	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.163200140044314	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	393	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.9759562440187952	MAG_002_two_sample_unpaired.tsv.gz	0.9876199543001477
+t1	MAG_002	MAG_002.fa_contig2	394	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig2	397	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1731802053103239	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	402	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.2089086826552734	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	403	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1910304525665332	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	410	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.0116090772174018	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	414	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.2191858462990366	MAG_002_two_sample_unpaired.tsv.gz	0.5379475716258031
+t1	MAG_002	MAG_002.fa_contig2	420	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1818263409700623	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	421	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.0592326425211292	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	424	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1705729372601339	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	430	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1099283667427453	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	439	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig2	440	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.5619659972481499	MAG_002_two_sample_unpaired.tsv.gz	0.7400435340384727
+t1	MAG_002	MAG_002.fa_contig2	441	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.5979600271440533	MAG_002_two_sample_unpaired.tsv.gz	0.7636416467557557
+t1	MAG_002	MAG_002.fa_contig2	444	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.4313432966648544	MAG_002_two_sample_unpaired.tsv.gz	0.6248315754545176
+t1	MAG_002	MAG_002.fa_contig2	445	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.5814435920688212	MAG_002_two_sample_unpaired.tsv.gz	0.7482350223272414
+t1	MAG_002	MAG_002.fa_contig2	446	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1616714240453194	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	457	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.5255009358160334	MAG_002_two_sample_unpaired.tsv.gz	0.7085876980285344
+t1	MAG_002	MAG_002.fa_contig2	459	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.0595797910596279	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	464	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1428193742960273	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	465	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig2	466	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1843364914139016	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	470	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.9055063033765564	MAG_002_two_sample_unpaired.tsv.gz	0.964478352546038
+t1	MAG_002	MAG_002.fa_contig2	473	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.0005843384888922	MAG_002_two_sample_unpaired.tsv.gz	0.042322801981192204
+t1	MAG_002	MAG_002.fa_contig2	474	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.8920589939181996	MAG_002_two_sample_unpaired.tsv.gz	0.9595587702269376
+t1	MAG_002	MAG_002.fa_contig2	475	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.6805115391385687	MAG_002_two_sample_unpaired.tsv.gz	0.8099045782705501
+t1	MAG_002	MAG_002.fa_contig2	476	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.4815386205962286	MAG_002_two_sample_unpaired.tsv.gz	0.6746668097467886
+t1	MAG_002	MAG_002.fa_contig2	484	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1806987978993736	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	494	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.2048524911851348	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	486	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.0577667976396925	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	495	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	3.683346326237844e-05	MAG_002_two_sample_unpaired.tsv.gz	0.013919270202626345
+t1	MAG_002	MAG_002.fa_contig2	500	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.5805175569316494	MAG_002_two_sample_unpaired.tsv.gz	0.7482350223272414
+t1	MAG_002	MAG_002.fa_contig2	510	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.9644882506278896	MAG_002_two_sample_unpaired.tsv.gz	0.9822322613407675
+t1	MAG_002	MAG_002.fa_contig2	512	MAG_002.fa_contig2_gene1 	two_sample_unpaired_tTest	0.517198455995744	MAG_002_two_sample_unpaired.tsv.gz	0.701448504154777
+t1	MAG_002	MAG_002.fa_contig2	560	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.198883913909113	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	573	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.196139534140545	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	563	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig2	592	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.6718543936471604	MAG_002_two_sample_unpaired.tsv.gz	0.8033730603280903
+t1	MAG_002	MAG_002.fa_contig2	593	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.1746278423688198	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	609	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.1359317643403481	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	626	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.5814686366803414	MAG_002_two_sample_unpaired.tsv.gz	0.7482350223272414
+t1	MAG_002	MAG_002.fa_contig2	639	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.9950454516946908	MAG_002_two_sample_unpaired.tsv.gz	0.9970119446822298
+t1	MAG_002	MAG_002.fa_contig2	645	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.7094007608335633	MAG_002_two_sample_unpaired.tsv.gz	0.8344923103076951
+t1	MAG_002	MAG_002.fa_contig2	664	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.6045652746109382	MAG_002_two_sample_unpaired.tsv.gz	0.7701371714264966
+t1	MAG_002	MAG_002.fa_contig2	671	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.966807259593679	MAG_002_two_sample_unpaired.tsv.gz	0.9823071755791487
+t1	MAG_002	MAG_002.fa_contig2	674	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.2506080620929655	MAG_002_two_sample_unpaired.tsv.gz	0.5647034999161489
+t1	MAG_002	MAG_002.fa_contig2	693	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.5311558930789791	MAG_002_two_sample_unpaired.tsv.gz	0.7105436353325657
+t1	MAG_002	MAG_002.fa_contig2	710	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.1598384441165231	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	711	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.9354093921448704	MAG_002_two_sample_unpaired.tsv.gz	0.9745562486594077
+t1	MAG_002	MAG_002.fa_contig2	712	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.9354093921448704	MAG_002_two_sample_unpaired.tsv.gz	0.9745562486594077
+t1	MAG_002	MAG_002.fa_contig2	737	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.1745167942386936	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	741	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.6875107862702192	MAG_002_two_sample_unpaired.tsv.gz	0.816318427725998
+t1	MAG_002	MAG_002.fa_contig2	749	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.4929227771051927	MAG_002_two_sample_unpaired.tsv.gz	0.686571010967947
+t1	MAG_002	MAG_002.fa_contig2	762	MAG_002.fa_contig2_gene2 	two_sample_unpaired_tTest	0.2020712753184187	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	79	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.2268705977538678	MAG_002_two_sample_unpaired.tsv.gz	0.5449444712116245
+t1	MAG_002	MAG_002.fa_contig2	86	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.5721216242230271	MAG_002_two_sample_unpaired.tsv.gz	0.747591916188337
+t1	MAG_002	MAG_002.fa_contig2	91	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1432620691543777	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	115	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.9411362896471748	MAG_002_two_sample_unpaired.tsv.gz	0.9745562486594077
+t1	MAG_002	MAG_002.fa_contig2	116	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.6327614013471723	MAG_002_two_sample_unpaired.tsv.gz	0.7865121246869491
+t1	MAG_002	MAG_002.fa_contig2	123	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.9323546840554228	MAG_002_two_sample_unpaired.tsv.gz	0.9745562486594077
+t1	MAG_002	MAG_002.fa_contig2	128	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.615781538094219	MAG_002_two_sample_unpaired.tsv.gz	0.7746929027636948
+t1	MAG_002	MAG_002.fa_contig2	117	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.0002140677355769	MAG_002_two_sample_unpaired.tsv.gz	0.0186201660765367
+t1	MAG_002	MAG_002.fa_contig2	141	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.235552083656408	MAG_002_two_sample_unpaired.tsv.gz	0.5454919731270201
+t1	MAG_002	MAG_002.fa_contig2	145	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.7503820988110405	MAG_002_two_sample_unpaired.tsv.gz	0.8632651333051604
+t1	MAG_002	MAG_002.fa_contig2	172	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1792530759226405	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	178	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.895209661375427	MAG_002_two_sample_unpaired.tsv.gz	0.9595587702269376
+t1	MAG_002	MAG_002.fa_contig2	181	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1673015865755099	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	185	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.6598985728438604	MAG_002_two_sample_unpaired.tsv.gz	0.7983592882382264
+t1	MAG_002	MAG_002.fa_contig2	199	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.6222051114914223	MAG_002_two_sample_unpaired.tsv.gz	0.7808366126884929
+t1	MAG_002	MAG_002.fa_contig2	201	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.4476143177222317	MAG_002_two_sample_unpaired.tsv.gz	0.6428908189381628
+t1	MAG_002	MAG_002.fa_contig2	221	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.6612390811927032	MAG_002_two_sample_unpaired.tsv.gz	0.7983592882382264
+t1	MAG_002	MAG_002.fa_contig2	222	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.651491690532005	MAG_002_two_sample_unpaired.tsv.gz	0.7959187640957266
+t1	MAG_002	MAG_002.fa_contig2	234	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.7158208076654611	MAG_002_two_sample_unpaired.tsv.gz	0.8381550796452396
+t1	MAG_002	MAG_002.fa_contig2	245	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.9400579487388429	MAG_002_two_sample_unpaired.tsv.gz	0.9745562486594077
+t1	MAG_002	MAG_002.fa_contig2	248	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1975127838067378	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	253	MAG_002.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1722997572785897	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	281		two_sample_unpaired_tTest	0.5797919302645336	MAG_002_two_sample_unpaired.tsv.gz	0.7482350223272414
+t1	MAG_002	MAG_002.fa_contig2	310		two_sample_unpaired_tTest	0.0161684418906099	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	317		two_sample_unpaired_tTest	0.1925413434619765	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	312		two_sample_unpaired_tTest	0.1750149918254921	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	523		two_sample_unpaired_tTest	0.2133548458081075	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig2	524		two_sample_unpaired_tTest	0.3910022189557705	MAG_002_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_002	MAG_002.fa_contig2	542		two_sample_unpaired_tTest	0.2552467611255419	MAG_002_two_sample_unpaired.tsv.gz	0.5721022910189915
+t1	MAG_002	MAG_002.fa_contig2	529		two_sample_unpaired_tTest	0.2205919830485508	MAG_002_two_sample_unpaired.tsv.gz	0.5379475716258031
+t1	MAG_002	MAG_002.fa_contig2	544		two_sample_unpaired_tTest	0.1072333747979231	MAG_002_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_002	MAG_002.fa_contig1	630	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	632	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.2784463052387641	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	636	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	638	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.8686610629910667	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig1	644	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig1	652	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	648	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig1	653	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	666	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.2453834584733631	MAG_002_two_sample_unpaired.tsv.gz	0.6547863865578688
+t1	MAG_002	MAG_002.fa_contig1	675	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	667	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	680	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	683	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	687	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	693	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.183150203156622	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	696	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_002_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_002	MAG_002.fa_contig1	698	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.1215479563493808	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	702	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	703	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	707	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_002_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_002	MAG_002.fa_contig1	711	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.6422948221337781	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig1	712	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.183150203156622	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	713	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	717	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	721	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	730	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.8686610629910667	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig1	734	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	735	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	736	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig1	741	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	746	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.3528967014768893	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	748	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	751	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	753	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	755	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	757	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.300522311495472	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	763	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	765	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	767	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig1	786	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	808	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.1037536775209856	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	787	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	791	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.3718513694279071	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	812	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	816	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	844	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	842	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	854	MAG_002.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig1	1041	MAG_002.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	1004	MAG_002.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.300522311495472	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	1037	MAG_002.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig1	1075	MAG_002.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	1076	MAG_002.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig1	1118	MAG_002.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.8743670611628918	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig1	1085	MAG_002.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	266	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	274	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig1	277	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.300522311495472	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	285	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.4388394778655965	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	305	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	361	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	390	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.2784463052387641	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	394	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	395	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	415	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.7568181787880521	MAG_002_two_sample_unpaired.tsv.gz	0.9028395685777469
+t1	MAG_002	MAG_002.fa_contig1	405	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.4388394778655965	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	408	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	426	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	432	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig1	445	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	449	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	453	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	485	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	470	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	486	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	487	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	491	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.1037536775209856	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	492	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.300522311495472	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	494	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	498	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig1	501	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	502	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.2784463052387641	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	508	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	509	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	510	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_002_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_002	MAG_002.fa_contig1	511	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	514	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	515	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	518	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.183150203156622	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	141		two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig1	149		two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig1	519	MAG_002.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.300522311495472	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	164		two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig1	176		two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig1	226		two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	239		two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	253		two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	543		two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_002_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_002	MAG_002.fa_contig1	524		two_sample_unpaired_MannWhitney	0.4567701886835837	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	551		two_sample_unpaired_MannWhitney	0.8824201140755036	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig1	552		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	558		two_sample_unpaired_MannWhitney	0.183150203156622	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	565		two_sample_unpaired_MannWhitney	0.8824201140755036	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig1	559		two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	566		two_sample_unpaired_MannWhitney	0.300522311495472	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	573		two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig1	581		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	587		two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	589		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	590		two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig1	594		two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	595		two_sample_unpaired_MannWhitney	0.1037536775209856	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	597		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	598		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	599		two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	604		two_sample_unpaired_MannWhitney	0.03599300762286	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	607		two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	619		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	622		two_sample_unpaired_MannWhitney	0.068918444289502	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	625		two_sample_unpaired_MannWhitney	0.1634753056429565	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	626		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig1	627		two_sample_unpaired_MannWhitney	0.0210705701343786	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	628		two_sample_unpaired_MannWhitney	0.5613632102341237	MAG_002_two_sample_unpaired.tsv.gz	0.7609923732318201
+t1	MAG_002	MAG_002.fa_contig1	855		two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	865		two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig1	884		two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_002_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_002	MAG_002.fa_contig1	909		two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig1	894		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig1	921		two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig1	924		two_sample_unpaired_MannWhitney	0.8816837221698617	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig1	939		two_sample_unpaired_MannWhitney	0.8824201140755036	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig1	959		two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	328	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.0210705701343786	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	329	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	340	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4595973861839423	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	338	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.300522311495472	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	347	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1634753056429565	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	374	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	393	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig2	394	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	397	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1634753056429565	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	402	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.2784463052387641	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	403	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1634753056429565	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	410	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.0210705701343786	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	414	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	420	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	421	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	424	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	430	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	439	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	440	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.6198391186854187	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig2	441	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4595973861839423	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	444	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.65725516871927	MAG_002_two_sample_unpaired.tsv.gz	0.7991088022558032
+t1	MAG_002	MAG_002.fa_contig2	445	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.8824201140755036	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig2	446	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	457	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.6198391186854187	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig2	459	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	464	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	465	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	466	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	470	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig2	473	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.0210705701343786	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	474	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig2	475	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig2	476	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.6198391186854187	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig2	484	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	494	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	486	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	495	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.0210705701343786	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	500	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.65725516871927	MAG_002_two_sample_unpaired.tsv.gz	0.7991088022558032
+t1	MAG_002	MAG_002.fa_contig2	510	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig2	512	MAG_002.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.65725516871927	MAG_002_two_sample_unpaired.tsv.gz	0.7991088022558032
+t1	MAG_002	MAG_002.fa_contig2	560	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	573	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	563	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	592	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig2	593	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	609	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	626	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig2	639	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig2	645	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_002_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_002	MAG_002.fa_contig2	664	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.8816837221698617	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig2	671	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig2	674	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	693	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.65725516871927	MAG_002_two_sample_unpaired.tsv.gz	0.7991088022558032
+t1	MAG_002	MAG_002.fa_contig2	710	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	711	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.7568181787880521	MAG_002_two_sample_unpaired.tsv.gz	0.9028395685777469
+t1	MAG_002	MAG_002.fa_contig2	712	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.7568181787880521	MAG_002_two_sample_unpaired.tsv.gz	0.9028395685777469
+t1	MAG_002	MAG_002.fa_contig2	737	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	741	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_002_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_002	MAG_002.fa_contig2	749	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.65725516871927	MAG_002_two_sample_unpaired.tsv.gz	0.7991088022558032
+t1	MAG_002	MAG_002.fa_contig2	762	MAG_002.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	79	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	86	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig2	91	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	115	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig2	116	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_002_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_002	MAG_002.fa_contig2	123	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig2	128	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig2	117	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.0210705701343786	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	141	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	145	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig2	172	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	178	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig2	181	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	185	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.7568181787880521	MAG_002_two_sample_unpaired.tsv.gz	0.9028395685777469
+t1	MAG_002	MAG_002.fa_contig2	199	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig2	201	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_002_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_002	MAG_002.fa_contig2	221	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig2	222	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.8824201140755036	MAG_002_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_002	MAG_002.fa_contig2	234	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig2	245	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.7568181787880521	MAG_002_two_sample_unpaired.tsv.gz	0.9028395685777469
+t1	MAG_002	MAG_002.fa_contig2	248	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.2784463052387641	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	253	MAG_002.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	281		two_sample_unpaired_MannWhitney	1.0	MAG_002_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_002	MAG_002.fa_contig2	310		two_sample_unpaired_MannWhitney	0.0202080042393892	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	317		two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	312		two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_002	MAG_002.fa_contig2	523		two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	524		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	542		two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	529		two_sample_unpaired_MannWhitney	0.300522311495472	MAG_002_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_002	MAG_002.fa_contig2	544		two_sample_unpaired_MannWhitney	0.1912669868788687	MAG_002_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	604	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.1707573363253822	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	608	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.4816273914523129	MAG_001_two_sample_unpaired.tsv.gz	0.6746668097467886
+t1	MAG_001	MAG_001.fa_contig1	609	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.058372106706994	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	614	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3085814226648715	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	631	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.1586202844198008	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	625	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.2875950828001249	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	622	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3191715517795616	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	626	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.8996780435750713	MAG_001_two_sample_unpaired.tsv.gz	0.9623138567353611
+t1	MAG_001	MAG_001.fa_contig1	683	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.9026494380323676	MAG_001_two_sample_unpaired.tsv.gz	0.9634595054366535
+t1	MAG_001	MAG_001.fa_contig1	649	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.182043595052774	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	645	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3805158508776318	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	690	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.350584923856264	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	715	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3089550966267099	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	693	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	720	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.2727257152808567	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	700	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	722	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.9418788202033724	MAG_001_two_sample_unpaired.tsv.gz	0.9745562486594077
+t1	MAG_001	MAG_001.fa_contig1	725	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.844471485392969	MAG_001_two_sample_unpaired.tsv.gz	0.9361915582070185
+t1	MAG_001	MAG_001.fa_contig1	746	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.1923034017867901	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	743	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.7214197433455978	MAG_001_two_sample_unpaired.tsv.gz	0.8388986465050874
+t1	MAG_001	MAG_001.fa_contig1	748	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.3564441125665047	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	750	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.6613627239843296	MAG_001_two_sample_unpaired.tsv.gz	0.7983592882382264
+t1	MAG_001	MAG_001.fa_contig1	761	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.189032992344733	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	760	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.2268100235766056	MAG_001_two_sample_unpaired.tsv.gz	0.5449444712116245
+t1	MAG_001	MAG_001.fa_contig1	773	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.610205556708969	MAG_001_two_sample_unpaired.tsv.gz	0.7734355431286182
+t1	MAG_001	MAG_001.fa_contig1	782	MAG_001.fa_contig1_gene1 	two_sample_unpaired_tTest	0.2630785026392697	MAG_001_two_sample_unpaired.tsv.gz	0.582448911956811
+t1	MAG_001	MAG_001.fa_contig1	206	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.2953513947711501	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	216	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.2334382265963916	MAG_001_two_sample_unpaired.tsv.gz	0.5454919731270201
+t1	MAG_001	MAG_001.fa_contig1	240	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.8768865996696864	MAG_001_two_sample_unpaired.tsv.gz	0.9560892602850128
+t1	MAG_001	MAG_001.fa_contig1	237	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.7803621478180252	MAG_001_two_sample_unpaired.tsv.gz	0.8851087448405789
+t1	MAG_001	MAG_001.fa_contig1	246	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.7902863675357741	MAG_001_two_sample_unpaired.tsv.gz	0.8923723571060969
+t1	MAG_001	MAG_001.fa_contig1	308	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1759917918320947	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	361	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1877314455715859	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	320	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	328	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.219181209711137	MAG_001_two_sample_unpaired.tsv.gz	0.5379475716258031
+t1	MAG_001	MAG_001.fa_contig1	338	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1919440424233247	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	366	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	386	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.6568458003892423	MAG_001_two_sample_unpaired.tsv.gz	0.7983592882382264
+t1	MAG_001	MAG_001.fa_contig1	372	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.3110153918409627	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	379	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.3753822605197873	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	403	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1833571776284132	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	391	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1845642244492784	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	411	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	417	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.2782070243401077	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	420	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.8177195274134639	MAG_001_two_sample_unpaired.tsv.gz	0.9150072618506865
+t1	MAG_001	MAG_001.fa_contig1	434	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.5188228581026457	MAG_001_two_sample_unpaired.tsv.gz	0.701448504154777
+t1	MAG_001	MAG_001.fa_contig1	442	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1356543368400351	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	449	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1817023935795771	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	458	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1836215321712659	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	465	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.4205161390773121	MAG_001_two_sample_unpaired.tsv.gz	0.6193154321180541
+t1	MAG_001	MAG_001.fa_contig1	466	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1816901138162092	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	468	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.5617055694389772	MAG_001_two_sample_unpaired.tsv.gz	0.7400435340384727
+t1	MAG_001	MAG_001.fa_contig1	485	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.571152652335402	MAG_001_two_sample_unpaired.tsv.gz	0.747591916188337
+t1	MAG_001	MAG_001.fa_contig1	472	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.236404256853564	MAG_001_two_sample_unpaired.tsv.gz	0.5454919731270201
+t1	MAG_001	MAG_001.fa_contig1	469	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.034283968853804	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	483	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	493	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.4718945795241284	MAG_001_two_sample_unpaired.tsv.gz	0.6705308052664618
+t1	MAG_001	MAG_001.fa_contig1	497	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.4830454673334995	MAG_001_two_sample_unpaired.tsv.gz	0.6746668097467886
+t1	MAG_001	MAG_001.fa_contig1	496	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.5710837753074876	MAG_001_two_sample_unpaired.tsv.gz	0.747591916188337
+t1	MAG_001	MAG_001.fa_contig1	501	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1611847945976287	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	510	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1735318022348526	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	512	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.5115075080894532	MAG_001_two_sample_unpaired.tsv.gz	0.6992109742468471
+t1	MAG_001	MAG_001.fa_contig1	513	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1899774092377006	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	516	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.0001492605467496	MAG_001_two_sample_unpaired.tsv.gz	0.0186201660765367
+t1	MAG_001	MAG_001.fa_contig1	518	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.191581826393231	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	521	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.9167396755833636	MAG_001_two_sample_unpaired.tsv.gz	0.9713313261933066
+t1	MAG_001	MAG_001.fa_contig1	520	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1955587135431594	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	522	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.0593692206115108	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	523	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1883846844598359	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	524	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1683925883216671	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	528	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.5112356781241241	MAG_001_two_sample_unpaired.tsv.gz	0.6992109742468471
+t1	MAG_001	MAG_001.fa_contig1	532	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	535	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.3772440911214969	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	548	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.041505628188396	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	554	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.2024247254564063	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	555	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	556	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.9878383390904876	MAG_001_two_sample_unpaired.tsv.gz	0.9946156257882051
+t1	MAG_001	MAG_001.fa_contig1	565	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.4624485162220924	MAG_001_two_sample_unpaired.tsv.gz	0.6623203325553696
+t1	MAG_001	MAG_001.fa_contig1	567	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1853044378702179	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	568	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	570	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.1823182534969066	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	573	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	581	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.2368651875816178	MAG_001_two_sample_unpaired.tsv.gz	0.5454919731270201
+t1	MAG_001	MAG_001.fa_contig1	582	MAG_001.fa_contig1_gene2 	two_sample_unpaired_tTest	0.8633967149202187	MAG_001_two_sample_unpaired.tsv.gz	0.947493797542318
+t1	MAG_001	MAG_001.fa_contig1	792	MAG_001.fa_contig1_gene3 	two_sample_unpaired_tTest	0.5467390395273902	MAG_001_two_sample_unpaired.tsv.gz	0.7275503754340863
+t1	MAG_001	MAG_001.fa_contig1	818	MAG_001.fa_contig1_gene3 	two_sample_unpaired_tTest	0.2097640797482146	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	824	MAG_001.fa_contig1_gene3 	two_sample_unpaired_tTest	0.8441052771727326	MAG_001_two_sample_unpaired.tsv.gz	0.9361915582070185
+t1	MAG_001	MAG_001.fa_contig1	826	MAG_001.fa_contig1_gene3 	two_sample_unpaired_tTest	0.1751828377700753	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	833	MAG_001.fa_contig1_gene3 	two_sample_unpaired_tTest	0.5180716775576946	MAG_001_two_sample_unpaired.tsv.gz	0.701448504154777
+t1	MAG_001	MAG_001.fa_contig1	870	MAG_001.fa_contig1_gene3 	two_sample_unpaired_tTest	0.6641851316833708	MAG_001_two_sample_unpaired.tsv.gz	0.799362518267407
+t1	MAG_001	MAG_001.fa_contig1	880	MAG_001.fa_contig1_gene3 	two_sample_unpaired_tTest	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig1	902	MAG_001.fa_contig1_gene3 	two_sample_unpaired_tTest	0.920201286810454	MAG_001_two_sample_unpaired.tsv.gz	0.971962609193542
+t1	MAG_001	MAG_001.fa_contig1	184		two_sample_unpaired_tTest	0.7752452974703459	MAG_001_two_sample_unpaired.tsv.gz	0.8812766049718954
+t1	MAG_001	MAG_001.fa_contig1	589		two_sample_unpaired_tTest	0.5879785567205571	MAG_001_two_sample_unpaired.tsv.gz	0.7546965272337277
+t1	MAG_001	MAG_001.fa_contig1	593		two_sample_unpaired_tTest	0.0672520622453743	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig1	594		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig1	602		two_sample_unpaired_tTest	0.4271994910339772	MAG_001_two_sample_unpaired.tsv.gz	0.6223854653857082
+t1	MAG_001	MAG_001.fa_contig2	732	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1727200107126487	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	734	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1466442498590932	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	739	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.8528329116353075	MAG_001_two_sample_unpaired.tsv.gz	0.9399701873893498
+t1	MAG_001	MAG_001.fa_contig2	746	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.0393127354947111	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	750	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.4721489102172128	MAG_001_two_sample_unpaired.tsv.gz	0.6705308052664618
+t1	MAG_001	MAG_001.fa_contig2	756	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3688176753225392	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	764	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.7516429803106566	MAG_001_two_sample_unpaired.tsv.gz	0.8632651333051604
+t1	MAG_001	MAG_001.fa_contig2	767	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3001010974036292	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	771	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.0591085660369248	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	773	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	779	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1299086329190635	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	805	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	808	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.4231592176633663	MAG_001_two_sample_unpaired.tsv.gz	0.6193941733253152
+t1	MAG_001	MAG_001.fa_contig2	809	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	815	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.6270433479155433	MAG_001_two_sample_unpaired.tsv.gz	0.783031964022612
+t1	MAG_001	MAG_001.fa_contig2	820	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1817044511306307	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	823	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1728038205986871	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	833	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.0609769033560739	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	839	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.429824072585571	MAG_001_two_sample_unpaired.tsv.gz	0.6244149134695831
+t1	MAG_001	MAG_001.fa_contig2	860	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	863	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	870	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1866346942186361	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	871	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.2426173166736782	MAG_001_two_sample_unpaired.tsv.gz	0.5540854934844812
+t1	MAG_001	MAG_001.fa_contig2	887	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	889	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3326660508666383	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	891	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.2467118617530532	MAG_001_two_sample_unpaired.tsv.gz	0.5609099278421433
+t1	MAG_001	MAG_001.fa_contig2	896	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	899	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.4975086594051631	MAG_001_two_sample_unpaired.tsv.gz	0.6910599734751169
+t1	MAG_001	MAG_001.fa_contig2	902	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.2156692337052659	MAG_001_two_sample_unpaired.tsv.gz	0.5379475716258031
+t1	MAG_001	MAG_001.fa_contig2	907	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.0606849256385561	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	911	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.861853856982703	MAG_001_two_sample_unpaired.tsv.gz	0.947493797542318
+t1	MAG_001	MAG_001.fa_contig2	912	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.6238445823209104	MAG_001_two_sample_unpaired.tsv.gz	0.7809609956461768
+t1	MAG_001	MAG_001.fa_contig2	914	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1912961606470443	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	915	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	932	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.3693515221807496	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	936	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.076325714497137	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	937	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1839453845794938	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	939	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.035089158153812	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	946	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.6474775524001197	MAG_001_two_sample_unpaired.tsv.gz	0.7929254083740597
+t1	MAG_001	MAG_001.fa_contig2	948	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.6407186257487822	MAG_001_two_sample_unpaired.tsv.gz	0.7866250377871045
+t1	MAG_001	MAG_001.fa_contig2	954	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.8850875101077864	MAG_001_two_sample_unpaired.tsv.gz	0.9595587702269376
+t1	MAG_001	MAG_001.fa_contig2	958	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1324824871925763	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	961	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.5605761713285231	MAG_001_two_sample_unpaired.tsv.gz	0.7400435340384727
+t1	MAG_001	MAG_001.fa_contig2	963	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1841586832114046	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	966	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.0625631108274265	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	968	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1817098484568416	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	971	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.7020103846403005	MAG_001_two_sample_unpaired.tsv.gz	0.8277192209596101
+t1	MAG_001	MAG_001.fa_contig2	976	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1848573506199865	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	983	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1821534873715329	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	985	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.409069421465372	MAG_001_two_sample_unpaired.tsv.gz	0.6064274756811217
+t1	MAG_001	MAG_001.fa_contig2	990	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.6918329823524926	MAG_001_two_sample_unpaired.tsv.gz	0.8195311262913872
+t1	MAG_001	MAG_001.fa_contig2	1001	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.231759634875796	MAG_001_two_sample_unpaired.tsv.gz	0.5454919731270201
+t1	MAG_001	MAG_001.fa_contig2	1010	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.2103144636945212	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1015	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.9778801125417635	MAG_001_two_sample_unpaired.tsv.gz	0.9876199543001477
+t1	MAG_001	MAG_001.fa_contig2	1028	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.935612731852252	MAG_001_two_sample_unpaired.tsv.gz	0.9745562486594077
+t1	MAG_001	MAG_001.fa_contig2	1038	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.281635396013352	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1051	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1816901138162092	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1054	MAG_001.fa_contig2_gene1 	two_sample_unpaired_tTest	0.1557633209723649	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1428	MAG_001.fa_contig2_gene2 	two_sample_unpaired_tTest	0.1819708240989229	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1438	MAG_001.fa_contig2_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1441	MAG_001.fa_contig2_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1494	MAG_001.fa_contig2_gene2 	two_sample_unpaired_tTest	0.9899808881433898	MAG_001_two_sample_unpaired.tsv.gz	0.9946156257882051
+t1	MAG_001	MAG_001.fa_contig2	1447	MAG_001.fa_contig2_gene2 	two_sample_unpaired_tTest	0.182384415959022	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1505	MAG_001.fa_contig2_gene2 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1559	MAG_001.fa_contig2_gene2 	two_sample_unpaired_tTest	0.2038797799121465	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1510	MAG_001.fa_contig2_gene2 	two_sample_unpaired_tTest	0.1852387805496993	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1562	MAG_001.fa_contig2_gene2 	two_sample_unpaired_tTest	0.1820069723455059	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1581	MAG_001.fa_contig2_gene2 	two_sample_unpaired_tTest	0.1971125548961073	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1601	MAG_001.fa_contig2_gene2 	two_sample_unpaired_tTest	0.614899001387569	MAG_001_two_sample_unpaired.tsv.gz	0.7746929027636948
+t1	MAG_001	MAG_001.fa_contig2	1152	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.0587837553510524	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1154	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1822156724036188	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1162	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1707310990947721	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1167	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1565230829948824	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1190	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.926174471436796	MAG_001_two_sample_unpaired.tsv.gz	0.9742125664283311
+t1	MAG_001	MAG_001.fa_contig2	1182	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1193	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1804546371255599	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1200	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1816901138162092	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1207	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.6355703245133503	MAG_001_two_sample_unpaired.tsv.gz	0.7866250377871045
+t1	MAG_001	MAG_001.fa_contig2	1212	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1213	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.9248634300938092	MAG_001_two_sample_unpaired.tsv.gz	0.9742125664283311
+t1	MAG_001	MAG_001.fa_contig2	1217	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.944258907561958	MAG_001_two_sample_unpaired.tsv.gz	0.9750290552625513
+t1	MAG_001	MAG_001.fa_contig2	1218	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.0177141996448324	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1226	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.3890934026855373	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1230	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.3695003574413025	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1237	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.632932834067604	MAG_001_two_sample_unpaired.tsv.gz	0.7865121246869491
+t1	MAG_001	MAG_001.fa_contig2	1240	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.5292821721229919	MAG_001_two_sample_unpaired.tsv.gz	0.7099276312578817
+t1	MAG_001	MAG_001.fa_contig2	1242	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.5151066168246479	MAG_001_two_sample_unpaired.tsv.gz	0.701448504154777
+t1	MAG_001	MAG_001.fa_contig2	1243	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1256	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.6404487367556722	MAG_001_two_sample_unpaired.tsv.gz	0.7866250377871045
+t1	MAG_001	MAG_001.fa_contig2	1274	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.9176877815514672	MAG_001_two_sample_unpaired.tsv.gz	0.9713313261933066
+t1	MAG_001	MAG_001.fa_contig2	1276	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1817023935795771	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1278	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1817398458505091	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1285	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1836169880764568	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1286	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.2112456449046752	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1288	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.7412730834481005	MAG_001_two_sample_unpaired.tsv.gz	0.8560944266701298
+t1	MAG_001	MAG_001.fa_contig2	1289	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.5081545412338004	MAG_001_two_sample_unpaired.tsv.gz	0.6992109742468471
+t1	MAG_001	MAG_001.fa_contig2	1290	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.5116514229695863	MAG_001_two_sample_unpaired.tsv.gz	0.6992109742468471
+t1	MAG_001	MAG_001.fa_contig2	1295	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1297	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1819047891654797	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1307	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1473041515113054	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1309	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.6714671911086444	MAG_001_two_sample_unpaired.tsv.gz	0.8033730603280903
+t1	MAG_001	MAG_001.fa_contig2	1313	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1322	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1823734363481317	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1331	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.6407813424182922	MAG_001_two_sample_unpaired.tsv.gz	0.7866250377871045
+t1	MAG_001	MAG_001.fa_contig2	1335	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.7359412717474354	MAG_001_two_sample_unpaired.tsv.gz	0.8518772255158671
+t1	MAG_001	MAG_001.fa_contig2	1339	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1346	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1347	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1349	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.2032452598171888	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1356	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.9395776384931636	MAG_001_two_sample_unpaired.tsv.gz	0.9745562486594077
+t1	MAG_001	MAG_001.fa_contig2	1359	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1825200377591556	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1364	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	223		two_sample_unpaired_tTest	0.2044165827667258	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	266		two_sample_unpaired_tTest	0.5051814908306235	MAG_001_two_sample_unpaired.tsv.gz	0.6992109742468471
+t1	MAG_001	MAG_001.fa_contig2	1371	MAG_001.fa_contig2_gene3 	two_sample_unpaired_tTest	0.1831889978364304	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	284		two_sample_unpaired_tTest	0.47583302639439	MAG_001_two_sample_unpaired.tsv.gz	0.6738752636367478
+t1	MAG_001	MAG_001.fa_contig2	334		two_sample_unpaired_tTest	0.1829626390611864	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	347		two_sample_unpaired_tTest	0.3277240886230692	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	350		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	360		two_sample_unpaired_tTest	0.8916517734431568	MAG_001_two_sample_unpaired.tsv.gz	0.9595587702269376
+t1	MAG_001	MAG_001.fa_contig2	402		two_sample_unpaired_tTest	0.7635699443394054	MAG_001_two_sample_unpaired.tsv.gz	0.8719143283335102
+t1	MAG_001	MAG_001.fa_contig2	414		two_sample_unpaired_tTest	0.1824393247086183	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	443		two_sample_unpaired_tTest	0.5292951570325035	MAG_001_two_sample_unpaired.tsv.gz	0.7099276312578817
+t1	MAG_001	MAG_001.fa_contig2	449		two_sample_unpaired_tTest	0.5793211279669161	MAG_001_two_sample_unpaired.tsv.gz	0.7482350223272414
+t1	MAG_001	MAG_001.fa_contig2	459		two_sample_unpaired_tTest	0.1817915995115666	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	468		two_sample_unpaired_tTest	0.2126772994993744	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	473		two_sample_unpaired_tTest	0.698687676618547	MAG_001_two_sample_unpaired.tsv.gz	0.8257217996401011
+t1	MAG_001	MAG_001.fa_contig2	475		two_sample_unpaired_tTest	0.1835680428488911	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	481		two_sample_unpaired_tTest	0.3232079012553857	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	483		two_sample_unpaired_tTest	0.1568390157341117	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	489		two_sample_unpaired_tTest	0.0586776041414126	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	495		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	499		two_sample_unpaired_tTest	0.1817125909468839	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	505		two_sample_unpaired_tTest	0.0421174947967293	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	501		two_sample_unpaired_tTest	0.2772012269227324	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	508		two_sample_unpaired_tTest	0.541863027921528	MAG_001_two_sample_unpaired.tsv.gz	0.7229593556742491
+t1	MAG_001	MAG_001.fa_contig2	516		two_sample_unpaired_tTest	0.7356834511500696	MAG_001_two_sample_unpaired.tsv.gz	0.8518772255158671
+t1	MAG_001	MAG_001.fa_contig2	520		two_sample_unpaired_tTest	0.061172385014917	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	523		two_sample_unpaired_tTest	0.1783748788584162	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	529		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	527		two_sample_unpaired_tTest	8.236254557767068e-05	MAG_001_two_sample_unpaired.tsv.gz	0.013919270202626345
+t1	MAG_001	MAG_001.fa_contig2	536		two_sample_unpaired_tTest	0.0464086770801668	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	548		two_sample_unpaired_tTest	0.1937790236226381	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	550		two_sample_unpaired_tTest	0.1821396658787276	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	564		two_sample_unpaired_tTest	0.1879506345492194	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	565		two_sample_unpaired_tTest	0.1743306853348235	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	575		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	583		two_sample_unpaired_tTest	0.1914658215884315	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	588		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	590		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	610		two_sample_unpaired_tTest	0.1472854444477314	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	623		two_sample_unpaired_tTest	0.1662262765225136	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	632		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	653		two_sample_unpaired_tTest	0.1278655997185439	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	641		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	656		two_sample_unpaired_tTest	0.3819765506874754	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	660		two_sample_unpaired_tTest	0.0002203569949886	MAG_001_two_sample_unpaired.tsv.gz	0.0186201660765367
+t1	MAG_001	MAG_001.fa_contig2	663		two_sample_unpaired_tTest	0.9593637890352432	MAG_001_two_sample_unpaired.tsv.gz	0.9806400020985249
+t1	MAG_001	MAG_001.fa_contig2	664		two_sample_unpaired_tTest	0.3846467875612123	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	669		two_sample_unpaired_tTest	0.3558043565292304	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	675		two_sample_unpaired_tTest	0.0584325969699521	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	683		two_sample_unpaired_tTest	0.0583597155442058	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	687		two_sample_unpaired_tTest	0.0584798715346542	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	692		two_sample_unpaired_tTest	0.91029917783219	MAG_001_two_sample_unpaired.tsv.gz	0.9675506984505667
+t1	MAG_001	MAG_001.fa_contig2	703		two_sample_unpaired_tTest	0.5611310442333671	MAG_001_two_sample_unpaired.tsv.gz	0.7400435340384727
+t1	MAG_001	MAG_001.fa_contig2	707		two_sample_unpaired_tTest	0.1821534873715329	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	708		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	712		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	717		two_sample_unpaired_tTest	0.0579945639385353	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	722		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	723		two_sample_unpaired_tTest	0.2612417522852729	MAG_001_two_sample_unpaired.tsv.gz	0.5809191596869884
+t1	MAG_001	MAG_001.fa_contig2	1070		two_sample_unpaired_tTest	0.1037656566269088	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1077		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1079		two_sample_unpaired_tTest	0.182645891683177	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1088		two_sample_unpaired_tTest	0.4772762793014919	MAG_001_two_sample_unpaired.tsv.gz	0.6740364167294051
+t1	MAG_001	MAG_001.fa_contig2	1102		two_sample_unpaired_tTest	0.1818341780301735	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1114		two_sample_unpaired_tTest	0.2716395462042862	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1122		two_sample_unpaired_tTest	0.1781619842439137	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1125		two_sample_unpaired_tTest	0.081439055882345	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1126		two_sample_unpaired_tTest	0.1572260521001941	MAG_001_two_sample_unpaired.tsv.gz	0.5354995387361907
+t1	MAG_001	MAG_001.fa_contig2	1127		two_sample_unpaired_tTest	0.3910022189557705	MAG_001_two_sample_unpaired.tsv.gz	0.5830533088546342
+t1	MAG_001	MAG_001.fa_contig2	1394		two_sample_unpaired_tTest	0.4337192407346741	MAG_001_two_sample_unpaired.tsv.gz	0.6263560343964535
+t1	MAG_001	MAG_001.fa_contig2	1396		two_sample_unpaired_tTest	0.8936730425825617	MAG_001_two_sample_unpaired.tsv.gz	0.9595587702269376
+t1	MAG_001	MAG_001.fa_contig2	1402		two_sample_unpaired_tTest	0.2561483630400613	MAG_001_two_sample_unpaired.tsv.gz	0.5721022910189915
+t1	MAG_001	MAG_001.fa_contig2	1680		two_sample_unpaired_tTest	0.9720014353050308	MAG_001_two_sample_unpaired.tsv.gz	0.9856094553993012
+t1	MAG_001	MAG_001.fa_contig2	1716		two_sample_unpaired_tTest	0.7844888800083766	MAG_001_two_sample_unpaired.tsv.gz	0.8878032637594798
+t1	MAG_001	MAG_001.fa_contig2	1761		two_sample_unpaired_tTest	0.8457115062304033	MAG_001_two_sample_unpaired.tsv.gz	0.9361915582070185
+t1	MAG_001	MAG_001.fa_contig1	604	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	608	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	609	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.0667530151696345	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	614	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	631	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	625	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig1	622	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	626	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig1	683	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig1	649	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	645	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.65725516871927	MAG_001_two_sample_unpaired.tsv.gz	0.7991088022558032
+t1	MAG_001	MAG_001.fa_contig1	690	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	715	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig1	693	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	720	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig1	700	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	722	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig1	725	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.6422948221337781	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig1	746	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	743	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig1	748	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.1776340839974797	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	750	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig1	761	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	760	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.5357032416623113	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig1	773	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig1	782	MAG_001.fa_contig1_gene1 	two_sample_unpaired_MannWhitney	0.3094240603646589	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	206	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig1	216	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	240	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig1	237	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.8824201140755036	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig1	246	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig1	308	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	361	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	320	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	328	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	338	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	366	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	386	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.883852568733343	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig1	372	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	379	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	403	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	391	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	411	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	417	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	420	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.8686610629910667	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig1	434	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.6198391186854187	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig1	442	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	449	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	458	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	465	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.5357032416623113	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig1	466	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1813582759043133	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	468	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.7388826803635273	MAG_001_two_sample_unpaired.tsv.gz	0.8962045907758573
+t1	MAG_001	MAG_001.fa_contig1	485	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig1	472	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig1	469	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1366582477381475	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	483	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	493	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.300522311495472	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	497	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	496	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.6198391186854187	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig1	501	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	510	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1634753056429565	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	512	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	513	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	516	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.0210705701343786	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	518	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	521	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig1	520	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.3528967014768893	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	522	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	523	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	524	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	528	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	532	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	535	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	548	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.0265187219594307	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	554	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	555	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	556	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig1	565	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	567	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	568	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	570	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	573	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	581	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig1	582	MAG_001.fa_contig1_gene2 	two_sample_unpaired_MannWhitney	0.8686610629910667	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig1	792	MAG_001.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.7659548296512902	MAG_001_two_sample_unpaired.tsv.gz	0.9115941282469582
+t1	MAG_001	MAG_001.fa_contig1	818	MAG_001.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	824	MAG_001.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig1	826	MAG_001.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	833	MAG_001.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.65725516871927	MAG_001_two_sample_unpaired.tsv.gz	0.7991088022558032
+t1	MAG_001	MAG_001.fa_contig1	870	MAG_001.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig1	880	MAG_001.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig1	902	MAG_001.fa_contig1_gene3 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig1	184		two_sample_unpaired_MannWhitney	0.6422948221337781	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig1	589		two_sample_unpaired_MannWhitney	0.5357032416623113	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig1	593		two_sample_unpaired_MannWhitney	0.183150203156622	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig1	594		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig1	602		two_sample_unpaired_MannWhitney	0.183150203156622	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	732	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	734	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	739	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	746	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.0545144786438286	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	750	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	756	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	764	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.8686610629910667	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	767	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig2	771	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	773	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	779	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	805	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	808	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	809	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	815	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	820	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	823	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	833	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	839	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.6198391186854187	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	860	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	863	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	870	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.2784463052387641	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	871	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig2	887	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	889	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	891	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4388394778655965	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	896	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	899	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	902	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	907	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	911	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig2	912	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.6198391186854187	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	914	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	915	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	932	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	936	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	937	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	939	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1037536775209856	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	946	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	948	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.7715034091403082	MAG_001_two_sample_unpaired.tsv.gz	0.9139070757806923
+t1	MAG_001	MAG_001.fa_contig2	954	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig2	958	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	961	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.6198391186854187	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	963	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	966	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	968	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	971	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.8686610629910667	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	976	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	983	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	985	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.2974830944159319	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	990	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	1001	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.4356781977011588	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1010	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1015	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.8686610629910667	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	1028	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	1038	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.2425255619785717	MAG_001_two_sample_unpaired.tsv.gz	0.6505844440377558
+t1	MAG_001	MAG_001.fa_contig2	1051	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1813582759043133	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1054	MAG_001.fa_contig2_gene1 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1428	MAG_001.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1438	MAG_001.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1441	MAG_001.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1494	MAG_001.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig2	1447	MAG_001.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1505	MAG_001.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1559	MAG_001.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1510	MAG_001.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1562	MAG_001.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.1634753056429565	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1581	MAG_001.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1601	MAG_001.fa_contig2_gene2 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig2	1152	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1154	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1162	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1167	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1190	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig2	1182	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1193	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1200	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1813582759043133	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1207	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	1212	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1213	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.6422948221337781	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	1217	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	1218	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.0545144786438286	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1226	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1230	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1237	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.8686610629910667	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	1240	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.6198391186854187	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	1242	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4595973861839423	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1243	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1256	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	1274	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig2	1276	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1278	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1285	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1286	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1288	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.7715034091403082	MAG_001_two_sample_unpaired.tsv.gz	0.9139070757806923
+t1	MAG_001	MAG_001.fa_contig2	1289	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4651237888202205	MAG_001_two_sample_unpaired.tsv.gz	0.6737650312338622
+t1	MAG_001	MAG_001.fa_contig2	1290	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	1295	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1297	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1307	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1215479563493808	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1309	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	1313	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1322	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1331	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	1335	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.8686610629910667	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	1339	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1346	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1347	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1349	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.2784463052387641	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1356	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig2	1359	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1364	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	223		two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	266		two_sample_unpaired_MannWhitney	0.8816837221698617	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	1371	MAG_001.fa_contig2_gene3 	two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	284		two_sample_unpaired_MannWhitney	0.5357032416623113	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig2	334		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	347		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	350		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	360		two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	402		two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	414		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	443		two_sample_unpaired_MannWhitney	0.7568181787880521	MAG_001_two_sample_unpaired.tsv.gz	0.9028395685777469
+t1	MAG_001	MAG_001.fa_contig2	449		two_sample_unpaired_MannWhitney	0.8686610629910667	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	459		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	468		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	473		two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig2	475		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	481		two_sample_unpaired_MannWhitney	0.183150203156622	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	483		two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	489		two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	495		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	499		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	505		two_sample_unpaired_MannWhitney	0.0545144786438286	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	501		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	508		two_sample_unpaired_MannWhitney	0.6198391186854187	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	516		two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig2	520		two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	523		two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	529		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	527		two_sample_unpaired_MannWhitney	0.0202080042393892	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	536		two_sample_unpaired_MannWhitney	0.0545144786438286	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	548		two_sample_unpaired_MannWhitney	0.1634753056429565	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	550		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	564		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	565		two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	575		two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	583		two_sample_unpaired_MannWhitney	0.1215479563493808	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	588		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	590		two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	610		two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	623		two_sample_unpaired_MannWhitney	0.1215479563493808	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	632		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	653		two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	641		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	656		two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	660		two_sample_unpaired_MannWhitney	0.0210705701343786	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	663		two_sample_unpaired_MannWhitney	1.0	MAG_001_two_sample_unpaired.tsv.gz	1.0
+t1	MAG_001	MAG_001.fa_contig2	664		two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	669		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	675		two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	683		two_sample_unpaired_MannWhitney	0.0667530151696345	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	687		two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	692		two_sample_unpaired_MannWhitney	0.7568181787880521	MAG_001_two_sample_unpaired.tsv.gz	0.9028395685777469
+t1	MAG_001	MAG_001.fa_contig2	703		two_sample_unpaired_MannWhitney	0.6198391186854187	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	707		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	708		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	712		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	717		two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	722		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	723		two_sample_unpaired_MannWhitney	0.5384723809869921	MAG_001_two_sample_unpaired.tsv.gz	0.7319182229501475
+t1	MAG_001	MAG_001.fa_contig2	1070		two_sample_unpaired_MannWhitney	0.068918444289502	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1077		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1079		two_sample_unpaired_MannWhitney	0.3561703279493218	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1088		two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1102		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1114		two_sample_unpaired_MannWhitney	0.4595973861839423	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1122		two_sample_unpaired_MannWhitney	0.2186037372080598	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1125		two_sample_unpaired_MannWhitney	0.1858767323658758	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1126		two_sample_unpaired_MannWhitney	0.1240946588282522	MAG_001_two_sample_unpaired.tsv.gz	0.5895324189600336
+t1	MAG_001	MAG_001.fa_contig2	1127		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1394		two_sample_unpaired_MannWhitney	0.4083519693259383	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1396		two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728
+t1	MAG_001	MAG_001.fa_contig2	1402		two_sample_unpaired_MannWhitney	0.4532547047537364	MAG_001_two_sample_unpaired.tsv.gz	0.6676672630236641
+t1	MAG_001	MAG_001.fa_contig2	1680		two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	1716		two_sample_unpaired_MannWhitney	0.8777822803462348	MAG_001_two_sample_unpaired.tsv.gz	0.9473853115175579
+t1	MAG_001	MAG_001.fa_contig2	1761		two_sample_unpaired_MannWhitney	0.6445521705158991	MAG_001_two_sample_unpaired.tsv.gz	0.7970437815891728

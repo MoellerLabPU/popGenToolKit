@@ -72,12 +72,19 @@ class TestQualityControl(unittest.TestCase):
             "contig3": "MAG002",
         }
 
+        # Pre-inverted MAG -> contigs index (mirrors what main() builds)
+        from collections import defaultdict
+        mag_to_contigs = defaultdict(set)
+        for contig, mid in self.contig_to_mag.items():
+            mag_to_contigs[mid].add(contig)
+
         # Initialize worker globals
         init_worker(
             self.metadata_dict,
             self.mag_size_dict,
             self.contig_length_dict,
             self.contig_to_mag,
+            mag_to_contigs,
         )
 
     def create_temp_profile(self, data):

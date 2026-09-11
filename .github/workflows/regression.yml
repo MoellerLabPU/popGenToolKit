@@ -1,0 +1,115 @@
+# End-to-end regression suite for the AlleleFlux pipeline.
+#
+# Runs the bundled example dataset (longitudinal + single scenarios) through
+# the full BAM-mode pipeline on every PR and every push to main, then diffs
+# every output file against the committed golden snapshot at
+# tests/regression/golden/.
+#
+# Prerequisites — MUST be committed to the repo for this workflow to pass:
+#   * docs/source/examples/example_data_longitudinal/  — reference, profiles, BAMs, configs
+#   * docs/source/examples/example_data_single/        — same for single-timepoint design
+#   * tests/regression/golden/longitudinal/            — captured from main
+#   * tests/regression/golden/single/                  — captured from main
+#
+# Capture goldens locally before merging this workflow:
+#   tests/regression/diff_branches.sh --capture-golden                 # longitudinal (default)
+#   tests/regression/diff_branches.sh --capture-golden main HEAD single
+#   git add tests/regression/golden && git commit -m "Capture regression golden from main"
+#
+# See tests/regression/README.md for the full operating manual and the
+# "Live vs snapshot" section for why this workflow is the snapshot-based
+# pytest path (not the live cross-branch diff_branches.sh path).
+
+name: Regression Tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '.github/instructions/**'
+      - 'docs/source/_static/**'
+  push:
+    branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '.github/instructions/**'
+      - 'docs/source/_static/**'
+  # Manual trigger — fire from any branch via:
+  #   conda run -n alleleflux gh workflow run regression.yml --ref <branch>
+  # Useful for testing the workflow itself without polluting git history.
+  workflow_dispatch:
+
+# Cancel any superseded runs on the same ref — we only care about the latest
+# commit of an open PR; older in-flight runs are wasted compute.
+concurrency:
+  group: regression-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regression:
+    name: Regression suite (longitudinal + single)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        # Login shell (-l) so `conda activate` works in subsequent steps;
+        # errexit (-e) so a failing command actually fails the workflow.
+        shell: bash -el {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Miniforge + alleleflux env
+        # Mamba solver makes env resolution ~10x faster than classic conda
+        # for our heavy environment.yml (samtools, snakemake, R, rpy2).
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          environment-file: environment.yml
+          activate-environment: alleleflux
+          auto-activate-base: false
+          use-mamba: true
+
+      - name: Install AlleleFlux + test extras
+        # The `[test]` extra (defined in pyproject.toml's optional-dependencies)
+        # pulls in pytest + pytest-cov.  Belt-and-suspenders reinstall since
+        # environment.yml already does `pip install -e .` via its pip block —
+        # but a missing `alleleflux` on PATH manifests as a confusing pipeline
+        # crash, not a clean failure, so we make sure here.
+        run: pip install -e ".[test]"
+
+      - name: Confirm tooling
+        # NOTE: avoid piping CLI output through `head` here.  GHA's default
+        # bash runs with `pipefail`, and Python CLIs (alleleflux) treat a
+        # closed pipe as an uncaught BrokenPipeError → exit 1 → step fails.
+        # Plain `which` / `--version` are safer: no pipes, no SIGPIPE drama.
+        run: |
+          which alleleflux
+          alleleflux --version
+          which samtools
+          python --version
+
+      - name: Run regression suite (both scenarios)
+        # --regression-scenario all runs longitudinal AND single
+        # --tb=short keeps failure output readable in the GHA logs
+        # --junit-xml writes a structured report for the GHA UI
+        # -m regression is redundant under tests/regression/ but explicit
+        # is better than implicit — guards against future test additions.
+        run: |
+          pytest tests/regression/ \
+            --regression-scenario all \
+            -v --tb=short \
+            -m regression \
+            --junit-xml=regression-report.xml
+
+      - name: Upload junit report
+        # always() ensures we upload even on test failure for post-mortem.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: regression-junit-report
+          path: regression-report.xml
+          retention-days: 30

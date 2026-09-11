@@ -21,7 +21,10 @@ default-resources:
   - mem_mb=20000
   - time="8:00:00"
 
-restart-times: 0
+# Retries are configured per-rule in AlleleFlux config.yml under "resources.retries".
+# Each rule uses 'retries:' directive with optional mem_step/time_step for resource scaling.
+# This profile-level restart-times is a safety-net cap (per-rule retries take precedence).
+restart-times: 3
 max-jobs-per-second: 100
 max-status-checks-per-second: 1
 latency-wait: 60

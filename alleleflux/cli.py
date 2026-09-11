@@ -596,7 +596,10 @@ ALLELEFLUX_TOOLS = {
         ("alleleflux-preprocess-between-groups", "Preprocess for between-group tests"),
         ("alleleflux-preprocess-within-group", "Preprocess for within-group tests"),
         ("alleleflux-preprocessing-eligibility", "Preprocessing eligibility check"),
-        ("alleleflux-p-value-summary", "Summarize p-values"),
+    ],
+    "Summary": [
+        ("alleleflux-p-value-summary", "Summarize p-values across tests"),
+        ("alleleflux-significant-sites-summary", "Roll up significant sites per MAG for heatmaps"),
     ],
     "Statistics": [
         ("alleleflux-lmm", "Linear Mixed Models analysis"),
@@ -879,26 +882,26 @@ def init_config(use_template, output):
                 if groups_combinations
                 else ""
             )
-            g1 = prompt_text(
-                f"Enter first group name{count_msg} (or leave blank to finish):",
+            treatment = prompt_text(
+                f"Enter treatment group name{count_msg} (or leave blank to finish):",
                 default="",
                 show_default_used=False,
             )
-            if not g1:
+            if not treatment:
                 if not groups_combinations:
                     click.echo("  ⚠️  At least one group pair is required.")
                     continue
                 break
 
-            g2 = prompt_text(
-                f"Enter second group name (different from '{g1}'):", required=True
+            control = prompt_text(
+                f"Enter control group name (different from '{treatment}'):", required=True
             )
-            if g2 == g1:
-                click.echo("  ⚠️  Second group must differ from first. Try again.")
+            if control == treatment:
+                click.echo("  ⚠️  Control group must differ from treatment. Try again.")
                 continue
 
-            groups_combinations.append([g1, g2])
-            click.echo(f"  ✓ Added comparison: {g1} vs {g2}")
+            groups_combinations.append({"treatment": treatment, "control": control})
+            click.echo(f"  ✓ Added comparison: {treatment} (treatment) vs {control} (control)")
 
         click.echo(f"  → {len(groups_combinations)} group comparison(s) configured.")
 
@@ -932,6 +935,26 @@ def init_config(use_template, output):
             "Time limit per job (HH:MM:SS format):", default="24:00:00"
         )
 
+        # Retry configuration
+        click.echo("\n🔄 Retry Configuration (press Enter to use defaults):")
+        click.echo("Jobs can automatically retry with more memory/time on failure.")
+        retries = prompt_integer(
+            "Number of retries per job (0 = no retries):",
+            default=2,
+            min_value=0,
+            max_value=5,
+        )
+        if retries > 0:
+            mem_step = prompt_memory(
+                "Memory added per retry (e.g., '4G'):", default="4G"
+            )
+            time_step = prompt_time(
+                "Time added per retry (e.g., '4:00:00'):", default="4:00:00"
+            )
+        else:
+            mem_step = "0G"
+            time_step = "0:00:00"
+
     except KeyboardInterrupt:
         click.echo("\nConfiguration cancelled.")
         return
@@ -962,6 +985,9 @@ def init_config(use_template, output):
     config_template["resources"]["threads_per_job"] = threads_per_job
     config_template["resources"]["mem_per_job"] = mem_per_job
     config_template["resources"]["time"] = time_limit
+    config_template["resources"]["retries"] = retries
+    config_template["resources"]["mem_step"] = mem_step
+    config_template["resources"]["time_step"] = time_step
 
     # Set timepoints and groups
     config_template["analysis"]["timepoints_combinations"] = timepoints_combinations

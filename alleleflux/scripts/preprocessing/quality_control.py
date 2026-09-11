@@ -31,6 +31,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
+from tqdm.contrib.logging import logging_redirect_tqdm
 
 from alleleflux.scripts.utilities.logging_config import setup_logging
 from alleleflux.scripts.utilities.qc_metrics import (
@@ -58,35 +60,19 @@ def init_worker(
     mag_sizes,
     contig_lengths,
     contig_to_mag_map,
+    mag_to_contigs_map,
 ):
-    """
-    Initialize worker process with metadata and MAG sizes.
-
-    This function sets up global dictionaries for metadata and MAG sizes
-    that can be accessed by worker processes.
-
-    Parameters:
-        metadata (dict): A dictionary containing metadata information.
-        mag_sizes (dict): A dictionary containing sizes of MAGs (Metagenome-Assembled Genomes).
-        contig_lengths (dict): A dictionary containing contig lengths.
-        contig_to_mag_map (dict): Mapping of contig_id -> mag_id for validation.
-
-    Returns:
-        None
-
-    Notes:
-        For position-based QC analysis, use the separate positions_qc.py script.
-    """
+    """Initialize worker process globals shared across all sample tasks."""
     global metadata_dict
     global mag_size_dict
+    global contig_length_dict
+    global contig_to_mag
+    global mag_to_contigs
     metadata_dict = metadata
     mag_size_dict = mag_sizes
-    # Store contig lengths for weighted coverage
-    global contig_length_dict
     contig_length_dict = contig_lengths
-    # Mapping: contig_id -> mag_id (for validation/subsetting)
-    global contig_to_mag
     contig_to_mag = contig_to_mag_map
+    mag_to_contigs = mag_to_contigs_map
 
 
 def process_mag_files(args):
@@ -144,11 +130,8 @@ def process_mag_files(args):
     """
     sample_id, profile_fPath, mag_id, breadth_threshold, coverage_threshold = args
 
-    # Check if there are more than 2 unique groups in the metadata
-    unique_groups = {meta["group"] for meta in metadata_dict.values()}
-    if len(unique_groups) > 2:
-        msg = f"More than 2 unique groups found: {unique_groups}"
-        raise ValueError(msg)
+    # Note: QC metrics (breadth, coverage) are group-independent.
+    # Group-pair specific eligibility is handled downstream by eligibility_table.py.
 
     # Build a dictionary to store coverage stats
     # Columns are organized by category for better readability
@@ -191,7 +174,11 @@ def process_mag_files(args):
 
     # Load and validate profile (filter to MAG's contigs)
     try:
-        df = load_and_validate_profile(profile_fPath, mag_id, sample_id, contig_to_mag)
+        df = load_and_validate_profile(
+                profile_fPath, mag_id, sample_id, contig_to_mag,
+                usecols=["contig", "total_coverage"],
+                mag_contigs=mag_to_contigs.get(mag_id),
+            )
     except ValueError as e:
         # Profile empty after filtering to MAG contigs
         result["breadth_fail_reason"] = str(e)
@@ -330,7 +317,7 @@ def check_timepoints(df, data_type):
 
     # Add debug info
     if not valid_subjects.empty:
-        logger.info(f"Subjects with 2 valid timepoints: {len(valid_subjects)}")
+        logger.debug(f"Subjects with 2 valid timepoints: {len(valid_subjects)}")
     else:
         logger.warning("No subjects have valid MAG in 2 timepoints")
 
@@ -371,7 +358,7 @@ def add_subject_count_per_group(df):
     valid_subjects = df[df["two_timepoints_passed"]]
 
     if valid_subjects.empty:
-        logger.warning("No valid subjects found")
+        logger.debug("No valid subjects found")
         # Initialize the columns with NaN values
         df["subjects_per_group"] = np.nan
         df["replicates_per_group"] = np.nan
@@ -405,9 +392,7 @@ def add_subject_count_per_group(df):
         ~df["two_timepoints_passed"], ["subjects_per_group", "replicates_per_group"]
     ] = np.nan
 
-    # Log summary
-    logger.info("Subject and replicate counts per group (valid samples):")
-    logger.info(f"\n{counts}")
+    logger.debug("Subject and replicate counts per group (valid samples):\n%s", counts)
     return df
 
 
@@ -451,7 +436,7 @@ def count_paired_replicates(df):
     valid_subjects = df[df["two_timepoints_passed"]]
 
     if valid_subjects.empty:
-        logger.warning("No valid subjects found")
+        logger.debug("No valid subjects found")
         # Initialize the column with NaN values
         df["paired_replicates_per_group"] = np.nan
         # Set 0 only for valid subjects that passed the timepoint check
@@ -497,56 +482,16 @@ def count_paired_replicates(df):
         valid_mask & paired_mask, df["paired_replicates_per_group"], np.nan
     )
 
-    # Log summary
-    logger.info("Replicates paired per group")
-    logger.info(f"\n{paired_counts}")
+    logger.debug("Replicates paired per group:\n%s", paired_counts)
     return df
 
 
-def process_mag(args):
-    (
-        mag_id,
-        metadata_file,
-        mag_size_dict,
-        contig_length_dict_global,
-        contig_to_mag_map,
-        output_dir,
-        breadth_threshold,
-        coverage_threshold,
-        cpus,
-        data_type,
-    ) = args
-    logger.info(f"Processing MAG: {mag_id}")
+def _aggregate_mag(mag_id, results_list, output_dir, data_type):
+    """Per-MAG aggregation: timepoint checks, subject counts, summaries.
 
-    metadata_dict, sample_files_with_mag_id = load_mag_metadata_file(
-        metadata_file, mag_id, breadth_threshold, coverage_threshold, data_type
-    )
-
-    if not sample_files_with_mag_id:
-        raise ValueError(
-            f"No samples found in the metadata file {metadata_file}. For MAG: {mag_id}. Exiting."
-        )
-
-    num_procs = min(cpus, len(sample_files_with_mag_id))
-    logger.info(
-        f"Processing {len(sample_files_with_mag_id)} samples for {mag_id} with {num_procs} processes."
-    )
-
-    # Load sample data in parallel
-    with Pool(
-        processes=num_procs,
-        initializer=init_worker,
-        initargs=(
-            metadata_dict,
-            mag_size_dict,
-            contig_length_dict_global,
-            contig_to_mag_map,
-        ),
-    ) as pool:
-        results_list = list(
-            pool.imap_unordered(process_mag_files, sample_files_with_mag_id),
-        )
-    # Build results DataFrame
+    Runs in the main process after all samples for this MAG have been
+    processed by the pool.  Pure pandas operations on a small DataFrame.
+    """
     df_results = pd.DataFrame(results_list)
 
     # Check that each subject has exactly 2 timepoints (for longitudinal data only)
@@ -560,8 +505,13 @@ def process_mag(args):
 
     out_file = Path(output_dir) / f"{mag_id}_QC.tsv"
     df_results.to_csv(out_file, sep="\t", index=False)
-    logger.info(f"Saved QC report for {mag_id} to {out_file}")
-    # Prepare summaries (do not write here; collected in main)
+    logger.debug(f"Saved QC report for {mag_id} to {out_file}")
+
+    if not df_results["coverage_threshold_passed"].any():
+        logger.warning(f"MAG {mag_id}: no samples passed QC; skipping summaries.")
+        return None, None, None
+
+    # Prepare summaries
     group_summary = aggregate_mag_stats(
         df_results, mag_id, group_cols=["group"], overall=False
     )
@@ -653,27 +603,88 @@ def main():
     if not metadata_files:
         raise ValueError("No *_metadata.tsv files found in input directory")
 
-    tasks = [
-        (
-            metadata_file.stem.split("_metadata")[0],  # mag_id from filename
-            metadata_file,
+    # ── Build a flat list of (sample) tasks and a per-MAG metadata index ──
+    # load_mag_metadata_file returns:
+    #   metadata_dict: {sample_id -> {group, subjectID, replicate, [time]}}
+    #   sample_tuples: [(sample_id, profile_path, mag_id, breadth, cov), ...]
+    #
+    # We merge ALL per-MAG metadata_dicts into one combined dict (sample_ids
+    # are globally unique) and build a flat task list so the Pool dispatches
+    # at the sample level, giving perfect work-stealing across MAGs of
+    # different sizes.
+    combined_metadata = {}  # sample_id -> metadata row
+    mag_sample_ids = {}     # mag_id -> [sample_id, ...] (for post-pool grouping)
+    all_sample_tasks = []   # flat list fed to pool.imap_unordered
+
+    for metadata_file in metadata_files:
+        mag_id = metadata_file.stem.split("_metadata")[0]
+        metadata_dict, sample_tuples = load_mag_metadata_file(
+            metadata_file, mag_id,
+            args.breadth_threshold, args.coverage_threshold, args.data_type,
+        )
+        if not sample_tuples:
+            raise ValueError(
+                f"No samples found in the metadata file {metadata_file}. "
+                f"For MAG: {mag_id}. Exiting."
+            )
+        combined_metadata.update(metadata_dict)
+        mag_sample_ids[mag_id] = [t[0] for t in sample_tuples]
+        all_sample_tasks.extend(sample_tuples)
+
+    n_workers = min(args.cpus, len(all_sample_tasks))
+    n_mags = len(mag_sample_ids)
+    logger.info(
+        f"Processing {len(all_sample_tasks)} samples across {n_mags} MAGs "
+        f"with {n_workers} parallel workers."
+    )
+
+    # Invert contig_to_mag once so load_and_validate_profile can do an O(1)
+    # membership test per unique contig instead of an O(all_contigs) map per row.
+    from collections import defaultdict
+    mag_to_contigs_global = defaultdict(set)
+    for contig, mid in contig_to_mag_global.items():
+        mag_to_contigs_global[mid].add(contig)
+
+    # Silence verbose utility loggers before forking workers.
+    logging.getLogger("alleleflux.scripts.utilities").setLevel(logging.WARNING)
+
+    # ── Run sample-level pool ──
+    # The large dicts (combined_metadata, mag_size_dict, contig_length_dict,
+    # contig_to_mag_global, mag_to_contigs_global) are sent ONCE per worker via
+    # the initializer, not once per task.
+    with Pool(
+        processes=n_workers,
+        initializer=init_worker,
+        initargs=(
+            combined_metadata,
             mag_size_dict,
             contig_length_dict,
             contig_to_mag_global,
-            args.output_dir,
-            args.breadth_threshold,
-            args.coverage_threshold,
-            args.cpus,
-            args.data_type,
-        )
-        for metadata_file in metadata_files
-    ]
+            mag_to_contigs_global,
+        ),
+    ) as pool:
+        with logging_redirect_tqdm():
+            sample_results = list(tqdm(
+                pool.imap_unordered(process_mag_files, all_sample_tasks, chunksize=4),
+                total=len(all_sample_tasks),
+                desc="Processing samples",
+                unit="sample",
+            ))
+
+    # ── Group results by MAG and run per-MAG aggregation ──
+    # This is pure pandas on small DataFrames — fast in the main process.
+    results_by_mag = {mag_id: [] for mag_id in mag_sample_ids}
+    for result in sample_results:
+        results_by_mag[result["MAG_ID"]].append(result)
 
     all_group = []
     all_group_time = []
     all_overall = []
-    for task in tasks:
-        group_df, group_time_df, overall_df = process_mag(task)
+
+    for mag_id in tqdm(mag_sample_ids, desc="Aggregating MAGs", unit="MAG"):
+        group_df, group_time_df, overall_df = _aggregate_mag(
+            mag_id, results_by_mag[mag_id], args.output_dir, args.data_type,
+        )
         if group_df is not None:
             all_group.append(group_df)
         if group_time_df is not None:

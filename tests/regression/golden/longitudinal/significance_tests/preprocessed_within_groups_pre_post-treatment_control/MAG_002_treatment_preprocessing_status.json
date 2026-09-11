@@ -1,0 +1,13 @@
+{
+  "mag_id": "MAG_002",
+  "preprocess_type": "within_groups",
+  "group": "treatment",
+  "input_rows": 3416,
+  "output_rows": 3416,
+  "min_positions": 1,
+  "min_sample_num": 2,
+  "total_positions": 1708,
+  "positions_eligible": 1708,
+  "eligible": true,
+  "max_zero_count": 2
+}

@@ -202,6 +202,7 @@ analysis:
   use_significance_tests: true   # Two-sample and single-sample tests
   use_lmm: false                 # Disable LMM
   use_cmh: false                 # Disable CMH
+  use_dnds: false                # Disable dN/dS (longitudinal only)
 ```
 
 **3. Run individual CLI tools standalone:**

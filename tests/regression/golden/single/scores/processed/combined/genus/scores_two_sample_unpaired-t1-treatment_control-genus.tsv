@@ -1,0 +1,2 @@
+domain	phylum	class	order	family	genus	total_sites_per_group_tTest	significant_sites_per_group_tTest	total_sites_per_group_MannWhitney	significant_sites_per_group_MannWhitney	unique_MAGs	score_tTest (%)	score_MannWhitney (%)	grouped_by
+Bacteria	Bacteroidota	Bacteroidia	Bacteroidales	Bacteroidaceae	Bacteroides	507	19	507	12	2	3.7475345167652856	2.366863905325444	genus

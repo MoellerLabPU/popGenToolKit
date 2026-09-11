@@ -8,12 +8,16 @@ output streaming. It is separate from the CLI to maintain clean
 separation of concerns.
 """
 
+import copy
 import logging
 import multiprocessing
 import os
 import re
+import shutil
+import signal
 import subprocess
 import sys
+import tempfile
 from datetime import datetime
 from importlib import resources as importlib_resources
 from pathlib import Path
@@ -201,6 +205,40 @@ def validate_config(config_path: Path) -> dict:
             "No existing profiles specified - profiling will run from BAM files."
         )
 
+    # Validate optional reuse_from (permuted/null run reusing a real run's
+    # group-independent artifacts: profiles, QC, allele-freq cache).
+    reuse_from = input_config.get("reuse_from", "")
+    if reuse_from:
+        if not os.path.isdir(reuse_from):
+            logger.error(
+                f"Specified reuse_from does not exist or is not a directory: {reuse_from}"
+            )
+            sys.exit(1)
+        # Warn (don't hard-fail) if the expected reusable subdirs are missing —
+        # the run will simply rebuild whatever isn't found.
+        for sub in ("QC", "allele_freq_cache"):
+            if not os.path.isdir(os.path.join(reuse_from, sub)):
+                logger.warning(
+                    f"reuse_from is missing expected subdir '{sub}/': "
+                    f"{os.path.join(reuse_from, sub)}. That stage will be rebuilt."
+                )
+        logger.info(f"Reusing profiles/QC/allele-freq cache from: {reuse_from}")
+
+    # A permuted (null) run MUST reuse an existing real run — otherwise each
+    # permutation would rebuild the whole (expensive) cache from scratch, which
+    # defeats the entire purpose.  Enforce reuse_from when permutation is on.
+    permutation = config.get("permutation", {})
+    if permutation.get("enabled"):
+        if not reuse_from:
+            logger.error(
+                "permutation.enabled is true but input.reuse_from is not set. "
+                "A permuted run reuses a completed real run's profiles/QC/cache; "
+                "point input.reuse_from at that run's data-type output dir "
+                "(e.g. .../alleleflux_output_1/longitudinal)."
+            )
+            sys.exit(1)
+        logger.info("Permutation (null) run enabled.")
+
     return config
 
 
@@ -231,14 +269,19 @@ def run_snakemake(cmd: str, logfile: Path = None) -> int:
     log_handle = open(logfile, "w") if logfile else None
 
     try:
-        # Run snakemake with real-time output streaming
-        # Using shell=True following SnakePipes/Atlas pattern
+        # shell=True spawns `bash -c <cmd>`, so the immediate child is bash and
+        # snakemake is its grandchild. preexec_fn=os.setsid puts bash into a new
+        # session/process group with PGID == bash's PID, so a single
+        # os.killpg(process.pid, sig) reaches bash + snakemake + any further
+        # descendants atomically — without this, terminate() only kills bash
+        # and snakemake is orphaned to init.
         process = subprocess.Popen(
             cmd,
             shell=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
+            preexec_fn=os.setsid,
         )
 
         # Stream output line by line
@@ -254,20 +297,45 @@ def run_snakemake(cmd: str, logfile: Path = None) -> int:
         return process.returncode
 
     except KeyboardInterrupt:
-        # Handle Ctrl+C gracefully - let snakemake clean up
+        # Handle Ctrl+C with escalating signals: SIGINT (graceful) → SIGTERM
+        # (urgent) → SIGKILL (uncatchable). Each step has a bounded timeout, so
+        # a snakemake stuck in a non-interruptible sbatch RPC can't strand us in
+        # an infinite wait (the original bug — `process.wait()` after `terminate()`
+        # blocked forever when SIGTERM was ignored, leaving an orphan driver
+        # alive on the login node that kept resubmitting jobs after `scancel`).
         logger.warning("\nInterrupted by user. Waiting for snakemake to clean up...")
         if log_handle:
             log_handle.write("\nInterrupted by user (KeyboardInterrupt)\n")
             log_handle.flush()
 
-        # Snakemake receives SIGINT automatically since it's in the same process group
-        # Wait for it to finish its cleanup
-        try:
-            process.wait(timeout=30)  # Give snakemake 30 seconds to clean up
-        except subprocess.TimeoutExpired:
-            logger.warning("Snakemake cleanup timed out. Terminating...")
-            process.terminate()
-            process.wait()
+        # Because we put the child in its own session (preexec_fn=os.setsid),
+        # the terminal's Ctrl+C does NOT reach snakemake automatically — we
+        # must forward SIGINT explicitly to give it a chance to gracefully
+        # cancel its in-flight SLURM jobs.
+        for sig, label, grace_seconds in (
+            (signal.SIGINT, "SIGINT (graceful)", 30),
+            (signal.SIGTERM, "SIGTERM (urgent)", 10),
+            (signal.SIGKILL, "SIGKILL (uncatchable)", 5),
+        ):
+            try:
+                os.killpg(process.pid, sig)
+            except ProcessLookupError:
+                break  # already dead
+            try:
+                process.wait(timeout=grace_seconds)
+                break  # exited cleanly under this signal
+            except subprocess.TimeoutExpired:
+                logger.warning(
+                    f"{label} did not stop snakemake within {grace_seconds}s; escalating..."
+                )
+        else:
+            # Loop fell through without break — even SIGKILL didn't reap it.
+            # This should be impossible on Linux (SIGKILL is uncatchable), but
+            # if it ever happens the user needs to know to investigate manually.
+            logger.error(
+                f"Failed to stop snakemake process group (PGID={process.pid}). "
+                "Check for zombie processes with `pgrep -u $USER snakemake`."
+            )
 
         logger.info("Workflow interrupted. You can resume with the same command.")
         return 130  # Standard exit code for SIGINT
@@ -341,6 +409,211 @@ def build_snakemake_command(
     return " ".join(cmd_parts)
 
 
+# =============================================================================
+# Permutation (null) orchestration
+# =============================================================================
+
+
+def _resolve_permutation_seeds(perm_config: dict) -> List[int]:
+    """Resolve the list of permutation seeds from the ``permutation`` config.
+
+    Precedence: an explicit ``seeds`` list wins; else ``n_permutations`` expands
+    to ``1..N``; else a single permutation with seed ``1``.
+    """
+    seeds = perm_config.get("seeds")
+    if seeds:
+        return [int(s) for s in seeds]
+    n = int(perm_config.get("n_permutations", 1))
+    return list(range(1, n + 1))
+
+
+def _unlock_permutation_leaves(
+    config: dict, working_dir: str, snakefile: "str | Path"
+) -> int:
+    """Unlock every per-seed leaf working dir of a permutation-orchestrating run.
+
+    The head ``--unlock`` only clears the orchestrator's own working dir. Each
+    leaf (``<root>/<output_subdir>/perm_<seed>/``) runs Snakemake in its own dir
+    with its own ``.snakemake/`` lock, so a crashed leaf leaves a stale lock the
+    head unlock cannot reach. This cascades the unlock to each leaf that has a
+    persisted leaf config, mirroring the layout written by :func:`run_permutations`.
+
+    No-op (returns 0) when this is not a permutation orchestrator. Leaves with no
+    leaf config yet (never started) are silently skipped — nothing to unlock.
+    """
+    perm = config.get("permutation", {})
+    is_orchestrator = (
+        perm.get("enabled")
+        and perm.get("seed") is None
+        and not perm.get("permuted_metadata_dir")
+    )
+    if not is_orchestrator:
+        return 0
+
+    subdir = perm.get("output_subdir", "permuted")
+    base_output = Path(config["output"]["root_dir"])
+    if not base_output.is_absolute():
+        base_output = (Path(working_dir) / base_output).resolve()
+
+    worst = 0
+    for seed in _resolve_permutation_seeds(perm):
+        seed_dir = base_output / subdir / f"perm_{seed}"
+        leaf_config = seed_dir / f"config_perm_{seed}.yml"
+        # Skip leaves that never ran (no config, or no lock dir to clear).
+        if not leaf_config.exists() or not (seed_dir / ".snakemake").is_dir():
+            continue
+        logger.info(f"Unlocking permutation leaf: {seed_dir}")
+        leaf_cmd = (
+            f"snakemake --snakefile {snakefile} "
+            f"--configfile {leaf_config.resolve()} "
+            f"--directory {seed_dir} --unlock"
+        )
+        worst = max(worst, run_snakemake(leaf_cmd))
+    return worst
+
+
+def run_permutations(
+    config: dict,
+    working_dir: str,
+    jobs: Optional[int] = None,
+    threads: Optional[int] = None,
+    memory: Optional[str] = None,
+    profile: Optional[str] = None,
+    dry_run: bool = False,
+    extra_args: Optional[List[str]] = None,
+    version: str = "unknown",
+) -> int:
+    """Fan out N per-comparison-pair permuted (null) runs that reuse a real run.
+
+    For each seed, write a per-seed *leaf* config carrying ``permutation.seed``
+    (singular) and run the group-dependent tail through
+    :func:`execute_workflow`.  The leaf is a *generate-mode* permuted run: the
+    in-DAG ``permute_metadata`` rule builds one permuted metadata sheet per
+    ``groups_combinations`` entry from that seed (so the sheets are tracked
+    artifacts — provenance + skip-if-exists, and nothing is written on a dry
+    run).  Carrying ``seed`` also marks the leaf so it does NOT re-orchestrate,
+    and it inherits ``input.reuse_from`` so profiling/QC/cache are reused.
+
+    Layout (under the orchestrating config's ``output.root_dir``)::
+
+        <root>/<output_subdir>/perm_<seed>/
+            config_perm_<seed>.yml
+            <data_type>/permuted_metadata/permuted_metadata_<t>_<c>.tsv
+            <data_type>/...                      # scores, stats, eligibility
+
+    Returns the worst (max) leaf exit code; stops early on the first failure.
+    """
+    perm = config["permutation"]
+    seeds = _resolve_permutation_seeds(perm)
+    unit = perm.get("unit", "subjectID")
+    block = perm.get("block")
+    swaps = perm.get("swaps")
+    subdir = perm.get("output_subdir", "permuted")
+
+    wd = Path(working_dir)
+
+    # Resolve the base output and the original metadata to absolute paths so the
+    # leaf configs (which run in their own working dir) reference them
+    # unambiguously regardless of the leaf's cwd.
+    base_output = Path(config["output"]["root_dir"])
+    if not base_output.is_absolute():
+        base_output = (wd / base_output).resolve()
+
+    orig_md = Path(config["input"]["metadata_path"])
+    if not orig_md.is_absolute():
+        orig_md = (wd / orig_md).resolve()
+
+    pairs = [
+        (g["treatment"], g["control"])
+        for g in config["analysis"]["groups_combinations"]
+    ]
+
+    logger.info("=" * 60)
+    logger.info(
+        f"PERMUTATION ORCHESTRATION — {len(seeds)} permutation(s) × "
+        f"{len(pairs)} comparison pair(s)"
+    )
+    logger.info(
+        f"  unit={unit}  block={block}  "
+        f"swaps={'half (default)' if swaps is None else swaps}  seeds={seeds}"
+    )
+    logger.info(f"  reuse_from={config['input'].get('reuse_from')}")
+    logger.info("=" * 60)
+
+    exit_codes = []
+    for idx, seed in enumerate(seeds, start=1):
+        seed_dir = base_output / subdir / f"perm_{seed}"
+
+        logger.info(f"[permutation {idx}/{len(seeds)}] seed={seed} → {seed_dir}")
+
+        # Per-seed leaf config.  Carrying ``permutation.seed`` (singular) marks
+        # this as a generate-mode leaf: execute_workflow does NOT re-orchestrate,
+        # and the in-DAG ``permute_metadata`` rule builds the per-pair sheets from
+        # this seed.  ``permuted_metadata_dir`` is removed so BYO mode is not
+        # triggered.  ``metadata_path`` is pinned absolute for the rule.
+        leaf = copy.deepcopy(config)
+        leaf["output"]["root_dir"] = str(seed_dir)
+        leaf["input"]["metadata_path"] = str(orig_md)
+        leaf.setdefault("permutation", {})
+        leaf["permutation"]["enabled"] = True
+        leaf["permutation"]["seed"] = seed
+        leaf["permutation"].pop("permuted_metadata_dir", None)
+        # A divergence null only needs the between-group comparison, so skip the
+        # within-group / across-time tests by default (saves compute).  The user
+        # can force them back on with analysis.run_within_group_tests: true.
+        leaf.setdefault("analysis", {}).setdefault("run_within_group_tests", False)
+
+        # Persist the leaf config beside its outputs on a real run; on a dry run
+        # write it to a throwaway temp dir so the output tree stays pristine (no
+        # config/TSV litter under ``-n``).  Each leaf runs in its OWN working dir
+        # (isolated .snakemake/) — sharing the real run's dir made Snakemake's
+        # params rerun-trigger fire on the reused metadata/qc rules and re-touch
+        # the real run's sentinels.  Isolation also avoids cross-seed lock
+        # contention.
+        tmp_dir = None
+        if dry_run:
+            tmp_dir = Path(tempfile.mkdtemp(prefix=f"alleleflux_perm_{seed}_"))
+            leaf_path = tmp_dir / f"config_perm_{seed}.yml"
+            leaf_wd = tmp_dir
+        else:
+            seed_dir.mkdir(parents=True, exist_ok=True)
+            leaf_path = seed_dir / f"config_perm_{seed}.yml"
+            leaf_wd = seed_dir
+
+        with open(leaf_path, "w") as f:
+            yaml.safe_dump(leaf, f, sort_keys=False)
+
+        try:
+            rc = execute_workflow(
+                config_file=str(leaf_path),
+                working_dir=str(leaf_wd),
+                jobs=jobs,
+                threads=threads,
+                memory=memory,
+                profile=profile,
+                dry_run=dry_run,
+                extra_args=extra_args,
+                version=version,
+            )
+        finally:
+            if tmp_dir is not None:
+                shutil.rmtree(tmp_dir, ignore_errors=True)
+
+        exit_codes.append(rc)
+        if rc != 0:
+            logger.error(
+                f"Permutation seed={seed} failed (exit {rc}); stopping orchestration."
+            )
+            break
+
+    logger.info("=" * 60)
+    ran = len(exit_codes)
+    ok = sum(1 for c in exit_codes if c == 0)
+    logger.info(f"PERMUTATION ORCHESTRATION done: {ok}/{ran} permutation(s) succeeded.")
+    logger.info("=" * 60)
+    return max(exit_codes) if exit_codes else 0
+
+
 def execute_workflow(
     config_file: str,
     working_dir: str = ".",
@@ -390,8 +663,38 @@ def execute_workflow(
     # Handle unlock
     if unlock:
         logger.info("Unlocking working directory...")
-        unlock_cmd = f"snakemake --snakefile {snakefile} --unlock"
-        return run_snakemake(unlock_cmd)
+        unlock_cmd = f"snakemake --snakefile {snakefile} --configfile {config_path.resolve()} --directory {working_dir} --unlock"
+        rc = run_snakemake(unlock_cmd)
+        # A permutation-orchestrating run drives each per-seed leaf in its OWN
+        # working dir with its OWN .snakemake/ — the head unlock above does NOT
+        # reach them. Cascade so a single `alleleflux run ... --unlock` clears
+        # stale locks left by a crashed leaf (e.g. <root>/permuted/perm_<seed>/).
+        rc = max(rc, _unlock_permutation_leaves(config, working_dir, snakefile))
+        return rc
+
+    # Permutation orchestration.  When permutation is enabled and this is not
+    # already a per-seed *leaf* run, fan out into N permuted runs that reuse the
+    # real run's artifacts.  A leaf is marked by either ``permutation.seed``
+    # (generate mode — the permute_metadata rule builds the sheets) or
+    # ``permutation.permuted_metadata_dir`` (BYO mode — user-supplied sheets);
+    # in either case it skips this block and runs the group-dependent pipeline.
+    permutation = config.get("permutation", {})
+    if (
+        permutation.get("enabled")
+        and permutation.get("seed") is None
+        and not permutation.get("permuted_metadata_dir")
+    ):
+        return run_permutations(
+            config=config,
+            working_dir=working_dir,
+            jobs=jobs,
+            threads=threads,
+            memory=memory,
+            profile=profile,
+            dry_run=dry_run,
+            extra_args=extra_args,
+            version=version,
+        )
 
     # Get output directory from config for logging
     output_dir = Path(config.get("output", {}).get("root_dir", working_dir))

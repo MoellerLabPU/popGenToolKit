@@ -35,6 +35,8 @@ Paths to required input files.
 | `metadata_path` | Path to sample metadata TSV file. Must contain columns: `sample_id`, `bam_path`, `subjectID`, `group`, `replicate`. For longitudinal data, also include `time`. |
 | `gtdb_path` | Path to GTDB-Tk taxonomy file (`gtdbtk.bac120.summary.tsv`). Used for taxonomic aggregation of scores. |
 | `mag_mapping_path` | Path to contig-to-MAG mapping file (TSV with `contig_name` and `mag_id` columns). |
+| `profiles_path` | *(Optional)* Path to an existing `profiles/` directory from a prior run. Reuses **only** the Step 1 pileup output; QC and the allele-frequency cache are still rebuilt. See [Artifact Reuse and Null Runs](../usage/artifact_reuse_and_null_runs.md). |
+| `reuse_from` | *(Optional)* Path to a completed run's **data-type output dir** (e.g. `.../output/longitudinal`). Reuses profiles **+ QC + allele-frequency cache** — only the group-dependent tail re-runs. Works standalone (no permutation required). See [Artifact Reuse and Null Runs](../usage/artifact_reuse_and_null_runs.md). |
 
 **Example:**
 
@@ -77,6 +79,7 @@ Core analysis settings.
 | `use_lmm` | `true` | Enable Linear Mixed Models (LMM) for repeated measures/longitudinal data. Best for accounting for subject-level variation. |
 | `use_significance_tests` | `true` | Enable two-sample (t-test, Mann-Whitney) and single-sample statistical tests. Best for simple comparisons. |
 | `use_cmh` | `true` | Enable Cochran-Mantel-Haenszel tests for stratified categorical analysis. Best for detecting consistent directional changes. |
+| `use_dnds` | `true` | Enable dN/dS (Nei-Gojobori) evolutionary-rate analysis. **Longitudinal data only.** Set to `false` to skip the dN/dS step entirely (its parameters live under the top-level [`dnds`](#dnds) section). |
 | `timepoints_combinations` | Required | List of timepoint combinations to analyze (see below). |
 | `groups_combinations` | Required | List of group pairs to compare (see below). |
 
@@ -226,6 +229,10 @@ statistics:
 
 Parameters for dN/dS (synonymous/non-synonymous) ratio calculations.
 
+:::{note}
+dN/dS analysis is **only applicable to longitudinal data** (`data_type: longitudinal`). To turn it on or off, use the [`analysis.use_dnds`](#analysis) toggle (defaults to `true`); the parameters below are read only when that toggle is enabled.
+:::
+
 | Parameter | Default | Description |
 |-----------|---------|-------------|
 | `p_value_column` | `q_value` | Column name to use for significance in dN/dS calculations. |
@@ -365,6 +372,7 @@ analysis:
   use_lmm: true
   use_significance_tests: true
   use_cmh: true
+  use_dnds: true
   timepoints_combinations:
     - timepoint: [pre, post]
       focus: post

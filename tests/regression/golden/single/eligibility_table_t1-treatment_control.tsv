@@ -1,0 +1,3 @@
+MAG_ID	replicates_per_group_control	replicates_per_group_treatment	paired_replicates_per_group_control	paired_replicates_per_group_treatment	unpaired_test_eligible	paired_test_eligible	single_sample_eligible_control	single_sample_eligible_treatment
+MAG_001	4.0	4.0	4.0	4.0	True	True		
+MAG_002	4.0	4.0	4.0	4.0	True	True		

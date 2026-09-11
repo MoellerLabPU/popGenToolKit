@@ -1,0 +1,8 @@
+gene_id	mag_score_Wilcoxon (%)	gene_score_Wilcoxon (%)	total_sites_gene_Wilcoxon	significant_sites_gene_Wilcoxon	p_value_binomial_Wilcoxon	p_value_poisson_Wilcoxon	mag_score_tTest (%)	gene_score_tTest (%)	total_sites_gene_tTest	significant_sites_gene_tTest	p_value_binomial_tTest	p_value_poisson_tTest
+MAG_001.fa_contig1_gene1	0.0	0.0	26	0	1.0	1.0	2.112676056338028	0.0	26	0	1.0	1.0
+MAG_001.fa_contig1_gene2	0.0	0.0	58	0	1.0	1.0	2.112676056338028	1.7241379310344829	58	1	0.7101759369642588	0.7063457172780476
+MAG_001.fa_contig1_gene3	0.0	0.0	8	0	1.0	1.0	2.112676056338028	0.0	8	0	1.0	1.0
+MAG_001.fa_contig2_gene1	0.0	0.0	58	0	1.0	1.0	2.112676056338028	3.4482758620689653	58	2	0.3473745918691586	0.34651582154833094
+MAG_001.fa_contig2_gene2	0.0	0.0	11	0	1.0	1.0	2.112676056338028	0.0	11	0	1.0	1.0
+MAG_001.fa_contig2_gene3	0.0	0.0	44	0	1.0	1.0	2.112676056338028	0.0	44	0	1.0	1.0
+	0.0	0.0	79	0	1.0	1.0	2.112676056338028	3.79746835443038	79	3	0.2336760516801823	0.23462043538153354

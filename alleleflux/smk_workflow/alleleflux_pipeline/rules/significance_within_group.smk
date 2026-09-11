@@ -15,7 +15,7 @@ rule preprocess_within_groups:
             OUTDIR,
             "allele_analysis",
             "allele_analysis_{timepoints}-{groups}",
-            "{mag}_allele_frequency_changes_mean.tsv.gz",
+            "{mag}_allele_frequency_changes_mean.parquet",
         ),
     output:
         outPath=get_preprocessed_within_groups_path(),
@@ -36,9 +36,11 @@ rule preprocess_within_groups:
         ),
         min_positions=config["statistics"].get("min_positions_after_preprocess", 1),
         min_sample_num=config["quality_control"]["min_sample_num"],
+    retries: get_retries("preprocess_within_groups")
     resources:
         mem_mb=get_mem_mb("preprocess_within_groups"),
         time=get_time("preprocess_within_groups"),
+        runtime=get_runtime("preprocess_within_groups"),
     shell:
         """
         alleleflux-preprocess-within-group \
@@ -60,7 +62,7 @@ rule single_sample:
                 OUTDIR,
                 "allele_analysis",
                 "allele_analysis_{timepoints}-{groups}",
-                "{mag}_allele_frequency_changes_mean.tsv.gz",
+                "{mag}_allele_frequency_changes_mean.parquet",
             )
         ),
     output:
@@ -76,9 +78,11 @@ rule single_sample:
             OUTDIR, "significance_tests", "single_sample_{timepoints}-{groups}"
         ),
     threads: get_threads("statistical_tests")
+    retries: get_retries("statistical_tests")
     resources:
         mem_mb=get_mem_mb("statistical_tests"),
         time=get_time("statistical_tests"),
+        runtime=get_runtime("statistical_tests"),
     shell:
         """
         alleleflux-single-sample \
@@ -91,6 +95,18 @@ rule single_sample:
             """
 
 
+def _cache_paths_for_combination(wildcards):
+    """Resolve the per-timepoint (group-independent) Parquet cache paths for one combination."""
+    tps = wildcards.timepoints.split("_") if DATA_TYPE == "longitudinal" else [wildcards.timepoints]
+    return [
+        get_allele_freq_cache_path(
+            mag_wildcard=wildcards.mag,
+            timepoint_wildcard=tp,
+        )
+        for tp in tps
+    ]
+
+
 rule lmm_analysis_across_time:
     input:
         input_df=(
@@ -98,16 +114,18 @@ rule lmm_analysis_across_time:
                 OUTDIR,
                 "allele_analysis",
                 "allele_analysis_{timepoints}-{groups}",
-                "{mag}_allele_frequency_changes_no_zero-diff.tsv.gz",
+                "{mag}_allele_frequency_changes_no_zero-diff.parquet",
             )
             if not config["quality_control"].get("disable_zero_diff_filtering", False)
-            else get_longitudinal_input_path()
+            else _cache_paths_for_combination
         ),
         preprocessed_df=(
             get_preprocessed_within_groups_path()
             if config["statistics"].get("preprocess_within_groups", False)
             else []
         ),
+        # Permuted (null) run: depend on the per-pair sheet (generate mode only).
+        permuted_md=lambda wildcards: permuted_metadata_input(wildcards.groups),
     output:
         os.path.join(
             OUTDIR,
@@ -125,14 +143,19 @@ rule lmm_analysis_across_time:
             if not config["quality_control"].get("disable_zero_diff_filtering", False)
             else "column"
         ),
+        groups_arg=lambda wildcards: "--groups " + " ".join(wildcards.groups.split("_")),
+        # Permuted (null) run: relabel the reused cache from the per-pair sheet.
+        permuted_metadata=lambda wildcards: permuted_metadata_flag(wildcards.groups),
         preprocessed_flag=(
             "--preprocessed_df"
             if config["statistics"].get("preprocess_within_groups", False)
             else ""
         )
     threads: get_threads("statistical_tests")
+    retries: get_retries("statistical_tests")
     resources:
         time=get_time("statistical_tests"),
+        runtime=get_runtime("statistical_tests"),
         mem_mb=get_mem_mb("statistical_tests")
     shell:
         """
@@ -143,6 +166,8 @@ rule lmm_analysis_across_time:
             --data_type across_time \
             --group_to_analyze {wildcards.group} \
             --input_time_format {params.input_time_format} \
+            {params.groups_arg} \
+            {params.permuted_metadata} \
             --cpus {threads} \
             --min_sample_num {params.min_sample_num} \
             {params.preprocessed_flag} {input.preprocessed_df}
@@ -151,12 +176,14 @@ rule lmm_analysis_across_time:
 
 rule cmh_test_across_time:
     input:
-        input_df=get_longitudinal_input_path(),
+        input_df=_cache_paths_for_combination,
         preprocessed_df=(
             get_preprocessed_within_groups_path()
             if config["statistics"].get("preprocess_within_groups", False)
             else []
-        )
+        ),
+        # Permuted (null) run: depend on the per-pair sheet (generate mode only).
+        permuted_md=lambda wildcards: permuted_metadata_input(wildcards.groups),
     output:
         os.path.join(
             OUTDIR,
@@ -169,14 +196,19 @@ rule cmh_test_across_time:
         outDir=os.path.join(
             OUTDIR, "significance_tests", "cmh_across_time_{timepoints}-{groups}"
         ),
+        groups_arg=lambda wildcards: "--groups " + " ".join(wildcards.groups.split("_")),
+        # Permuted (null) run: relabel the reused cache from the per-pair sheet.
+        permuted_metadata=lambda wildcards: permuted_metadata_flag(wildcards.groups),
         preprocessed_flag=(
             "--preprocessed_df"
             if config["statistics"].get("preprocess_within_groups", False)
             else ""
         )
     threads: get_threads("statistical_tests")
+    retries: get_retries("statistical_tests")
     resources:
         time=get_time("statistical_tests"),
+        runtime=get_runtime("statistical_tests"),
         mem_mb=get_mem_mb("statistical_tests"),
     shell:
         """
@@ -186,6 +218,8 @@ rule cmh_test_across_time:
             --output_dir {params.outDir} \
             --data_type across_time \
             --group {wildcards.group} \
+            {params.groups_arg} \
+            {params.permuted_metadata} \
             --cpus {threads} \
             --min_sample_num {params.min_sample_num} \
             {params.preprocessed_flag} {input.preprocessed_df}

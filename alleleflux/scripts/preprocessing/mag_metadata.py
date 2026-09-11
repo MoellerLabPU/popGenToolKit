@@ -358,8 +358,10 @@ def main():
 
     parser.add_argument(
         "--groups",
-        nargs=2,
-        help="Exactly two groups to include for comparison.",
+        nargs="+",
+        help="One or more groups to include. All provided groups will be written"
+        " to the metadata files. Group-pair-specific eligibility is determined"
+        " downstream by eligibility_table.py.",
         required=True,
     )
 

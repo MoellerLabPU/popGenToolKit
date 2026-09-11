@@ -1,11 +1,13 @@
 # AI Instructions for AlleleFlux
 
 ## Project Overview
-AlleleFlux is a two-step Snakemake workflow for analyzing allele frequencies in metagenomic data:
-- **Step 1**: Profile samples, QC, and generate eligibility tables (`step1.smk`)
-- **Step 2**: Statistical analysis, scoring, and outlier detection (`step2.smk`)
+AlleleFlux is a Snakemake workflow for analyzing allele frequencies in metagenomic data, organized as a unified pipeline with checkpoint-based DAG resolution:
+- **Profiling & QC**: Profile samples, generate metadata, QC filtering, eligibility tables
+- **Analysis & Scoring**: Statistical tests, scoring, outlier detection, dN/dS
 
 The workflow analyzes MAG (Metagenome-Assembled Genome) populations across samples, detecting parallel evolution through allele frequency changes.
+
+See [README.md](../README.md) for installation and quick start. See [CONTRIBUTING.md](../CONTRIBUTING.md) for development setup and PR process.
 
 ## Architecture & Data Flow
 
@@ -26,9 +28,10 @@ Output: Scores, outliers, p-values ← Step 2 (Statistical tests + scoring) ← 
   - `evolution/`: dN/dS analysis (`dnds_from_timepoints.py`)
   
 - **`alleleflux/smk_workflow/`**: Snakemake workflow (packaged in pip installation)
-  - `shared/common.smk`: Global config parsing, wildcard constraints, helper functions (`get_sample_info()`, `get_mags_by_eligibility()`, `parse_metadata_for_timepoint_pairs()`)
-  - `step1/`: Rules for profiling, metadata, QC, eligibility
-  - `step2/`: Rules for analysis, scoring, statistical tests
+  - `alleleflux_pipeline/Snakefile`: Unified entry point with checkpoint-based DAG
+  - `alleleflux_pipeline/shared/common.smk`: Config parsing, resource helpers, eligibility functions
+  - `alleleflux_pipeline/shared/dynamic_targets.smk`: Checkpoint-aware target generation
+  - `alleleflux_pipeline/rules/`: 13 rule modules (profiling, QC, analysis, scoring, etc.)
 
 ### Configuration System
 - **Central config**: `alleleflux/smk_workflow/config.yml` with nested sections
@@ -186,16 +189,6 @@ Eligibility files (`eligibility_table_{timepoints}-{groups}.tsv`) control which 
 
 Snakemake helper: `get_mags_by_eligibility(timepoints, groups, test_type)` → list of eligible MAG IDs
 
-#### Wildcard Constraints
-```python
-# In shared/common.smk
-wildcard_constraints:
-    groups=f"({'|'.join(groups_labels)})",  # e.g., "fat_control|treatment_control"
-    timepoints=f"({'|'.join(timepoints_labels)})",  # e.g., "pre_post|pre_end"
-    test_type="(two_sample_unpaired|two_sample_paired|single_sample|lmm|cmh|)",
-    focus_tp="|".join(set(all_focus_timepoints)),  # Extracted from config
-```
-
 ### Memory & Performance
 
 #### Memory Optimization
@@ -220,60 +213,17 @@ df = pd.read_csv(file, sep="\t", dtype=dtype)
 - Track progress with `tqdm` for long-running operations
 - Ensure workers are stateless (no shared state across processes)
 
-## Workflow Execution
-
-### Running the Pipeline
-```bash
-# Method 1: Using the packaged runner script (recommended)
-alleleflux run --config config.yml --threads 16
-
-# Method 2: Using individual Snakemake steps
-cd alleleflux/smk_workflow
-snakemake -s step1.smk --configfile config.yml --cores 16 --profile profile/
-snakemake -s step2.smk --configfile config.yml --cores 16 --profile profile/
-
-# Method 3: Bash runner script (legacy, for SLURM clusters)
-./alleleflux/runner.sh --config config.yml --cores 16 --profile slurm_profile/
-```
-
-**Critical**: Always run from project root or specify full paths to workflow files.
-
-### Debugging Workflows
-```bash
-# Dry run to check DAG
-snakemake -s step1.smk --configfile config.yml -n
-
-# Unlock if workflow crashed
-snakemake -s step1.smk --unlock
-
-# Force rerun specific rule
-snakemake -s step2.smk --configfile config.yml --forcerun rule_name
-
-# Check which files will be created
-snakemake -s step1.smk --summary
-```
-
 ## Testing & Development
 
-### Development Environment Setup
 ```bash
-# Activate conda environment (adjust paths for your system)
-source /local/workdir/sidd/miniforge3/bin/activate /local/workdir/sidd/miniforge3/envs/alleleflux
+# Run all tests
+pytest tests/ -v --tb=short
 
-# Install in development mode
-pip install -e .
-
-# All CLI commands now available: alleleflux-profile, alleleflux-qc, etc.
+# Run pipeline
+alleleflux run --config config.yml --threads 16
 ```
 
-### Testing Individual Scripts
-```bash
-# Test with actual data (faster than full workflow)
-alleleflux-profile --fasta ref.fa --bam sample.bam --output profiles/ --mag_mapping mapping.tsv
-
-# Test with subset of MAGs
-alleleflux-scores --rootDir metadata_subset/ --output_dir scores_test/ --cpus 4
-```
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for full development setup, testing, and PR guidelines.
 
 ### Common Utilities
 ```python

@@ -9,11 +9,17 @@ from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
+import pyarrow.parquet as pq
 import statsmodels.formula.api as smf
 from tqdm import tqdm
 
 from alleleflux.scripts.utilities.logging_config import setup_logging
-from alleleflux.scripts.utilities.utilities import load_and_filter_data
+from alleleflux.scripts.utilities.utilities import (
+    input_has_column,
+    load_allele_freq_inputs,
+    load_and_filter_data,
+    relabel_groups_from_metadata,
+)
 
 # --- Constants ---
 logger = logging.getLogger(__name__)
@@ -85,14 +91,15 @@ def _ensure_categorical(df: pd.DataFrame, cols: List[str]) -> pd.DataFrame:
 # --- Data Loading and Preparation Functions ---
 
 
-def plan_csv_loading(dtype_map: Dict, input_time_format: str, df_path: str) -> Dict:
+def plan_csv_loading(dtype_map: Dict, input_time_format: str, df_path) -> Dict:
     """
-    Prepares a data type map for loading the input CSV efficiently.
+    Prepares a data type map for loading the input efficiently.
 
     Args:
         dtype_map: The base dictionary of data types.
         input_time_format: The format of time information ('column' or 'suffix').
-        df_path: Path to the input CSV file to inspect its header.
+        df_path: Path (or first path in a list) to the input file used to
+            inspect its header.
 
     Returns:
         The updated data type map.
@@ -101,12 +108,30 @@ def plan_csv_loading(dtype_map: Dict, input_time_format: str, df_path: str) -> D
         dtype_map["time"] = "category"
         dtype_map.update({nuc: "float32" for nuc in NUCLEOTIDES})
 
-    header = pd.read_csv(df_path, sep="\t", nrows=0).columns
     if input_time_format == "suffix":
+        # Inspect first file's header for suffixed frequency columns.
+        sample_path = df_path[0] if isinstance(df_path, (list, tuple)) else df_path
+        if str(sample_path).endswith(".parquet"):
+            header = pq.read_schema(sample_path).names
+        else:
+            header = pd.read_csv(sample_path, sep="\t", nrows=0).columns
         for col in header:
             if _FREQ_PATTERN.match(col):
                 dtype_map[col] = "float32"
     return dtype_map
+
+
+def _load_input_for_suffix_conversion(df_source) -> pd.DataFrame:
+    """Helper: load a path/list-of-paths into a DataFrame for wide-to-long conversion.
+
+    Delegates to load_allele_freq_inputs() which detects .parquet vs TSV by
+    extension — the single source of truth for allele frequency I/O.
+    """
+    if isinstance(df_source, (list, tuple, str)):
+        return load_allele_freq_inputs(df_source)
+    # Already a DataFrame — return a copy to avoid mutating the caller's frame.
+    return df_source.copy()
+
 
 
 def convert_suffix_to_long(df_source) -> pd.DataFrame:
@@ -139,9 +164,8 @@ def convert_suffix_to_long(df_source) -> pd.DataFrame:
         - Emits an info-level log message listing the discovered timepoint suffixes.
     """
 
-    # Input is a string
-    if isinstance(df_source, str):
-        df = pd.read_csv(df_source, sep="\t")
+    if isinstance(df_source, (str, list, tuple)):
+        df = _load_input_for_suffix_conversion(df_source)
     else:
         # Input is already a DataFrame
         df = df_source.copy()
@@ -645,8 +669,24 @@ def main():
     parser.add_argument(
         "--input_df",
         required=True,
-        help="Path to input allele frequency dataframe (single, across_time) or mean changes dataframe (longitudnal).",
+        nargs="+",
+        help=(
+            "Path(s) to input allele frequency dataframe (single, across_time) or "
+            "mean changes dataframe (longitudinal). Accepts multiple paths; if multiple "
+            "are given they are concatenated. Files ending in .parquet are read with "
+            "pd.read_parquet, otherwise as TSV."
+        ),
         type=str,
+    )
+    parser.add_argument(
+        "--groups",
+        nargs="+",
+        type=str,
+        default=None,
+        help=(
+            "Optional list of group names to keep. When the input cache contains samples "
+            "from groups not in the current analysis, restrict to these groups before testing."
+        ),
     )
     parser.add_argument(
         "--preprocessed_df",
@@ -673,6 +713,17 @@ def main():
         type=str,
         choices=["column", "suffix"],
         default="column",
+    )
+    parser.add_argument(
+        "--permuted_metadata",
+        type=str,
+        default=None,
+        help=(
+            "Optional path to a permuted metadata TSV (null/control run).  When "
+            "given, group labels are re-derived from this sheet (joined on "
+            "sample_id) right after the cache is loaded, before any group "
+            "filtering or modeling.  Omit for a normal run."
+        ),
     )
     parser.add_argument(
         "--min_sample_num",
@@ -707,6 +758,13 @@ def main():
         "group": "category",
         "replicate": "category",
     }
+    # Permuted run: ensure the per-sample join key is read so the cache can be
+    # relabeled (the usecols-based loaders below would otherwise drop it).  Only
+    # force it when the input actually carries sample_id: the across_time wide
+    # input (allele_analysis output) has none and is already relabeled upstream,
+    # so demanding the column would break the usecols-based parquet read.
+    if args.permuted_metadata and input_has_column(args.input_df, "sample_id"):
+        dtype_map["sample_id"] = str
 
     # Conditional data loading strategy.
     if args.preprocessed_df and args.data_type == "across_time":
@@ -734,19 +792,30 @@ def main():
         logger.info(
             f"No preprocessed dataframe provided. Loading input_df directly from {args.input_df}"
         )
-        # Standard loading path: load the entire dataframe from a single file.
+        # Standard loading path: load the entire dataframe from one or more files.
         df_path = args.input_df
         if args.input_time_format == "suffix":
             logger.info(
                 "Converting frequency columns with timepoint suffixes to long format."
             )
-            df = convert_suffix_to_long(pd.read_csv(df_path, sep="\t"))
+            df = convert_suffix_to_long(df_path)
         else:
             dtype_map = plan_csv_loading(dtype_map, args.input_time_format, df_path)
-            df = pd.read_csv(df_path, sep="\t", dtype=dtype_map, memory_map=True)
+            df = load_allele_freq_inputs(df_path, dtype=dtype_map)
 
     # Ensure expected categorical columns regardless of loading path
     df = _ensure_categorical(df, ["group", "replicate", "time"])
+
+    # Permuted run: re-derive group labels from the permuted sheet before any
+    # group filtering/modeling.  No-op (helper warns) when sample_id is absent —
+    # e.g. an already-relabeled Stage-2 suffix input.
+    if args.permuted_metadata:
+        df = relabel_groups_from_metadata(df, args.permuted_metadata)
+        if "sample_id" in df.columns:
+            df = df.drop(columns=["sample_id"])
+
+    if args.groups:
+        df = df[df["group"].isin(args.groups)].copy()
 
     logger.info(f"Loaded {df.shape[0]:,} rows.")
 

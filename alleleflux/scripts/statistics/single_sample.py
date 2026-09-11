@@ -13,6 +13,7 @@ from tqdm import tqdm
 
 import alleleflux.scripts.utilities.supress_warning as supress_warning
 from alleleflux.scripts.utilities.logging_config import setup_logging
+from alleleflux.scripts.utilities.utilities import load_allele_freq_inputs
 
 NUCLEOTIDES = ["A_frequency", "T_frequency", "G_frequency", "C_frequency"]
 
@@ -159,7 +160,14 @@ def main():
 
     args = parser.parse_args()
 
-    input_df = pd.read_csv(args.df_fPath, sep="\t", dtype={"gene_id": str})
+    # `group` labels can be purely numeric (e.g. "40", "20"); a bare read_csv would
+    # sniff them as int64 and the `== args.group` (str) filter below would match zero
+    # rows. load_allele_freq_inputs applies the dtype for both the preprocessed TSV
+    # (preprocess_within_groups=True) and the raw parquet (=False), so `group` stays a
+    # string and the loader transparently handles either input format.
+    input_df = load_allele_freq_inputs(
+        args.df_fPath, dtype={"gene_id": str, "group": str}
+    )
 
     # Filter the dataframe to only include positions from the specified group.
     input_df = input_df[input_df["group"] == args.group]

@@ -323,7 +323,7 @@ Using the provided example data:
 
 ```bash
 # Navigate to example data directory
-cd docs/source/examples/example_data
+cd docs/source/examples/example_data_longitudinal
 
 # Step 1: Prepare metadata (already done - metadata provided)
 # alleleflux-prepare-metadata ...

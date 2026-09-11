@@ -1,0 +1,92 @@
+# AlleleFlux Configuration (Generated)
+# =====================================
+# Paths are RELATIVE to this config's directory (example_data_<dt>/).
+# Run the pipeline from inside example_data_<dt>/ so they resolve correctly:
+#   cd docs/source/examples/example_data_single
+#   alleleflux run --config config_generated_single.yml
+
+run_name: "generated_test"
+
+input:
+  fasta_path: "reference/combined_mags.fasta"
+  prodigal_path: "reference/prodigal_genes.fna"
+  metadata_path: "metadata/sample_metadata.tsv"
+  gtdb_path: "reference/gtdbtk_taxonomy.tsv"
+  mag_mapping_path: "reference/mag_mapping.tsv"
+  # Use the pre-generated profiles directly — skips the profiling step.
+  profiles_path: "profiles"
+
+output:
+  root_dir: "./output"
+
+log_level: "INFO"
+
+analysis:
+  data_type: "single"
+  allele_analysis_only: False
+  # LMM and CMH require more replicates than the small example provides.
+  # Enable them when you generate larger datasets.
+  use_lmm: False
+  use_significance_tests: True
+  use_cmh: False
+  # Regional contrast requires min_replicates per group (default 4). The small
+  # synthetic dataset has only 2 subjects per group by default, so this is
+  # off out of the box — enable it after generating a larger dataset
+  # (e.g. --num_samples 20 in longitudinal mode → 5 subjects per group).
+  use_regional_contrast: False
+  use_gene_scores: False
+  use_outlier_detection: False
+
+  taxa_score_levels:
+    - phylum
+    - genus
+
+  timepoints_combinations:
+    - timepoint: ['t1']
+      focus: "t1"
+
+  groups_combinations:
+    - treatment: "treatment"
+      control: "control"
+
+quality_control:
+  min_sample_num: 2
+  breadth_threshold: 0.1
+  coverage_threshold: 1
+  disable_zero_diff_filtering: False
+
+profiling:
+  ignore_orphans: True
+  min_base_quality: 30
+  min_mapping_quality: 2
+  ignore_overlaps: True
+
+statistics:
+  filter_type: "t-test"
+  preprocess_between_groups: True
+  preprocess_within_groups: True
+  max_zero_count: 2
+  p_value_threshold: 0.05
+  fdr_group_by_mag_id: False
+  min_positions_after_preprocess: 1
+
+dnds:
+  p_value_column: "q_value"
+  # dN/dS is only run when data_type == "longitudinal"; ignored for single mode.
+  dn_ds_test_type: "two_sample_unpaired_tTest"
+
+regional_contrast:
+  mode: "both"
+  window_size: 500
+  agg_method: "median"
+  min_informative_sites: 2
+  min_informative_fraction: 0.0
+  use_fisher: True
+
+resources:
+  threads_per_job: 4
+  mem_per_job: "4G"
+  time: "01:00:00"
+  retries: 1
+  mem_step: "2G"
+  time_step: "0:30:00"

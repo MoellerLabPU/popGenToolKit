@@ -8,6 +8,8 @@ timepoints or conditions, with support for:
 
 - **Combined plots**: Summarize all selected sites in a single visualization
   (line, box, or violin plots) with trajectories colored by group.
+- **Per-replicate combined plots**: The combined line plot repeated once per replicate,
+  using the same site selection but averaging only within each replicate.
 - **Per-site plots**: Generate individual plots for each genomic site, showing
   trajectories for all samples or replicates.
 - **Time binning**: Aggregate data into time bins for cleaner visualization of
@@ -537,6 +539,76 @@ def filter_by_initial_frequency(
     return filtered_df
 
 
+def apply_min_samples_filter(
+    mean_df: pd.DataFrame,
+    plot_x_col: str,
+    min_samples_per_bin: int,
+    plot_type: Optional[str] = None,
+    context: str = "",
+) -> pd.DataFrame:
+    """
+    Drop aggregated points that were computed from too few valid samples.
+
+    Means built from one or two samples are unreliable, so this removes any row whose
+    `valid_count` (produced by compute_group_means/compute_replicate_means, which count
+    non-NaN frequencies only) falls below the threshold.
+
+    Note that `valid_count` counts *samples*, not distinct subjects. A bin containing two
+    samples from the same subject passes a threshold of 2, so this filter bounds how much
+    data backs a point but does not guarantee how many subjects contributed.
+
+    Args:
+        mean_df: Aggregated DataFrame containing a 'valid_count' column.
+        plot_x_col: The column used for the X-axis, for reporting remaining coverage.
+        min_samples_per_bin: Minimum number of valid (non-NaN) samples required per point.
+                             Values <= 1 disable the filter.
+        plot_type: Type of plot the data feeds ('line', 'box', 'violin'). Only used to warn
+                   when too few x-values survive for a line to be drawn.
+        context: Optional description of the subset being filtered (e.g., "replicate 3"),
+                 included in log messages to disambiguate repeated calls.
+
+    Returns:
+        pd.DataFrame: The filtered DataFrame (unchanged if the filter is disabled).
+    """
+    if min_samples_per_bin <= 1:
+        return mean_df
+
+    prefix = f"[{context}] " if context else ""
+
+    initial_len = len(mean_df)
+    logger.info(
+        f"{prefix}Filtering points: requiring >= {min_samples_per_bin} valid (non-NaN) samples per point."
+    )
+
+    # Filter out points where mean was calculated from insufficient samples
+    mean_df = mean_df[mean_df["valid_count"] >= min_samples_per_bin]
+
+    dropped_len = initial_len - len(mean_df)
+    if dropped_len > 0:
+        logger.info(f"{prefix}Dropped {dropped_len} sparse data points (low valid N).")
+
+    # Warn user if filtering removed too much data for meaningful plots
+    if not mean_df.empty:
+        remaining_x_values = mean_df[plot_x_col].nunique()
+        logger.info(
+            f"{prefix}After filtering: {len(mean_df)} points remain with "
+            f"{remaining_x_values} unique {plot_x_col} values"
+        )
+        # Line plots need at least 2 points to draw a line
+        if remaining_x_values < 2 and plot_type == "line":
+            logger.warning(
+                f"{prefix}Only {remaining_x_values} unique x-value(s) remain after filtering. "
+                f"Line plots require >= 2 x-values to draw lines."
+            )
+    else:
+        logger.warning(
+            f"{prefix}All data points were dropped by min_samples_per_bin={min_samples_per_bin}. "
+            f"Consider lowering this threshold."
+        )
+
+    return mean_df
+
+
 def get_plotting_data(
     df: pd.DataFrame,
     value_col: str,
@@ -618,37 +690,9 @@ def get_plotting_data(
 
     # === SPARSE DATA FILTERING ===
     # Remove data points computed from too few samples (unreliable means)
-    if min_samples_per_bin > 1:
-        initial_len = len(mean_df)
-        logger.info(
-            f"Filtering points: requiring >= {min_samples_per_bin} valid (non-NaN) samples per point."
-        )
-
-        # Filter out points where mean was calculated from insufficient samples
-        mean_df = mean_df[mean_df["valid_count"] >= min_samples_per_bin]
-
-        dropped_len = initial_len - len(mean_df)
-        if dropped_len > 0:
-            logger.info(f"Dropped {dropped_len} sparse data points (low valid N).")
-
-        # Warn user if filtering removed too much data for meaningful plots
-        if not mean_df.empty:
-            remaining_x_values = mean_df[plot_x_col].nunique()
-            logger.info(
-                f"After filtering: {len(mean_df)} points remain with "
-                f"{remaining_x_values} unique {plot_x_col} values"
-            )
-            # Line plots need at least 2 points to draw a line
-            if remaining_x_values < 2 and plot_type == "line":
-                logger.warning(
-                    f"Only {remaining_x_values} unique x-value(s) remain after filtering. "
-                    f"Line plots require >= 2 x-values to draw lines."
-                )
-        else:
-            logger.warning(
-                f"All data points were dropped by min_samples_per_bin={min_samples_per_bin}. "
-                f"Consider lowering this threshold."
-            )
+    mean_df = apply_min_samples_filter(
+        mean_df, plot_x_col, min_samples_per_bin, plot_type
+    )
 
     # Ensure line plots connect points in chronological order
     if bin_width_days is not None and plot_type == "line":
@@ -667,6 +711,11 @@ def plot_combined(
     plot_type: str,
     mag_id: str = "MAG",
     line_alpha: float = 0.8,
+    label_suffix: str = "",
+    title_suffix: str = "",
+    group_order: Optional[List[str]] = None,
+    xlim: Optional[Tuple[float, float]] = None,
+    filename_tag: str = "",
 ) -> None:
     """
     Generates a combined plot summarizing allele frequencies across all selected sites.
@@ -686,6 +735,18 @@ def plot_combined(
         plot_type: The type of plot to generate ('line', 'box', or 'violin').
         mag_id: MAG identifier to prefix the output filename.
         line_alpha: Transparency level for lines in line plots (0.0 to 1.0).
+        label_suffix: Optional string appended to the output filename before the extension
+                      (e.g., "_rep3"). Empty by default, which preserves the standard filename.
+        title_suffix: Optional string appended to the plot title (e.g., " - Replicate 3").
+        group_order: Optional explicit ordering of groups. Controls both hue order and the
+                     color assignment, so callers plotting several subsets (e.g., one figure
+                     per replicate) can guarantee a group keeps the same color in every figure.
+                     Defaults to the sorted groups present in `df`.
+        xlim: Optional (left, right) limits for the X-axis. Used to share a common x-range
+              across a set of figures; ignored when None.
+        filename_tag: Optional string inserted after the plot type and before label_suffix
+                      (e.g., "_bin10d" when day binning is active), so outputs produced with
+                      different settings can coexist in one directory.
     """
     if df.empty:
         logger.warning("Empty DataFrame provided to plot_combined")
@@ -696,15 +757,20 @@ def plot_combined(
     outdir = Path(output_dir)
     outdir.mkdir(parents=True, exist_ok=True)
     outfile = (
-        outdir / f"{mag_id}_combined_n{n_label}_{x_col}_{plot_type}.{output_format}"
+        outdir
+        / f"{mag_id}_combined_n{n_label}_{x_col}_{plot_type}{filename_tag}{label_suffix}.{output_format}"
     )
 
     sns.set_theme(style="whitegrid", context="talk")
     plt.figure(figsize=(24, 12))
     # --- LINE PLOT ---
     if plot_type == "line":
-        # Define groups and palette to ensure consistency across all lines and legend
-        groups = sorted(df["group"].unique())
+        # Define groups and palette to ensure consistency across all lines and legend.
+        # An explicit group_order keeps colors stable across separate figures that may
+        # not each contain every group.
+        groups = (
+            list(group_order) if group_order is not None else sorted(df["group"].unique())
+        )
         palette = sns.color_palette(n_colors=len(groups))
 
         # We loop manually to get the "Spaghetti" effect (one line per site)
@@ -753,13 +819,145 @@ def plot_combined(
     plt.ylabel("Mean Allele Frequency")
     plt.xlabel(x_col)
     plt.ylim(-0.05, 1.05)
-    plt.title(f"Group Mean Frequencies — N={n_label} — {plot_type}")
+    if xlim is not None:
+        plt.xlim(*xlim)
+    plt.title(f"Group Mean Frequencies — N={n_label} — {plot_type}{title_suffix}")
 
     plt.tight_layout()
     plt.savefig(outfile, dpi=300, bbox_inches="tight", format=output_format)
     # plt.show()
     plt.close()
     print(f"[saved] {outfile}")
+
+
+def plot_combined_per_replicate(
+    df: pd.DataFrame,
+    x_col: str,
+    n_label: str,
+    value_col: str,
+    output_dir: str,
+    output_format: str,
+    mag_id: str = "MAG",
+    line_alpha: float = 0.8,
+    min_samples_per_bin: int = 1,
+    custom_order: Optional[List[str]] = None,
+    share_x: bool = True,
+    filename_tag: str = "",
+) -> None:
+    """
+    Generates one combined line plot per replicate.
+
+    This is the per-replicate counterpart to the pooled combined line plot. The pooled plot
+    averages every subject in a group into a single trajectory per site; here the same set of
+    sites is plotted separately for each replicate, with means computed only from that
+    replicate's subjects. Site selection and any upstream filtering (top-N ranking, initial
+    frequency filtering, time binning) are inherited from the caller, so every replicate's
+    figure shows the identical set of sites and differences between figures reflect the data
+    rather than differing site sets.
+
+    Output files are written to an `by_replicate/` subdirectory, mirroring the
+    `single_sites_by_replicate/` convention used by plot_per_site.
+
+    Args:
+        df: Sample-level DataFrame (not group means) restricted to the sites to plot.
+            Must contain a 'replicate' column.
+        x_col: The column name used for the X-axis.
+        n_label: String label indicating the number of sites included.
+        value_col: The column name used for ranking (for context in the title).
+        output_dir: Base plot directory; figures are written to `<output_dir>/by_replicate`.
+        output_format: File format for the plots (e.g., 'png', 'pdf', 'svg').
+        mag_id: MAG identifier to prefix the output filenames.
+        line_alpha: Transparency level for lines (0.0 to 1.0).
+        min_samples_per_bin: Minimum valid (non-NaN) samples required per plotted point,
+                             applied *within* each replicate. Because a replicate holds far
+                             fewer subjects than the full cohort, this threshold is much more
+                             selective here than in the pooled plot.
+        custom_order: Optional list of values defining the order of the x-axis.
+        share_x: If True (default) all figures use the same numeric X-axis limits, computed
+                 across every replicate, so figures can be compared side by side. Has no
+                 effect when the x-axis is categorical.
+        filename_tag: Optional filename tag forwarded to plot_combined; it lands before the
+                      "_rep<N>" suffix (e.g., "..._line_bin10d_rep3.png").
+    """
+    if df.empty:
+        logger.warning("Empty DataFrame provided to plot_combined_per_replicate")
+        return
+
+    validate_input_columns(
+        df,
+        ["frequency", "group", "replicate", "contig", "position", "anchor_allele", x_col],
+        "for per-replicate combined plots",
+    )
+
+    outdir = Path(output_dir) / "by_replicate"
+    outdir.mkdir(parents=True, exist_ok=True)
+
+    # Fix the group ordering across every figure so a group keeps the same color even if a
+    # replicate happens to be missing one of them.
+    group_order = sorted(df["group"].unique())
+
+    # Shared x-limits let the figures be compared directly; replicates that ended earlier
+    # simply stop short instead of being rescaled to look like the longer ones.
+    xlim = None
+    if share_x and pd.api.types.is_numeric_dtype(df[x_col]):
+        x_min = float(df[x_col].min())
+        x_max = float(df[x_col].max())
+        pad = (x_max - x_min) * 0.02 if x_max > x_min else 0.5
+        xlim = (x_min - pad, x_max + pad)
+        logger.info(f"Sharing X-axis across replicate figures: {xlim}")
+
+    replicates = sorted(df["replicate"].dropna().unique())
+    if not len(replicates):
+        logger.warning("No non-null replicate values found; no per-replicate plots made")
+        return
+
+    logger.info(f"Creating per-replicate combined plots for {len(replicates)} replicates")
+
+    for rep in replicates:
+        sub = df[df["replicate"] == rep]
+        if sub.empty:
+            logger.warning(f"No data for replicate {rep}; skipping")
+            continue
+
+        # Means are computed from this replicate's samples only -- this is what makes the
+        # figure replicate-specific rather than a subset of the pooled means.
+        mean_df = compute_group_means(sub, x_col, custom_order)
+        mean_df = apply_min_samples_filter(
+            mean_df, x_col, min_samples_per_bin, "line", context=f"replicate {rep}"
+        )
+
+        if mean_df.empty:
+            logger.warning(
+                f"Replicate {rep}: no points survived filtering; no figure written"
+            )
+            continue
+
+        if pd.api.types.is_numeric_dtype(mean_df[x_col]):
+            mean_df = mean_df.sort_values(x_col)
+
+        n_sites_plotted = mean_df[["contig", "position", "anchor_allele"]].drop_duplicates().shape[0]
+        logger.info(
+            f"Replicate {rep}: plotting {n_sites_plotted} sites, "
+            f"{mean_df[x_col].nunique()} x-values, "
+            f"{sub['subjectID'].nunique() if 'subjectID' in sub.columns else 'NA'} subjects"
+        )
+
+        plot_combined(
+            mean_df,
+            x_col,
+            n_label,
+            value_col,
+            str(outdir),
+            output_format,
+            "line",
+            mag_id,
+            line_alpha=line_alpha,
+            label_suffix=f"_rep{rep}",
+            title_suffix=f" — Replicate {rep}",
+            group_order=group_order,
+            xlim=xlim,
+            filename_tag=filename_tag,
+        )
 
 
 def plot_per_site(
@@ -770,6 +968,7 @@ def plot_per_site(
     output_dir: str,
     output_format: str,
     group_by_replicate: bool = False,
+    filename_tag: str = "",
 ) -> None:
     """
     Generates individual trajectory plots for each genomic site.
@@ -789,6 +988,8 @@ def plot_per_site(
         output_dir: Directory where the individual plot files will be saved.
         output_format: File format for the plots (e.g., 'png', 'pdf', 'svg').
         group_by_replicate: If True, aggregate subject trajectories by replicate before plotting.
+        filename_tag: Optional string appended before the extension (e.g., "_bin10d"),
+                      so per-site plots from different bin widths can coexist.
     """
     if df.empty:
         logger.warning("Empty DataFrame provided to plot_per_site")
@@ -890,7 +1091,7 @@ def plot_per_site(
         # Include grouping mode in filename
         suffix = "_by_replicate" if group_by_replicate else ""
         filename = (
-            f"{contig}_{pos}_{allele}_{value_col}_{x_col}{suffix}.{output_format}"
+            f"{contig}_{pos}_{allele}_{value_col}_{x_col}{suffix}{filename_tag}.{output_format}"
         )
         # Sanitize filename: replace any character that is not a letter, number, underscore, hyphen, or dot with an underscore
         filename = re.sub(r"[^\w\-_.]", "_", filename)
@@ -922,6 +1123,7 @@ def plot_group_distributions(
     max_initial_freq: Optional[float] = None,
     min_initial_freq: Optional[float] = None,
     initial_freq_group: Optional[str] = None,
+    combined_per_replicate: bool = False,
 ) -> None:
     """
     Orchestrates the plotting process: filters data, computes means, and generates requested plots.
@@ -955,6 +1157,10 @@ def plot_group_distributions(
         initial_freq_group: The group to use for initial frequency filtering. Sites are
                             selected based on their initial frequency in this group only.
                             Data from ALL groups is kept for matching sites.
+        combined_per_replicate: If True, additionally emit one combined line plot per
+                                replicate, using the same site selection as the pooled plot
+                                but computing means within each replicate. Requires a
+                                'replicate' column in the input data.
     """
     # === VALIDATION PHASE ===
     # Early exit if no data to process
@@ -976,10 +1182,24 @@ def plot_group_distributions(
             f"Duplicate entries found! This should not happen.\n{dup_rows}"
         )
 
+    # Fail before any expensive filtering/aggregation if the requested per-replicate output
+    # cannot possibly be produced.
+    if combined_per_replicate and "replicate" not in df.columns:
+        raise ValueError(
+            "Cannot create per-replicate combined plots: 'replicate' column not found in "
+            "input data"
+        )
+
     logger.info(f"Processing {len(df):,} rows for plotting")
 
     # Extract MAG identifier for output filenames (defaults to "MAG" if not present)
     mag_id = str(df["mag_id"].iloc[0]) if "mag_id" in df.columns else "MAG"
+
+    # Filename tag derived from the bin width, so plots produced with different
+    # widths (e.g., a sensitivity sweep) can coexist in one directory. Derived
+    # here — not passed by callers — so the name can never disagree with the
+    # width that actually produced the figure.
+    bin_tag = f"_bin{bin_width_days}d" if bin_width_days is not None else ""
 
     # === X-AXIS PREPARATION ===
     # Apply custom ordering/filtering if specified, or convert 'day' to numeric
@@ -1108,6 +1328,28 @@ def plot_group_distributions(
                 plot_type,
                 mag_id,
                 line_alpha=line_alpha,
+                filename_tag=bin_tag,
+            )
+
+        # === PER-REPLICATE COMBINED PLOTS ===
+        # Same sites as the pooled line plot above, but one figure per replicate. Driven from
+        # `filtered` (sample-level rows) rather than `mean_df`, because the means have to be
+        # recomputed within each replicate instead of subset from the pooled means.
+        if combined_per_replicate and plot_type == "line" and filtered is not None:
+            plot_combined_per_replicate(
+                filtered,
+                plot_x_col,
+                n_label,
+                value_col,
+                output_dir,
+                output_format,
+                mag_id=mag_id,
+                line_alpha=line_alpha,
+                min_samples_per_bin=min_samples_per_bin,
+                # Custom order only applies to the original x_col; binned axes carry their own
+                # ordering, matching the choice made in get_plotting_data.
+                custom_order=None if bin_width_days is not None else sorted_vals,
+                filename_tag=bin_tag,
             )
 
     # === GENERATE PER-SITE PLOTS ===
@@ -1161,6 +1403,7 @@ def plot_group_distributions(
                     output_dir,
                     output_format,
                     group_by_replicate=group_by_replicate,
+                    filename_tag=bin_tag,
                 )
 
 
@@ -1237,8 +1480,12 @@ def main():
     parser.add_argument(
         "--bin_width_days",
         type=int,
+        nargs="+",
         required=False,
-        help="Bin width in days for time binning (e.g., 10 for 10-day bins). A 'day' column must be present.",
+        help="Bin width(s) in days for time binning (e.g., 10, or 10 20 30 for a "
+        "sensitivity sweep). A 'day' column must be present. With multiple widths, "
+        "the full plotting pass runs once per width and each output filename "
+        "carries a _bin<W>d tag.",
     )
     parser.add_argument(
         "--min_samples_per_bin",
@@ -1252,6 +1499,14 @@ def main():
         action="store_true",
         help="If set, consolidate subject trajectories within the same replicate into a single "
         "average line per replicate in per-site plots. Requires 'replicate' column in input data.",
+    )
+    parser.add_argument(
+        "--combined_per_replicate",
+        action="store_true",
+        help="If set, additionally write one combined line plot per replicate to a "
+        "'by_replicate/' subdirectory. Site selection and filtering are identical to the "
+        "pooled combined plot, but frequencies are averaged within each replicate. "
+        "Requires 'replicate' column in input data.",
     )
     parser.add_argument(
         "--line_alpha",
@@ -1320,27 +1575,36 @@ def main():
     if n_line is None or n_dist is None:
         return
 
-    # Run plotting
-    plot_group_distributions(
-        df=df,
-        value_col=args.value_col,
-        n_line=n_line,
-        n_dist=n_dist,
-        n_per_site=n_per_site,
-        x_col=args.x_col,
-        x_order=args.x_order,
-        plot_types=args.plot_types,
-        per_site=args.per_site,
-        output_dir=args.output_dir,
-        output_format=args.output_format,
-        bin_width_days=args.bin_width_days,
-        min_samples_per_bin=args.min_samples_per_bin,
-        group_by_replicate=args.group_by_replicate,
-        line_alpha=args.line_alpha,
-        max_initial_freq=args.max_initial_freq,
-        min_initial_freq=args.min_initial_freq,
-        initial_freq_group=args.initial_freq_group,
-    )
+    # Run the full plotting pass once per requested bin width (or once, unbinned).
+    # Each pass gets a fresh copy of the loaded table: the orchestrator adds
+    # binning columns AND row-filters via the initial-frequency criteria (which
+    # are evaluated on the FIRST BIN, so they depend on the width) — reusing one
+    # DataFrame across widths would let one width's filtering corrupt the next.
+    bin_widths = args.bin_width_days if args.bin_width_days else [None]
+    for bw in bin_widths:
+        if bw is not None:
+            logger.info(f"=== Plotting pass: bin_width_days={bw} ===")
+        plot_group_distributions(
+            df=df.copy(),
+            value_col=args.value_col,
+            n_line=n_line,
+            n_dist=n_dist,
+            n_per_site=n_per_site,
+            x_col=args.x_col,
+            x_order=args.x_order,
+            plot_types=args.plot_types,
+            per_site=args.per_site,
+            output_dir=args.output_dir,
+            output_format=args.output_format,
+            bin_width_days=bw,
+            min_samples_per_bin=args.min_samples_per_bin,
+            group_by_replicate=args.group_by_replicate,
+            line_alpha=args.line_alpha,
+            max_initial_freq=args.max_initial_freq,
+            min_initial_freq=args.min_initial_freq,
+            initial_freq_group=args.initial_freq_group,
+            combined_per_replicate=args.combined_per_replicate,
+        )
 
     logger.info("Plotting completed successfully")
 

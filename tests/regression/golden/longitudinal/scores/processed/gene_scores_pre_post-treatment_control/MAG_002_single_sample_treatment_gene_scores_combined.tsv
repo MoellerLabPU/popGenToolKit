@@ -1,0 +1,8 @@
+gene_id	total_sites_per_group_tTest_treatment	significant_sites_per_group_tTest_treatment	score_tTest_treatment (%)	total_sites_per_group_Wilcoxon_treatment	significant_sites_per_group_Wilcoxon_treatment	score_Wilcoxon_treatment (%)
+MAG_002.fa_contig1_gene1 	216	16	7.4074074074074066	216	0	0.0
+MAG_002.fa_contig1_gene2 	148	1	0.6756756756756757	148	0	0.0
+MAG_002.fa_contig1_gene3 	235	7	2.9787234042553195	235	0	0.0
+MAG_002.fa_contig2_gene1 	191	15	7.853403141361256	191	0	0.0
+MAG_002.fa_contig2_gene2 	228	4	1.7543859649122806	228	0	0.0
+MAG_002.fa_contig2_gene3 	182	10	5.4945054945054945	182	0	0.0
+	508	22	4.330708661417323	508	0	0.0

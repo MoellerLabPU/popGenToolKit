@@ -1,0 +1,9 @@
+sample_id	bam_path	subjectID	group	replicate	time
+control_sample1	profiles/control_sample1	subj1	control	A	t1
+control_sample2	profiles/control_sample2	subj2	control	B	t1
+control_sample3	profiles/control_sample3	subj3	control	C	t1
+control_sample4	profiles/control_sample4	subj4	control	D	t1
+treatment_sample5	profiles/treatment_sample5	subj5	treatment	A	t1
+treatment_sample6	profiles/treatment_sample6	subj6	treatment	B	t1
+treatment_sample7	profiles/treatment_sample7	subj7	treatment	C	t1
+treatment_sample8	profiles/treatment_sample8	subj8	treatment	D	t1

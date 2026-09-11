@@ -31,6 +31,7 @@ requirements:
     # Core scientific stack (conda-forge)
     - numpy
     - pandas
+    - pyarrow
     - scipy
     - matplotlib-base
     - seaborn
@@ -42,6 +43,7 @@ requirements:
     - pyyaml
     # Bioinformatics (bioconda)
     - pysam
+    - samtools
     - biopython
     # Workflow management (bioconda)
     - snakemake-minimal >=8.0.0

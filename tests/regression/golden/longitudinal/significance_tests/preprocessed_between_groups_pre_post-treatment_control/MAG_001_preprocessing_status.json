@@ -1,0 +1,16 @@
+{
+  "mag_id": "MAG_001",
+  "preprocess_type": "between_groups",
+  "input_rows": 9354,
+  "output_rows": 2708,
+  "min_positions": 1,
+  "min_sample_num": 2,
+  "total_positions": 677,
+  "positions_eligible_unpaired": 677,
+  "positions_eligible_paired": 677,
+  "eligible_unpaired": true,
+  "eligible_paired": true,
+  "filter_type": "t-test",
+  "p_value_threshold": 0.05,
+  "data_type": "longitudinal"
+}
