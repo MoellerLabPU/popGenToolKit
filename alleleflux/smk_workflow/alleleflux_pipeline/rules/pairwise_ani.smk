@@ -6,9 +6,12 @@ combination, so a single job covers within-mouse (pre vs end) and between-mouse
 comparisons at once; which pairs are actually compared is the CLI's --pairs
 setting (config analysis.pairwise_ani.pairs).
 
-No checkpoint is involved: the MAG list comes from the MAG mapping file, which is
-known when the DAG is built.  The per-timepoint QC sentinels are the only
-pipeline dependency -- QC already depends on metadata, which depends on profiles.
+The MAG universe is get_tested_mags(): every MAG eligible for at least one
+enabled test in at least one comparison, read from the eligibility checkpoints
+(so the targets are generated in get_final_pipeline_outputs, after the loop that
+forces those checkpoints).  Untested MAGs never get an ANI job.  The rule's own
+inputs are just the per-timepoint QC sentinels -- QC already depends on metadata,
+which depends on profiles.
 """
 
 

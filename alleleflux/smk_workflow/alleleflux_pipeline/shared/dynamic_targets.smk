@@ -1029,20 +1029,95 @@ def get_combined_scores_targets():
     return targets
 """
 
+def get_tested_mags():
+    """The MAG universe for pairwise ANI and everything downstream of it: every MAG
+    that is eligible for at least one enabled test in at least one configured
+    (timepoints, groups) comparison.
+
+    ANI is group- and timepoint-blind (one job per MAG covers every comparison),
+    so the union across comparisons and test types is the right set: a MAG tested
+    only in fat-vs-control still gets its ANI table.  The membership comes from the
+    SAME readers the statistics targets use (get_eligible_mags -> preprocessing
+    eligibility when preprocessing is on, QC eligibility otherwise), so "tested"
+    here can never drift from "tested" there.  Because those readers access the
+    checkpoints, this must only be called from checkpoint-aware places
+    (get_final_pipeline_outputs, or a rule's input *function*), never at parse time.
+
+    allele_analysis_only runs skip preprocessing entirely, so there the universe
+    is the QC-eligible set for any test ("all").
+
+    Example (diet-manip mapq20 run, comparisons pre_end and pre_post x fat_control,
+    two-sample + single-sample tests, QC layer): 160 MAGs in the mapping, 78 and 79
+    eligible for some test in the two comparisons, 83 in the union -> 83 ANI /
+    turnover jobs instead of 160.
+    """
+    tested = set()
+    for tp in timepoints_labels:
+        for gr in groups_labels:
+            if config["analysis"].get("allele_analysis_only", False):
+                tested.update(_get_mags_by_eligibility(tp, gr, eligibility_type="all"))
+                continue
+            for test_type in get_enabled_test_types():
+                entries = get_eligible_mags(tp, gr, test_type)
+                # Within-group types return (mag, group) tuples; the group is
+                # irrelevant for a group-blind universe, keep only the id.
+                tested.update(e[0] if isinstance(e, tuple) else e for e in entries)
+    return sorted(tested)
+
+
 def generate_pairwise_ani_targets():
-    """One pairwise-ANI target per MAG, gated by the use_pairwise_ani flag.
+    """One pairwise-ANI target per TESTED MAG, gated by the use_pairwise_ani flag.
 
     Not scoped per (timepoints, groups): the rule is group- and timepoint-
-    independent, so this is called once, OUTSIDE the combination loop -- the same
-    shape as generate_significant_sites_summary_targets().  The MAG universe
-    comes from the MAG mapping file (known at DAG-build time), so no checkpoint
-    is triggered; QC files exist for every mapped MAG, and a MAG where nothing
-    passes QC still yields valid header-only outputs from the CLI.
+    independent, so this is called once, AFTER the combination loop in
+    get_final_pipeline_outputs.  The MAG universe is get_tested_mags(), which
+    reads the eligibility checkpoints -- so this generator is checkpoint-
+    dependent and must not be eager-listed.
     """
     if not config["analysis"].get("use_pairwise_ani", False):
         return []
+    return [get_pairwise_ani_output_path(mag_wildcard=mag) for mag in get_tested_mags()]
 
-    # dtype=str: MAG ids are labels; sorted for a deterministic DAG.
-    mag_mapping = pd.read_csv(config["input"]["mag_mapping_path"], sep="\t", dtype=str)
-    mags = sorted(mag_mapping["mag_id"].unique())
-    return [get_pairwise_ani_output_path(mag_wildcard=mag) for mag in mags]
+
+def generate_strain_turnover_targets():
+    """One turnover table per tested MAG (same universe as pairwise ANI), gated by use_strain_turnover.
+
+    Checkpoint-dependent through get_tested_mags(), like the ANI targets.
+    Refuses configurations that cannot work rather than producing empty files:
+    it needs the ANI table and two-timepoint transitions.
+    """
+    if not config["analysis"].get("use_strain_turnover", False):
+        return []
+    if not config["analysis"].get("use_pairwise_ani", False):
+        raise ValueError("use_strain_turnover requires use_pairwise_ani (it reads the pairwise table)")
+    if DATA_TYPE != "longitudinal":
+        raise ValueError("use_strain_turnover needs longitudinal data (transitions come from timepoints_combinations)")
+    return [get_strain_turnover_output_path(mag_wildcard=mag) for mag in get_tested_mags()]
+
+
+def generate_replacement_classification_targets():
+    """The single classification table, once every MAG's turnover table exists."""
+    if not config["analysis"].get("use_strain_turnover", False):
+        return []
+    return [get_replacement_classification_path()]
+
+
+def generate_baseline_presence_targets(tp, gr):
+    """Baseline-presence outputs for one comparison, only where its summary file will exist.
+
+    Piggybacks on generate_p_value_summary_targets: if that generator does not
+    emit the configured family's summary for this (tp, gr) -- test disabled, or
+    no eligible MAG -- there is nothing to annotate and no target is made.
+    """
+    if not config["analysis"].get("use_baseline_presence", False):
+        return []
+    if config["analysis"].get("allele_analysis_only", False):
+        return []
+    wanted = os.path.join(
+        OUTDIR, "p_value_summary", f"{tp}-{gr}",
+        f"p_value_summary_{BASELINE_PRESENCE_FAMILY}_{tp}-{gr}.tsv",
+    )
+    if wanted not in generate_p_value_summary_targets(tp, gr):
+        return []
+    stem = get_baseline_presence_stem(timepoints=tp, groups=gr)
+    return [f"{stem}.tsv.gz", f"{stem}_summary.tsv"]

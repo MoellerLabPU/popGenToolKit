@@ -33,6 +33,8 @@ include: "rules/p_value_summary.smk"
 include: "rules/dnds_analysis.smk"
 include: "rules/regional_contrast.smk"
 include: "rules/pairwise_ani.smk"
+include: "rules/strain_turnover.smk"
+include: "rules/baseline_presence.smk"
 
 # 3. Dynamic Output Function
 def get_final_pipeline_outputs(wildcards):
@@ -75,6 +77,9 @@ def get_final_pipeline_outputs(wildcards):
 
                 # P-value Summary Targets
                 final_targets.extend(generate_p_value_summary_targets(tp, gr))
+                # Baseline presence needs the summary above (checkpoint-dependent),
+                # so it lives here, not in the eager list.
+                final_targets.extend(generate_baseline_presence_targets(tp, gr))
                 
             # dN/dS Analysis Targets
             if not config["analysis"].get("allele_analysis_only", False):
@@ -91,6 +96,15 @@ def get_final_pipeline_outputs(wildcards):
     # too, so this is belt-and-suspenders matching generate_p_value_summary_targets).
     if not config["analysis"].get("allele_analysis_only", False):
         final_targets.extend(generate_significant_sites_summary_targets())
+
+    # Pairwise conANI/popANI, strain turnover, replacement classification: one
+    # target per TESTED MAG (union over every comparison and enabled test), so the
+    # universe comes from the eligibility checkpoints and these belong here, after
+    # the loop above has forced them -- not in the eager list.  Run-once, not
+    # scoped per tp/gr, like the significant-sites rollup.
+    final_targets.extend(generate_pairwise_ani_targets())
+    final_targets.extend(generate_strain_turnover_targets())
+    final_targets.extend(generate_replacement_classification_targets())
 
     return final_targets
 
@@ -122,15 +136,6 @@ def get_upstream_targets(wildcards):
             targets.append(
                 os.path.join(OUTDIR, f"eligibility_table_{tp}-{gr}.tsv")
             )
-
-    # Pairwise conANI/popANI: one target per MAG, gated only by use_pairwise_ani.
-    # Eager-listed because it involves NO checkpoint (the MAG universe comes from
-    # the mapping file, known at DAG-build time) and depends only on the QC
-    # sentinels above -- so the per-MAG jobs submit in one batch as soon as QC
-    # lands, in parallel with the eligibility/statistics tail, instead of being
-    # discovered only after the checkpoints in get_final_pipeline_outputs fire.
-    # (Independent of allele_analysis_only: ANI never needs the statistics stage.)
-    targets.extend(generate_pairwise_ani_targets())
 
     # preprocessing_eligibility_*.tsv files are deliberately NOT eager-listed.
     #

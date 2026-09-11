@@ -32,8 +32,7 @@ fixed differences over five months.
 The ``alleleflux-strain-turnover`` command (bottom of the file) runs this for
 one MAG and writes the per-mouse table plus a per-group rollup; those feed the
 enrichment filter (``replacement_classification``) and the significant-site
-annotator.  ``alleles_present_at`` is the per-position presence lookup the
-annotator uses to ask "was the rising allele present at baseline?".
+annotator.
 """
 
 import argparse
@@ -41,10 +40,8 @@ import logging
 import os
 
 import numpy as np
-import numpy.typing as npt
 import pandas as pd
 
-from alleleflux.scripts.analysis.ani.classify import presence_matrix
 from alleleflux.scripts.analysis.ani.pairwise_ani import parse_transitions
 from alleleflux.scripts.utilities.logging_config import setup_logging
 
@@ -60,12 +57,6 @@ CALL_COLUMNS = (
     "frequency_shift",
     "background",
 )
-
-# Baseline-evidence tiers for a rising allele (used by the site annotator):
-# ABSENT = zero reads of the base at t1; BELOW_DETECTION = some reads, but under
-# the null-model bar or under min_freq (Andy's ambiguity zone, kept visible).
-T1_ABSENT = "absent"
-T1_BELOW_DETECTION = "below_detection"
 
 
 def call_transitions(
@@ -185,40 +176,6 @@ def call_transitions(
         f"{dict(called['background'].value_counts())}"
     )
     return called
-
-
-def alleles_present_at(
-    counts: npt.NDArray,
-    positions: npt.NDArray[np.int64],
-    model: npt.NDArray[np.int32],
-    min_freq: float,
-) -> np.ndarray:
-    """Bare PRESENCE of each base at the named positions of one sample.
-
-    Parameters
-    ----------
-    counts
-        Dense ``(contig_length, 4)`` counts for one sample on one contig.
-    positions
-        0-based positions to look up (e.g. the BH-significant sites of a contig).
-    model
-        ``null_model.build_error_model`` array: ``model[coverage]`` = minimum reads
-        for a base to be more than sequencing error at that depth.
-    min_freq
-        Frequency floor for presence (0.05 = 5 %).
-
-    Returns
-    -------
-    Boolean ``(len(positions), 4)``: ``[i, b]`` is True when base ``b`` clears
-    the null-model bar AND ``min_freq`` at ``positions[i]``.  A zero-coverage
-    position gives an all-False row (nothing present, no crash).  Used by the
-    site annotator to ask "was the rising base present at baseline?".
-
-    Example: counts row [24, 6, 0, 0] at 30x -> [True, True, False, False].
-    """
-    sub = counts[positions].astype(np.int64)
-    cov = sub.sum(axis=1)  # zero rows stay zero; presence_matrix guards the divide
-    return presence_matrix(sub, cov, model, min_freq)
 
 
 # ---------------------------------------------------------------------------

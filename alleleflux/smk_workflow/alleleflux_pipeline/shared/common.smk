@@ -1134,6 +1134,35 @@ def get_pairwise_ani_output_path(mag_wildcard="{mag}"):
     return os.path.join(OUTDIR, "pairwise_ani", f"{mag_wildcard}_pairwise_ani.tsv")
 
 
+def get_strain_turnover_output_path(mag_wildcard="{mag}"):
+    """Per-MAG strain-turnover table (the strain_turnover rule's primary output); OUTDIR, like ANI."""
+    return os.path.join(OUTDIR, "strain_turnover", f"{mag_wildcard}_strain_turnover.tsv")
+
+
+def get_replacement_classification_path():
+    """The one all-MAG classification table the enrichment filter reads."""
+    return os.path.join(OUTDIR, "strain_turnover", "replacement_classification.tsv")
+
+
+# The baseline-presence summary family, read once: it names the input summary
+# file, the source directory and the output stem.
+BASELINE_PRESENCE_FAMILY = config["analysis"].get("baseline_presence", {}).get("summary", "two_sample_paired")
+
+
+def get_baseline_presence_stem(timepoints="{timepoints}", groups="{groups}"):
+    """Output stem for one comparison: {comparison}_{family}_{statistic}_baseline_presence.
+
+    Mirrors ``baseline_presence.output_label``: the family prefix is stripped
+    from the test_type so "two_sample_paired" + "two_sample_paired_tTest" gives
+    "two_sample_paired_tTest", while "lmm" + "LMM_abs" gives "lmm_LMM_abs".
+    """
+    family = BASELINE_PRESENCE_FAMILY
+    test_type = config["analysis"].get("baseline_presence", {}).get("test_type", f"{family}_tTest")
+    prefix = f"{family}_"
+    stat = test_type[len(prefix):] if test_type.startswith(prefix) else test_type
+    return os.path.join(OUTDIR, "baseline_presence", f"{timepoints}-{groups}_{family}_{stat}_baseline_presence")
+
+
 def get_all_qc_files_for_mag(mag_wildcard="{mag}"):
     """Every per-timepoint-combination QC file for one MAG -- the ANI sample gate.
 

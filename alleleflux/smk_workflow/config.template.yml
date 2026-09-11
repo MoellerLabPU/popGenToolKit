@@ -69,6 +69,23 @@ analysis:
                                    #   (what strain-turnover consumes; DRiDO: 970 pairs instead of 2,570);
                                    # "all" = every pair (needed for between-mouse strain-sharing analyses)
     store_snp_locations: "within_subject"   # "none", "within_subject", or "all" (WARNING: "all" was 7.7 GB for 90 samples in inStrain)
+
+  use_strain_turnover: False       # Per-mouse strain-background calls per MAG (alleleflux-strain-turnover) + the
+                                   # all-MAG classification (alleleflux-replacement-classification); needs
+                                   # use_pairwise_ani and longitudinal data
+  strain_turnover:
+    min_compared: 0.1              # Fraction of the genome both samples must cover for a verdict (Sam's paper)
+    pop_threshold: 0.99999         # popANI below this = strain_replacement (inStrain same-strain line)
+    con_threshold: 0.999           # conANI below this = dominant_strain_change
+
+  use_baseline_presence: False     # For each significant site: was the allele present at the baseline timepoint?
+                                   # (alleleflux-baseline-presence; one job per timepoints-groups comparison, after the statistics)
+  baseline_presence:
+    summary: "two_sample_paired"   # p_value_summary family: two_sample_paired | two_sample_unpaired | single_sample | lmm | lmm_across_time
+    test_type: "two_sample_paired_tTest"   # row filter, spelled as the summary file does (e.g. LMM_abs)
+    threshold_column: "q_value"    # q_value (BH) or min_p_value
+    threshold: 0.05
+                                   # depth gate / presence rule reuse pairwise_ani.min_cov, min_freq, fdr
   taxa_score_levels:               # Taxonomy levels at which to aggregate MAG scores (MAG level is always computed)
     - phylum                       # Remove or comment out levels you don't need; set to [] for MAG level only
     - class
@@ -262,6 +279,12 @@ resources:
 #     time: "48:00:00"
 #     retries: 3                   # Override retry count for this rule
 #   regional_contrast:             # Rule: regional_contrast
+#     mem_per_job: "16G"
+#     time: "04:00:00"
+#   baseline_presence:             # Rule: baseline_presence (per comparison; loads every sample's profile
+#                                  # once per MAG with significant sites: ~3 s each; Sam's pre_end =
+#                                  # 57 MAGs x 60 samples took 23 min on 8 threads, 6.4 GB)
+#     threads_per_job: 8
 #     mem_per_job: "16G"
 #     time: "04:00:00"
 #   pairwise_ani:                  # Rule: pairwise_ani
