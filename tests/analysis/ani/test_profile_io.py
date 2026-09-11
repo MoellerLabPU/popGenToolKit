@@ -2,7 +2,7 @@
 
 Fixtures mirror the production schema exactly: profiles are written with the same
 header ``profile_mags.py`` emits (both the current one and the older one that still
-carries a ``mapq_scores`` column, which the Oct-2025 diet-manip profiles have), and
+carries a ``mapq_scores`` column, which older profiles have), and
 QC fixtures use the real column names from ``quality_control.py`` -- including a
 numeric group label, to guard the "numeric labels silently become int64" trap.
 """
@@ -94,7 +94,7 @@ class TestLoadProfile(unittest.TestCase):
 
     def test_tolerates_the_older_header_with_mapq_scores(self):
         """Profiles written before the samtools-mpileup optimisation carry an extra
-        mapq_scores column (the real Oct-2025 diet-manip files do); usecols must
+        mapq_scores column (older real files do); usecols must
         shrug it off."""
         path = os.path.join(self.tmp, "old.tsv.gz")
         _write_profile(path, [("ctg1", 7, "G", 0, 0, 9, 1, 0)], header=HEADER_WITH_MAPQ)

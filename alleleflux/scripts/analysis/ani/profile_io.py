@@ -37,7 +37,7 @@ Library module: imported by the rest of the ani package and by tests; never run
 directly, hence no ``if __name__ == "__main__"`` block.  The one runnable entry
 point of this feature is the ``alleleflux-pairwise-ani`` command (pairwise_ani.py).
 
-Older profiles (pre-samtools-optimisation, e.g. the Oct-2025 diet-manip files)
+Older profiles (pre-samtools-optimisation)
 carry an extra ``mapq_scores`` column; ``usecols`` makes the loader indifferent
 to it.
 """
@@ -102,7 +102,7 @@ def qc_passing_samples(qc_files: list[str], mag_id: str) -> pd.DataFrame:
     a sample wherever it passed at least once, collapsed to one row per
     ``sample_id``.
 
-    Worked example (diet-manip: combinations pre_end and pre_post share "pre")::
+    Worked example (combinations pre_end and pre_post share "pre")::
 
         QC/QC_pre_end/MAG_X_QC.tsv    60 rows, 30 pass   (pre and end samples)
         QC/QC_pre_post/MAG_X_QC.tsv   60 rows, 29 pass   (pre and post samples)

@@ -1046,7 +1046,7 @@ def get_tested_mags():
     allele_analysis_only runs skip preprocessing entirely, so there the universe
     is the QC-eligible set for any test ("all").
 
-    Example (diet-manip mapq20 run, comparisons pre_end and pre_post x fat_control,
+    Example (a two-comparison run, pre_end and pre_post x fat_control,
     two-sample + single-sample tests, QC layer): 160 MAGs in the mapping, 78 and 79
     eligible for some test in the two comparisons, 83 in the union -> 83 ANI /
     turnover jobs instead of 160.

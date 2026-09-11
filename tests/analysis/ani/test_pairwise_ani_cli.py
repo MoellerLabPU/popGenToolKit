@@ -190,7 +190,7 @@ class TestPairwiseAniCLI(unittest.TestCase):
         self.assertEqual({table.iloc[0]["sample1"], table.iloc[0]["sample2"]}, {"S1", "S3"})
 
     def test_replicate_travels_to_both_outputs(self):
-        """Andy's analyses read out per replicate; both tables must carry it."""
+        """Downstream analyses read out per replicate; both tables must carry it."""
         self.assertEqual(self._run().returncode, 0)
         samples = self._read("_pairwise_ani_samples.tsv")
         self.assertEqual(sorted(samples["replicate"].astype(str)), ["1", "1", "1"])

@@ -74,7 +74,7 @@ analysis:
                                    # all-MAG classification (alleleflux-replacement-classification); needs
                                    # use_pairwise_ani and longitudinal data
   strain_turnover:
-    min_compared: 0.1              # Fraction of the genome both samples must cover for a verdict (Sam's paper)
+    min_compared: 0.1              # Fraction of the genome both samples must cover for a verdict
     pop_threshold: 0.99999         # popANI below this = strain_replacement (inStrain same-strain line)
     con_threshold: 0.999           # conANI below this = dominant_strain_change
 
@@ -282,7 +282,7 @@ resources:
 #     mem_per_job: "16G"
 #     time: "04:00:00"
 #   baseline_presence:             # Rule: baseline_presence (per comparison; loads every sample's profile
-#                                  # once per MAG with significant sites: ~3 s each; Sam's pre_end =
+#                                  # once per MAG with significant sites; measured: one pre_end comparison of
 #                                  # 57 MAGs x 60 samples took 23 min on 8 threads, 6.4 GB)
 #     threads_per_job: 8
 #     mem_per_job: "16G"

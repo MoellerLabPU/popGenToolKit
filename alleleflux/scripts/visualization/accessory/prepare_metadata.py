@@ -198,7 +198,7 @@ def main():
         "--base-profile-dir",
         help=(
             "The base directory containing sample profile subdirectories "
-            "(e.g., '/scratch/gpfs/AMOELLER/diet_manip/.../profiles')."
+            "(e.g., '/path/to/run/profiles')."
         ),
         type=str,
         required=True,

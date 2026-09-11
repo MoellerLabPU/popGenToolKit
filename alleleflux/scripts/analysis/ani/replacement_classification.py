@@ -11,8 +11,8 @@ Every output row carries the SAME roll-up twice, over two units:
 * the **mouse block**     (``n_mice_with_call`` ... ``no_mouse_changed``): each
   mouse is one vote.
 * the **replicate block** (``n_replicates_with_call`` ...): each replicate is one
-  vote, and a replicate counts as changed if ANY of its mice changed -- Sam's
-  diet-manipulation rule, where a replicate is a cage of several mice.  In DRiDO
+  vote, and a replicate counts as changed if ANY of its mice changed -- the
+  rule for designs where a replicate is a cage of several mice.  In DRiDO
   the metadata has no replicate column, ``mag_metadata.py`` fills it with the
   mouse id, and the two blocks are identical; no toggle needed, the columns
   simply agree.

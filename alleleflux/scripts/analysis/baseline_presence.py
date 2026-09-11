@@ -24,23 +24,34 @@ to call the allele present.  Each sample gets one of four verdicts::
 Two outputs per (comparison, test):
 
 * ``{comparison}_{family}_{statistic}_baseline_presence.tsv.gz`` -- one row per site x allele
-  x sample: allele reads, total reads, detection bar, status, the mouse / replicate / group / role
-  (t0 or t1).
-* ``..._summary.tsv`` -- one row per site x allele with three baseline counts,
-  each with its denominator: present in the same mouse's t0, present in the
-  same replicate's t0, present in ANY t0 sample.  Which one is the paper's
-  headline is a design question: littermates sharing a colony (Sam's diet
-  study) justify "any mouse"; outbred, half-cross-sectional DRiDO mice justify
+  x sample: allele reads, total reads, detection bar, status, the mouse / replicate / group /
+  timepoint.
+* ``..._summary.tsv`` -- one row per site x allele: the any-mouse verdict with its
+  counts (present in how many covered baseline samples, in how many replicates),
+  the same-mouse counts (standing vs de novo per mouse), and the pooled reads per
+  timepoint (total reads at the position over every sample, reads carrying the
+  allele, their ratio) -- UNFILTERED, so "1,000 reads at baseline and the allele
+  never seen" bounds its baseline frequency below 1/1,000.  Which framing is the
+  paper's headline is a design question: littermates sharing a colony justify
+  "any mouse"; outbred, half-cross-sectional DRiDO mice justify
   "same mouse" plus a stable strain background.
+
+Column names and origin labels are spelled with the comparison's OWN timepoint
+names (``pre`` / ``end`` for ``pre_end-fat_control``, ``5mo`` / ``22mo`` for
+DRiDO), never a fixed t0/t1 vocabulary.  In this file "t0" and "t1" appear only
+as placeholders in templates and as shorthand in comments for "the earlier /
+the later timepoint of the comparison".
 
 The ANI/strain work is OPTIONAL: ``--turnover_dir`` adds a ``strain_background``
 column; without it the command runs on any AlleleFlux output.
 
-Worked site (Sam's data shape; two replicates, two groups): allele G at c1:10,
-t0 reads m1 5/30, m2 0/30, m3 1/30, m4 2 reads total -> present, absent,
-below_detection, not_covered.  Summary: n_t0_samples_covered 3, n_t0_samples_allele_present 1,
-origin_any_mouse standing_variation; per-mouse: n_mice_standing_variation 1,
-n_mice_de_novo_candidate 1, n_mice_de_novo_candidate_below_detection_at_t0 1.
+Worked site (two replicates, two groups; comparison pre_end):
+allele G at c1:10, pre reads m1 5/30, m2 0/30, m3 1/30, m4 0/2 -> present, absent,
+below_detection, not_covered.  Summary: n_pre_samples_covered 3,
+n_pre_samples_allele_present 1, origin_any_mouse standing_variation; per-mouse:
+n_mice_standing_variation 1, n_mice_de_novo_candidate 1,
+n_mice_de_novo_candidate_below_detection_at_pre 1; reads: total_reads_pre 92
+(30+30+30+2, the thin m4 included), allele_reads_pre 6, allele_frequency_pre 0.065.
 """
 
 import argparse
@@ -48,6 +59,7 @@ import glob
 import logging
 import multiprocessing
 import os
+from typing import NamedTuple
 
 import numpy as np
 import numpy.typing as npt
@@ -71,20 +83,44 @@ EVIDENCE_BELOW_DETECTION = "below_detection"
 EVIDENCE_ABSENT = "absent"
 EVIDENCE_NOT_COVERED = "not_covered"
 
-# Per-mouse origin verdict on t1 rows (``label_origin_in_own_mouse``): what the
-# allele's presence at t1 looks like against the SAME mouse's t0 sample.
+
+
+class Timepoints(NamedTuple):
+    """The two timepoints of a comparison, and the one place their names get spelled.
+
+    ``earlier`` / ``later`` are the labels exactly as the metadata and the
+    comparison directory write them (``pre`` / ``end``, ``5mo`` / ``22mo``).
+    Column names and origin labels are TEMPLATES holding ``{t0}`` / ``{t1}``;
+    ``name()`` fills them, so every output name is derived from the comparison
+    and no timepoint name is ever hard-coded (house rule).
+
+    Example: ``Timepoints("pre", "end").name("n_{t0}_samples_covered")`` ->
+    ``"n_pre_samples_covered"``; ``.name(ORIGIN_T1_NOT_COVERED)`` -> ``"end_not_covered"``.
+    """
+
+    earlier: str
+    later: str
+
+    def name(self, template: str) -> str:
+        return template.format(t0=self.earlier, t1=self.later)
+
+
+# Per-mouse origin verdict on later-timepoint rows (``label_origin_in_own_mouse``):
+# what the allele's presence at t1 looks like against the SAME mouse's t0 sample.
+# Templates: ``{t0}`` / ``{t1}`` are filled with the comparison's real timepoint
+# names by ``Timepoints.name`` (``de_novo_candidate_below_detection_at_pre``).
 ORIGIN_STANDING = "standing_variation"  # t1 present, t0 present
 ORIGIN_DE_NOVO = "de_novo_candidate"  # t1 present, t0 covered and absent
-ORIGIN_DE_NOVO_BELOW_DETECTION = "de_novo_candidate_below_detection_at_t0"  # t1 present, t0 had a few reads under the bar
-ORIGIN_T0_NOT_COVERED = "t0_not_covered"  # t1 present, t0 too thin to say
-ORIGIN_NO_T0_SAMPLE = "no_t0_sample"  # t1 present, mouse has no t0 sample
+ORIGIN_DE_NOVO_BELOW_DETECTION = "de_novo_candidate_below_detection_at_{t0}"  # t1 present, t0 had a few reads under the bar
+ORIGIN_T0_NOT_COVERED = "{t0}_not_covered"  # t1 present, t0 too thin to say
+ORIGIN_NO_T0_SAMPLE = "no_{t0}_sample"  # t1 present, mouse has no t0 sample
 ORIGIN_BELOW_DETECTION_AT_T1 = (
-    "allele_below_detection_at_t1"  # t1 covered, a few reads under the bar
+    "allele_below_detection_at_{t1}"  # t1 covered, a few reads under the bar
 )
-ORIGIN_ABSENT_AT_T1 = "allele_absent_at_t1"  # t1 covered, zero reads of the allele
-ORIGIN_T1_NOT_COVERED = "t1_not_covered"  # t1 too thin: nothing to explain
+ORIGIN_ABSENT_AT_T1 = "allele_absent_at_{t1}"  # t1 covered, zero reads of the allele
+ORIGIN_T1_NOT_COVERED = "{t1}_not_covered"  # t1 too thin: nothing to explain
 # Site-level only (origin_any_mouse): no covered t1 sample shows the allele at all.
-ORIGIN_NOT_SEEN_AT_T1 = "allele_not_present_at_t1"
+ORIGIN_NOT_SEEN_AT_T1 = "allele_not_present_at_{t1}"
 
 # ``--summary`` families -> the stem of the per-base p-value column in that family's
 # source files.  A summary family fixes the file (``p_value_summary_{family}_*.tsv``),
@@ -130,7 +166,6 @@ LONG_COLUMNS = [
     "replicate",
     "group",
     "time",
-    "timepoint_role",
     "allele_reads",
     "total_reads",
     "detection_threshold_reads",
@@ -167,7 +202,7 @@ def parse_comparison(label: str) -> tuple[str, str, str, str]:
 def find_summary_file(summary_dir: str, family: str, period: str) -> str:
     """The one ``p_value_summary_{family}_{period}*.tsv`` in a comparison directory.
 
-    Older runs name it ``..._{period}.tsv`` (Sam's), newer ones
+    Older runs name it ``..._{period}.tsv``, newer ones
     ``..._{period}-{groups}.tsv`` (DRiDO); the trailing ``*`` covers both.  The
     period is part of the pattern so that ``lmm`` never also matches
     ``lmm_across_time`` (same prefix).  Zero or two matches raise: no silent
@@ -435,47 +470,55 @@ def assess_allele(
     }
 
 
-def label_origin_in_own_mouse(long: pd.DataFrame) -> pd.DataFrame:
+def label_origin_in_own_mouse(long: pd.DataFrame, tps: Timepoints) -> pd.DataFrame:
     """Add ``origin_in_own_mouse`` to the long table: the per-mouse verdict.
 
     Parameters
     ----------
     long
-        One row per site x allele x sample with ``timepoint_role`` (t0/t1),
-        ``subjectID`` and ``allele_status``.
+        One row per site x allele x sample with ``time`` (the timepoint label as
+        the metadata spells it), ``subjectID`` and ``allele_status``.
+    tps
+        Which label is the earlier and which the later timepoint; also spells
+        the labels (``de_novo_candidate_below_detection_at_pre``).
 
     Returns
     -------
-    The same table with ``origin_in_own_mouse`` filled on t1 rows and NaN on
-    t0 rows.  The verdict reads BOTH timepoints of the same mouse::
+    The same table with ``origin_in_own_mouse`` filled on later-timepoint rows
+    and NaN on earlier-timepoint rows.  The verdict reads BOTH timepoints of the
+    same mouse (shown for pre/end)::
 
-        t1 status                 own t0 status      label
+        end status                own pre status     label
         present                   present            standing_variation
-        present                   below_detection    de_novo_candidate_below_detection_at_t0
+        present                   below_detection    de_novo_candidate_below_detection_at_pre
         present                   absent             de_novo_candidate
-        present                   not_covered        t0_not_covered
-        present                   (no t0 sample)     no_t0_sample
-        below_detection           anything           allele_below_detection_at_t1
-        absent                    anything           allele_absent_at_t1
-        not_covered               anything           t1_not_covered
+        present                   not_covered        pre_not_covered
+        present                   (no pre sample)    no_pre_sample
+        below_detection           anything           allele_below_detection_at_end
+        absent                    anything           allele_absent_at_end
+        not_covered               anything           end_not_covered
 
-    A t1 sample that does not show the allele has nothing to explain, so its
-    t0 is not consulted; that is why the t1 status is tested first.
+    A later-timepoint sample that does not show the allele has nothing to
+    explain, so its earlier sample is not consulted; that is why the later
+    status is tested first.
 
-    Example: mouse 533, G at 13509: t0 present (5/19), t1 present -> standing_variation.
+    Example: mouse 533, G at 13509: pre present (5/19), end present -> standing_variation.
     """
     keys = SITE_KEYS + ["subjectID"]
-    t0_status = long[long["timepoint_role"] == "t0"][keys + ["allele_status"]].rename(
+    is_t0 = long["time"] == tps.earlier
+    is_t1 = long["time"] == tps.later
+    # The same mouse's earlier-timepoint status, joined onto every row of that
+    # mouse at the site; a mouse with no earlier sample gets NaN.
+    t0_status = long[is_t0][keys + ["allele_status"]].rename(
         columns={"allele_status": "_own_t0_status"}
     )
-    out = long.merge(
-        t0_status, on=keys, how="left"
-    )  # NaN = no t0 sample for this mouse
+    out = long.merge(t0_status, on=keys, how="left")
+    is_t1 = (out["time"] == tps.later).to_numpy()
     t1 = out["allele_status"]
     t0 = out["_own_t0_status"]
     out["origin_in_own_mouse"] = np.select(
         [
-            out["timepoint_role"] != "t1",  # t0 rows: no verdict
+            ~is_t1,  # earlier-timepoint rows: no verdict
             t1 == EVIDENCE_NOT_COVERED,
             t1 == EVIDENCE_BELOW_DETECTION,
             t1 == EVIDENCE_ABSENT,
@@ -486,25 +529,25 @@ def label_origin_in_own_mouse(long: pd.DataFrame) -> pd.DataFrame:
         ],
         [
             None,
-            ORIGIN_T1_NOT_COVERED,
-            ORIGIN_BELOW_DETECTION_AT_T1,
-            ORIGIN_ABSENT_AT_T1,
-            ORIGIN_NO_T0_SAMPLE,
+            tps.name(ORIGIN_T1_NOT_COVERED),
+            tps.name(ORIGIN_BELOW_DETECTION_AT_T1),
+            tps.name(ORIGIN_ABSENT_AT_T1),
+            tps.name(ORIGIN_NO_T0_SAMPLE),
             ORIGIN_STANDING,
-            ORIGIN_DE_NOVO_BELOW_DETECTION,
+            tps.name(ORIGIN_DE_NOVO_BELOW_DETECTION),
             ORIGIN_DE_NOVO,
         ],
-        default=ORIGIN_T0_NOT_COVERED,
+        default=tps.name(ORIGIN_T0_NOT_COVERED),
     )
     out["origin_in_own_mouse"] = (
-        out["origin_in_own_mouse"]
-        .astype(object)
-        .where(out["timepoint_role"] == "t1", np.nan)
+        out["origin_in_own_mouse"].astype(object).where(is_t1, np.nan)
     )
     return out.drop(columns="_own_t0_status")
 
 
-SUMMARY_COLUMNS = [
+# Summary column TEMPLATES (``{t0}`` / ``{t1}`` -> the comparison's timepoint names via
+# ``summary_columns``).  Shown here for pre_end.
+SUMMARY_COLUMN_TEMPLATES = [
     # site + allele identity
     "mag_id",
     "contig",
@@ -514,56 +557,85 @@ SUMMARY_COLUMNS = [
     "allele",
     "n_alleles_tied_at_min_p",
     "q_value",
-    # the verdict under the loosest framing (any t0 mouse)
+    # the verdict under the loosest framing (any baseline mouse)
     "origin_any_mouse",
-    # any-mouse numbers: "present in 12 of the 14 baseline mice we could see, in 6 of 8 replicates"
-    "n_t0_samples_allele_present",
-    "n_t0_samples_covered",
-    "n_replicates_with_allele_at_t0",
-    "t0_mice_allele_present",
+    # any-mouse numbers, FILTERED by the presence rule (min_cov / bar / min_freq):
+    # "present in 12 of the 14 pre samples we could judge, in 6 replicates"
+    "n_{t0}_samples_allele_present",
+    "n_{t0}_samples_covered",
+    "n_replicates_with_allele_at_{t0}",
+    "{t0}_mice_allele_present",
     # same-mouse numbers: the strict framing, one count per de-novo/standing verdict
     "n_mice_standing_variation",
     "n_mice_de_novo_candidate",
-    "n_mice_de_novo_candidate_below_detection_at_t0",
+    "n_mice_de_novo_candidate_below_detection_at_{t0}",
+    # pooled reads per timepoint, UNFILTERED: every read at the position from every
+    # sample, thin ones included -- the numbers behind "never seen in 1,000 reads".
+    "total_reads_{t0}",
+    "allele_reads_{t0}",
+    "allele_frequency_{t0}",
+    "total_reads_{t1}",
+    "allele_reads_{t1}",
+    "allele_frequency_{t1}",
 ]
 
 
-def summarise_sites(long: pd.DataFrame) -> pd.DataFrame:
+def summary_columns(tps: Timepoints) -> list[str]:
+    """``SUMMARY_COLUMN_TEMPLATES`` with the comparison's timepoint names filled in.
+
+    Example: ``summary_columns(Timepoints("pre", "end"))`` holds
+    ``n_pre_samples_covered``, ``total_reads_end``, ...
+    """
+    return [tps.name(c) for c in SUMMARY_COLUMN_TEMPLATES]
+
+
+def summarise_sites(long: pd.DataFrame, tps: Timepoints) -> pd.DataFrame:
     """One row per site x allele: the few numbers the baseline question asks for.
 
-    Deliberately lean (user + Andy, 2026-09-10): everything else is in the long
-    table and can be added back on request.
+    Deliberately lean (decided 2026-09-10): everything else is in the long
+    table and can be added back on request.  The read columns were added on
+    request 2026-09-11.
 
     Parameters
     ----------
     long
         The long table after ``label_origin_in_own_mouse``: one row per site x
-        allele x sample with ``timepoint_role``, ``allele_status``,
-        ``allele_present``, ``subjectID``, ``replicate``, ``origin_in_own_mouse``.
+        allele x sample with ``time``, ``allele_status``, ``allele_present``,
+        ``allele_reads``, ``total_reads``, ``subjectID``, ``replicate``,
+        ``origin_in_own_mouse``.
+    tps
+        Earlier / later timepoint labels; spells the column names.
 
     Returns
     -------
-    ``SUMMARY_COLUMNS``:
-      origin_any_mouse -- allele_not_present_at_t1 if no covered t1 sample shows
-        the allele; else standing_variation if any covered t0 sample has it
-        present; else de_novo_candidate_below_detection_at_t0 if any t0 has it
-        below detection; else de_novo_candidate if any covered t0 is absent;
-        else t0_not_covered.
-      n_t0_samples_allele_present / n_t0_samples_covered -- present t0 samples
-        over t0 samples deep enough to judge; n_replicates_with_allele_at_t0 --
-        distinct replicates among the present ones; t0_mice_allele_present --
-        their subjectIDs, comma-joined.
-      n_mice_* -- t1 rows carrying that origin_in_own_mouse verdict (the
+    ``summary_columns(tps)`` (shown for pre/end):
+      origin_any_mouse -- allele_not_present_at_end if no covered end sample
+        shows the allele; else standing_variation if any covered pre sample has
+        it present; else de_novo_candidate_below_detection_at_pre if any pre
+        has it below detection; else de_novo_candidate if any covered pre is
+        absent; else pre_not_covered.
+      n_pre_samples_allele_present / n_pre_samples_covered -- present pre samples
+        over pre samples deep enough to judge; n_replicates_with_allele_at_pre --
+        distinct replicates among the present ones; pre_mice_allele_present --
+        their subjectIDs, comma-joined.  (Presence rule applied.)
+      n_mice_* -- end rows carrying that origin_in_own_mouse verdict (the
         same-mouse framing).
+      total_reads_pre / allele_reads_pre / allele_frequency_pre (and _end) --
+        reads at the position summed over EVERY sample at that timepoint, reads
+        of this allele among them, and their ratio (NaN when no reads at all).
+        No min_cov, no bar, no min_freq: a sample with 2 reads contributes its
+        2 reads, a sample with no profile contributes 0.  This is what makes
+        "never seen in N reads" a frequency bound of 1/N.
 
-    Example (G at 13509, MAG bin.012): origin standing_variation; present in
-    12 of 14 covered t0 samples, 6 replicates; same-mouse 6 standing, 1 de novo,
-    1 de novo below detection.
+    Example (G at 13509, MAG bin.012, pre_end): origin standing_variation; present in
+    12 of 14 covered pre samples, 6 replicates; same-mouse 6 standing, 1 de novo,
+    1 de novo below detection; total_reads_pre 168, allele_reads_pre 125 (0.744),
+    total_reads_end 245, allele_reads_end 179 (0.731).
     """
     rows = []
     for key, sub in long.groupby(SITE_KEYS, sort=True, dropna=False):
-        t0 = sub[sub["timepoint_role"] == "t0"]
-        t1 = sub[sub["timepoint_role"] == "t1"]
+        t0 = sub[sub["time"] == tps.earlier]
+        t1 = sub[sub["time"] == tps.later]
         t0_cov = t0[t0["allele_status"] != EVIDENCE_NOT_COVERED]
         t1_cov = t1[t1["allele_status"] != EVIDENCE_NOT_COVERED]
         # Which mice / replicates had the allele at t0 (covered + present).
@@ -575,28 +647,38 @@ def summarise_sites(long: pd.DataFrame) -> pd.DataFrame:
         # A site verdict needs the allele to be SEEN at t1 in at least one covered
         # sample; otherwise there is nothing whose origin to explain.
         if not t1_cov["allele_present"].any():
-            origin = ORIGIN_NOT_SEEN_AT_T1
+            origin = tps.name(ORIGIN_NOT_SEEN_AT_T1)
         elif mice_t0_present:
             origin = ORIGIN_STANDING
         elif (t0_cov["allele_status"] == EVIDENCE_BELOW_DETECTION).any():
-            origin = ORIGIN_DE_NOVO_BELOW_DETECTION
+            origin = tps.name(ORIGIN_DE_NOVO_BELOW_DETECTION)
         elif (t0_cov["allele_status"] == EVIDENCE_ABSENT).any():
             origin = ORIGIN_DE_NOVO
         else:
-            origin = ORIGIN_T0_NOT_COVERED
+            origin = tps.name(ORIGIN_T0_NOT_COVERED)
         record.update(
             {
                 "origin_any_mouse": origin,
-                "n_t0_samples_allele_present": int(t0_cov["allele_present"].sum()),
-                "n_t0_samples_covered": len(t0_cov),
-                "n_replicates_with_allele_at_t0": len(reps_t0_present),
-                "t0_mice_allele_present": ",".join(sorted(mice_t0_present)),
+                tps.name("n_{t0}_samples_allele_present"): int(t0_cov["allele_present"].sum()),
+                tps.name("n_{t0}_samples_covered"): len(t0_cov),
+                tps.name("n_replicates_with_allele_at_{t0}"): len(reps_t0_present),
+                tps.name("{t0}_mice_allele_present"): ",".join(sorted(mice_t0_present)),
             }
         )
         for label in (ORIGIN_STANDING, ORIGIN_DE_NOVO, ORIGIN_DE_NOVO_BELOW_DETECTION):
-            record[f"n_mice_{label}"] = int((t1["origin_in_own_mouse"] == label).sum())
+            record[tps.name(f"n_mice_{label}")] = int(
+                (t1["origin_in_own_mouse"] == tps.name(label)).sum()
+            )
+        # Pooled reads, unfiltered: t0 / t1 here are ALL rows at the timepoint,
+        # not the covered subset, so thin and profile-less samples count too.
+        for role, part in (("{t0}", t0), ("{t1}", t1)):
+            total = int(part["total_reads"].sum())
+            allele = int(part["allele_reads"].sum())
+            record[tps.name(f"total_reads_{role}")] = total
+            record[tps.name(f"allele_reads_{role}")] = allele
+            record[tps.name(f"allele_frequency_{role}")] = allele / total if total else np.nan
         rows.append(record)
-    return pd.DataFrame(rows, columns=SUMMARY_COLUMNS)
+    return pd.DataFrame(rows, columns=summary_columns(tps))
 
 
 def _assess_one_sample(job: tuple) -> pd.DataFrame:
@@ -652,6 +734,7 @@ def chase_the_ancestors(args: argparse.Namespace) -> int:
     """Orchestrator: summary -> candidate alleles -> every sample's verdict -> two files."""
     os.makedirs(args.output_dir, exist_ok=True)
     earlier, later, group_a, group_b = parse_comparison(args.comparison)
+    tps = Timepoints(earlier, later)  # spells every timepoint-bearing name from here on
     groups = (group_a, group_b)
 
     # ---- 1. The samples of this comparison: both groups, both timepoints.
@@ -659,7 +742,6 @@ def chase_the_ancestors(args: argparse.Namespace) -> int:
     if "replicate" not in meta.columns:
         meta["replicate"] = meta["subjectID"]  # same default as mag_metadata.py
     meta = meta[meta["group"].isin(groups) & meta["time"].isin((earlier, later))].copy()
-    meta["timepoint_role"] = np.where(meta["time"] == earlier, "t0", "t1")
     if meta.empty:
         raise ValueError(
             f"no samples in {args.metadata} for groups {groups} at {earlier}/{later}"
@@ -763,8 +845,8 @@ def chase_the_ancestors(args: argparse.Namespace) -> int:
         pd.DataFrame(columns=LONG_COLUMNS).to_csv(
             f"{stem}.tsv.gz", sep="\t", index=False, compression="gzip"
         )
-        pd.DataFrame(columns=SUMMARY_COLUMNS).to_csv(
-            f"{stem}_summary.tsv", sep="	", index=False
+        pd.DataFrame(columns=summary_columns(tps)).to_csv(
+            f"{stem}_summary.tsv", sep="\t", index=False
         )
         logger.info(f"no sites: wrote header-only outputs to {stem}*")
         return 0
@@ -806,9 +888,7 @@ def chase_the_ancestors(args: argparse.Namespace) -> int:
         site_ctx, on=["mag_id", "contig", "position", "allele"], how="left"
     )
     long = long.merge(
-        meta[
-            ["sample_id", "subjectID", "replicate", "group", "time", "timepoint_role"]
-        ],
+        meta[["sample_id", "subjectID", "replicate", "group", "time"]],
         on="sample_id",
         how="left",
     )
@@ -829,23 +909,19 @@ def chase_the_ancestors(args: argparse.Namespace) -> int:
             on=["mag_id", "subjectID"],
             how="left",
         )
-    long = label_origin_in_own_mouse(long)
+    long = label_origin_in_own_mouse(long, tps)
     long["min_cov"] = args.min_cov
     long["min_freq"] = args.min_freq
+    # Earlier timepoint before later within a site: an ordered categorical sorts
+    # by comparison order, not alphabetically ("end" < "pre" would flip them).
+    long["time"] = pd.Categorical(long["time"], categories=[earlier, later], ordered=True)
     long = long[LONG_COLUMNS].sort_values(
-        [
-            "mag_id",
-            "contig",
-            "position",
-            "allele",
-            "timepoint_role",
-            "group",
-            "sample_id",
-        ]
+        ["mag_id", "contig", "position", "allele", "time", "group", "sample_id"]
     )
+    long["time"] = long["time"].astype(str)
 
     # ---- 5. Summary, then write both.
-    summary = summarise_sites(long)
+    summary = summarise_sites(long, tps)
     stem = os.path.join(
         args.output_dir,
         f"{args.comparison}_{output_label(args.summary, test_type)}_baseline_presence",

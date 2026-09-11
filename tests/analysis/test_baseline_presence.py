@@ -21,14 +21,8 @@ from alleleflux.scripts.analysis.baseline_presence import (
     EVIDENCE_BELOW_DETECTION,
     EVIDENCE_NOT_COVERED,
     EVIDENCE_PRESENT,
-    ORIGIN_DE_NOVO,
-    ORIGIN_DE_NOVO_BELOW_DETECTION,
-    ORIGIN_NO_T0_SAMPLE,
-    ORIGIN_ABSENT_AT_T1,
-    ORIGIN_BELOW_DETECTION_AT_T1,
     ORIGIN_STANDING,
-    ORIGIN_T0_NOT_COVERED,
-    ORIGIN_T1_NOT_COVERED,
+    Timepoints,
     label_origin_in_own_mouse,
     allele_p_column,
     assess_allele,
@@ -38,6 +32,7 @@ from alleleflux.scripts.analysis.baseline_presence import (
     load_significant_sites,
     parse_comparison,
     summarise_sites,
+    summary_columns,
 )
 
 MODEL = build_error_model(min_base_quality=30, fdr=1e-6)   # bar = 3 reads for 5..99x
@@ -187,84 +182,120 @@ class TestAssessAllele(unittest.TestCase):
 
 
 class TestLabelOriginInOwnMouse(unittest.TestCase):
-    """t1 rows get a verdict from BOTH their own t1 status and their own mouse's t0
-    status; t0 rows stay blank.  One site-allele, seven mice covering every case."""
+    """Later-timepoint rows get a verdict from BOTH their own status and their own
+    mouse's earlier-timepoint status; earlier rows stay blank.  One site-allele,
+    eight mice covering every case.  Labels are spelled with the comparison's real
+    timepoint names (pre/end here), never a fixed t0/t1 vocabulary."""
 
-    CASES = {  # mouse: (t0 status or None for no t0 sample, t1 status)
+    CASES = {  # mouse: (pre status or None for no pre sample, end status)
         "m1": ("present", "present"),            # standing_variation
-        "m2": ("below_detection", "present"),    # de_novo_candidate_below_detection_at_t0
+        "m2": ("below_detection", "present"),    # de_novo_candidate_below_detection_at_pre
         "m3": ("absent", "present"),             # de_novo_candidate
-        "m4": ("not_covered", "present"),        # t0_not_covered
-        "m5": (None, "present"),                 # no_t0_sample
-        "m6": ("absent", "below_detection"),     # allele_below_detection_at_t1 (t0 irrelevant)
-        "m7": ("present", "not_covered"),        # t1_not_covered
-        "m8": ("present", "absent"),             # allele_absent_at_t1 (t0 irrelevant)
+        "m4": ("not_covered", "present"),        # pre_not_covered
+        "m5": (None, "present"),                 # no_pre_sample
+        "m6": ("absent", "below_detection"),     # allele_below_detection_at_end (pre irrelevant)
+        "m7": ("present", "not_covered"),        # end_not_covered
+        "m8": ("present", "absent"),             # allele_absent_at_end (pre irrelevant)
     }
+    TPS = Timepoints("pre", "end")
 
-    def _long(self):
+    def _long(self, earlier="pre", later="end"):
         site = {"mag_id": "MAG_A", "contig": "c1", "position": 10, "gene_id": "g1", "allele": "G",
                 "test_type": "t", "group_analyzed": ""}
         rows = []
         for mouse, (t0, t1) in self.CASES.items():
             if t0 is not None:
-                rows.append({**site, "sample_id": f"{mouse}_t0", "subjectID": mouse, "timepoint_role": "t0", "allele_status": t0})
-            rows.append({**site, "sample_id": f"{mouse}_t1", "subjectID": mouse, "timepoint_role": "t1", "allele_status": t1})
+                rows.append({**site, "sample_id": f"{mouse}_t0", "subjectID": mouse, "time": earlier, "allele_status": t0})
+            rows.append({**site, "sample_id": f"{mouse}_t1", "subjectID": mouse, "time": later, "allele_status": t1})
         return pd.DataFrame(rows)
 
     def test_every_label(self):
-        got = label_origin_in_own_mouse(self._long()).set_index("sample_id").origin_in_own_mouse
-        self.assertEqual(got["m1_t1"], ORIGIN_STANDING)
-        self.assertEqual(got["m2_t1"], ORIGIN_DE_NOVO_BELOW_DETECTION)
-        self.assertEqual(got["m3_t1"], ORIGIN_DE_NOVO)
-        self.assertEqual(got["m4_t1"], ORIGIN_T0_NOT_COVERED)
-        self.assertEqual(got["m5_t1"], ORIGIN_NO_T0_SAMPLE)
-        self.assertEqual(got["m6_t1"], ORIGIN_BELOW_DETECTION_AT_T1)
-        self.assertEqual(got["m8_t1"], ORIGIN_ABSENT_AT_T1)
-        self.assertEqual(got["m7_t1"], ORIGIN_T1_NOT_COVERED)
+        got = label_origin_in_own_mouse(self._long(), self.TPS).set_index("sample_id").origin_in_own_mouse
+        self.assertEqual(got["m1_t1"], "standing_variation")
+        self.assertEqual(got["m2_t1"], "de_novo_candidate_below_detection_at_pre")
+        self.assertEqual(got["m3_t1"], "de_novo_candidate")
+        self.assertEqual(got["m4_t1"], "pre_not_covered")
+        self.assertEqual(got["m5_t1"], "no_pre_sample")
+        self.assertEqual(got["m6_t1"], "allele_below_detection_at_end")
+        self.assertEqual(got["m8_t1"], "allele_absent_at_end")
+        self.assertEqual(got["m7_t1"], "end_not_covered")
         self.assertTrue(got[[s for s in got.index if s.endswith("_t0")]].isna().all())
 
+    def test_labels_follow_the_comparison_not_a_fixed_vocabulary(self):
+        # DRiDO-style names: the same table, told it is a 5mo -> 22mo comparison
+        got = label_origin_in_own_mouse(self._long("5mo", "22mo"), Timepoints("5mo", "22mo")).set_index("sample_id").origin_in_own_mouse
+        self.assertEqual(got["m2_t1"], "de_novo_candidate_below_detection_at_5mo")
+        self.assertEqual(got["m7_t1"], "22mo_not_covered")
+
+
 class TestSummariseSites(unittest.TestCase):
-    """One site, allele G.  t0: m1 present, m2 absent, m3 below, m4 not covered.
-    t1: m1..m4 all present.  m1+m2 share replicate r1 (fat), m3+m4 replicate r2 (control)."""
+    """One site, allele G.  pre: m1 present, m2 absent, m3 below, m4 not covered.
+    end: m1..m4 all present.  m1+m2 share replicate r1 (fat), m3+m4 replicate r2 (control).
+    Reads (allele/total): pre m1 5/30, m2 0/30, m3 1/30, m4 0/2; end all 24/30."""
+
+    TPS = Timepoints("pre", "end")
 
     def _long(self):
         rows = []
         pre = {"m1": EVIDENCE_PRESENT, "m2": EVIDENCE_ABSENT, "m3": EVIDENCE_BELOW_DETECTION, "m4": EVIDENCE_NOT_COVERED}
         meta = {"m1": ("r1", "fat"), "m2": ("r1", "fat"), "m3": ("r2", "control"), "m4": ("r2", "control")}
+        reads = {"m1": (5, 30), "m2": (0, 30), "m3": (1, 30), "m4": (0, 2)}
         for mouse, ev in pre.items():
             rep, grp = meta[mouse]
-            for role, evidence, freq in (("t0", ev, {"allele_present": 0.2, "absent": 0.0}.get(ev, 0.02)),
-                                          ("t1", EVIDENCE_PRESENT, 0.8)):
+            for time, evidence, freq, (ar, tr) in (
+                ("pre", ev, {"allele_present": 0.2, "absent": 0.0}.get(ev, 0.02), reads[mouse]),
+                ("end", EVIDENCE_PRESENT, 0.8, (24, 30)),
+            ):
                 rows.append({"mag_id": "MAG_A", "contig": "c1", "position": 10, "gene_id": "g1", "allele": "G",
                              "test_type": "two_sample_paired_tTest", "group_analyzed": "",
-                             "sample_id": f"{mouse}_{role}", "subjectID": mouse, "replicate": rep, "group": grp,
-                             "timepoint_role": role, "allele_status": evidence,
+                             "sample_id": f"{mouse}_{time}", "subjectID": mouse, "replicate": rep, "group": grp,
+                             "time": time, "allele_status": evidence,
+                             "allele_reads": ar, "total_reads": tr,
                              "allele_present": evidence == EVIDENCE_PRESENT,
                              "allele_frequency": np.nan if evidence == EVIDENCE_NOT_COVERED else freq})
         return pd.DataFrame(rows)
 
-    def test_site_verdict_requires_the_allele_to_be_seen_at_t1(self):
-        long = label_origin_in_own_mouse(self._long())
-        long.loc[long.timepoint_role == "t1", "allele_status"] = "absent"        # nobody shows it at t1
-        long.loc[long.timepoint_role == "t1", "allele_present"] = False
-        got = summarise_sites(long).iloc[0]
-        self.assertEqual(got.origin_any_mouse, "allele_not_present_at_t1")
-        self.assertEqual(int(got.n_t0_samples_allele_present), 1)               # the t0 fact itself is unchanged
+    def test_site_verdict_requires_the_allele_to_be_seen_at_the_later_timepoint(self):
+        long = label_origin_in_own_mouse(self._long(), self.TPS)
+        long.loc[long.time == "end", "allele_status"] = "absent"        # nobody shows it at end
+        long.loc[long.time == "end", "allele_present"] = False
+        got = summarise_sites(long, self.TPS).iloc[0]
+        self.assertEqual(got.origin_any_mouse, "allele_not_present_at_end")
+        self.assertEqual(int(got.n_pre_samples_allele_present), 1)               # the pre fact itself is unchanged
 
     def test_lean_summary_row(self):
-        got = summarise_sites(label_origin_in_own_mouse(self._long())).iloc[0]
+        got = summarise_sites(label_origin_in_own_mouse(self._long(), self.TPS), self.TPS).iloc[0]
+        self.assertEqual(list(got.index), summary_columns(self.TPS))
         self.assertEqual(list(got.index), [
             "mag_id", "contig", "position", "gene_id", "group_analyzed", "allele", "n_alleles_tied_at_min_p", "q_value",
-            "origin_any_mouse", "n_t0_samples_allele_present", "n_t0_samples_covered",
-            "n_replicates_with_allele_at_t0", "t0_mice_allele_present",
-            "n_mice_standing_variation", "n_mice_de_novo_candidate", "n_mice_de_novo_candidate_below_detection_at_t0"])
-        self.assertEqual(got.origin_any_mouse, ORIGIN_STANDING)                       # m1 had it at t0
-        # PRE: m1 present, m2 absent, m3 below, m4 not covered -> 1 present of 3 covered, 1 replicate (r1)
-        self.assertEqual((int(got.n_t0_samples_allele_present), int(got.n_t0_samples_covered),
-                          int(got.n_replicates_with_allele_at_t0), got.t0_mice_allele_present), (1, 3, 1, "m1"))
-        # per-mouse: m1 standing, m2 de novo, m3 de novo (below det.); m4's t0 not covered is not a summary column
+            "origin_any_mouse", "n_pre_samples_allele_present", "n_pre_samples_covered",
+            "n_replicates_with_allele_at_pre", "pre_mice_allele_present",
+            "n_mice_standing_variation", "n_mice_de_novo_candidate", "n_mice_de_novo_candidate_below_detection_at_pre",
+            "total_reads_pre", "allele_reads_pre", "allele_frequency_pre",
+            "total_reads_end", "allele_reads_end", "allele_frequency_end"])
+        self.assertEqual(got.origin_any_mouse, ORIGIN_STANDING)                       # m1 had it at pre
+        # pre: m1 present, m2 absent, m3 below, m4 not covered -> 1 present of 3 covered, 1 replicate (r1)
+        self.assertEqual((int(got.n_pre_samples_allele_present), int(got.n_pre_samples_covered),
+                          int(got.n_replicates_with_allele_at_pre), got.pre_mice_allele_present), (1, 3, 1, "m1"))
+        # per-mouse: m1 standing, m2 de novo, m3 de novo (below det.); m4's pre not covered is not a summary column
         self.assertEqual((int(got.n_mice_standing_variation), int(got.n_mice_de_novo_candidate),
-                          int(got.n_mice_de_novo_candidate_below_detection_at_t0)), (1, 1, 1))
+                          int(got.n_mice_de_novo_candidate_below_detection_at_pre)), (1, 1, 1))
+
+    def test_read_columns_are_unfiltered_sums_over_every_sample(self):
+        # The requested bound -- "1000 reads at pre, allele never seen -> frequency < 1/1000" --
+        # only holds if EVERY read counts, so the not-covered m4 (2 reads) is in the total.
+        got = summarise_sites(label_origin_in_own_mouse(self._long(), self.TPS), self.TPS).iloc[0]
+        self.assertEqual((int(got.total_reads_pre), int(got.allele_reads_pre)), (30 + 30 + 30 + 2, 5 + 0 + 1 + 0))
+        self.assertAlmostEqual(got.allele_frequency_pre, 6 / 92)
+        self.assertEqual((int(got.total_reads_end), int(got.allele_reads_end)), (120, 96))
+        self.assertAlmostEqual(got.allele_frequency_end, 0.8)
+
+    def test_read_frequency_is_nan_when_no_reads_at_all(self):
+        long = self._long()
+        long.loc[long.time == "pre", ["allele_reads", "total_reads"]] = 0
+        got = summarise_sites(label_origin_in_own_mouse(long, self.TPS), self.TPS).iloc[0]
+        self.assertEqual(int(got.total_reads_pre), 0)
+        self.assertTrue(np.isnan(got.allele_frequency_pre))
 
 # ---------------------------------------------------------------------------
 # End-to-end
@@ -343,13 +374,14 @@ class TestBaselinePresenceCLI(unittest.TestCase):
         self.assertEqual(g.loc["m4_pre"].allele_status, "not_covered"); self.assertTrue(pd.isna(g.loc["m4_pre"].allele_frequency))
         row = g.loc["m1_pre"]
         self.assertEqual((row.mag_id, row.contig, int(row.position), row.gene_id, row.subjectID, row.replicate, row.group,
-                          row.timepoint_role, int(row.n_alleles_tied_at_min_p), int(row.min_cov)),
-                         (self.MAG, "c1", 1, "g1", "m1", "r1", "fat", "t0", 2, 5))
+                          row.time, int(row.n_alleles_tied_at_min_p), int(row.min_cov)),
+                         (self.MAG, "c1", 1, "g1", "m1", "r1", "fat", "pre", 2, 5))
+        self.assertNotIn("timepoint_role", long.columns)             # the real label is the only timepoint column
         self.assertEqual(sorted(long.allele.unique()), ["A", "G"])
         self.assertEqual(g.loc["m1_end"].origin_in_own_mouse, "standing_variation")
         self.assertEqual(g.loc["m2_end"].origin_in_own_mouse, "de_novo_candidate")
-        self.assertEqual(g.loc["m3_end"].origin_in_own_mouse, "allele_below_detection_at_t1")   # G 2/30 at end
-        self.assertEqual(g.loc["m4_end"].origin_in_own_mouse, "allele_absent_at_t1")            # G 0/30 at end
+        self.assertEqual(g.loc["m3_end"].origin_in_own_mouse, "allele_below_detection_at_end")   # G 2/30 at end
+        self.assertEqual(g.loc["m4_end"].origin_in_own_mouse, "allele_absent_at_end")            # G 0/30 at end
         self.assertTrue(pd.isna(g.loc["m1_pre"].origin_in_own_mouse))
         self.assertTrue(long.strain_background.isna().all())          # no --turnover_dir given
 
@@ -357,11 +389,15 @@ class TestBaselinePresenceCLI(unittest.TestCase):
         self._run()
         summ = pd.read_csv(os.path.join(self.out, "pre_end-fat_control_two_sample_paired_tTest_baseline_presence_summary.tsv"), sep="\t")
         g = summ[summ.allele == "G"].iloc[0]
-        self.assertEqual((int(g.n_t0_samples_allele_present), int(g.n_t0_samples_covered), int(g.n_replicates_with_allele_at_t0)), (1, 3, 1))
-        self.assertEqual(g.t0_mice_allele_present, "m1")
+        self.assertEqual((int(g.n_pre_samples_allele_present), int(g.n_pre_samples_covered), int(g.n_replicates_with_allele_at_pre)), (1, 3, 1))
+        self.assertEqual(g.pre_mice_allele_present, "m1")
         self.assertEqual(g.origin_any_mouse, "standing_variation")
         self.assertEqual((int(g.n_mice_standing_variation), int(g.n_mice_de_novo_candidate)), (1, 1))   # m1; m2
-        self.assertEqual(len(summ.columns), 16)
+        # reads pooled over all four mice, thin m4 included: pre 5+0+1+0 of 30+30+30+2; end 24+21+2+0 of 120
+        self.assertEqual((int(g.total_reads_pre), int(g.allele_reads_pre)), (92, 6))
+        self.assertEqual((int(g.total_reads_end), int(g.allele_reads_end)), (120, 47))
+        self.assertAlmostEqual(g.allele_frequency_end, 47 / 120)
+        self.assertEqual(len(summ.columns), 22)
 
     def test_strain_background_joins_when_given(self):
         tdir = os.path.join(self.tmp, "turnover"); os.makedirs(tdir)
@@ -389,7 +425,9 @@ class TestBaselinePresenceCLI(unittest.TestCase):
         row = long[(long.sample_id == "m2_pre") & (long.allele == "G")].iloc[0]
         self.assertEqual((int(row.total_reads), int(row.allele_reads), row.allele_status), (0, 0, "not_covered"))
         summ = pd.read_csv(os.path.join(self.out, "pre_end-fat_control_two_sample_paired_tTest_baseline_presence_summary.tsv"), sep="\t")
-        self.assertEqual(int(summ[summ.allele == "G"].iloc[0].n_t0_samples_covered), 2)   # m1, m3 (m4 was thin, m2 now missing)
+        gs = summ[summ.allele == "G"].iloc[0]
+        self.assertEqual(int(gs.n_pre_samples_covered), 2)   # m1, m3 (m4 was thin, m2 now missing)
+        self.assertEqual(int(gs.total_reads_pre), 30 + 30 + 2)   # the missing profile contributes zero reads
 
     def test_no_significant_sites_gives_header_only_outputs(self):
         done = self._run("--threshold", "0.0001")                       # q=0.01 site no longer passes

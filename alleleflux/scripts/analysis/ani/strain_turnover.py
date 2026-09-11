@@ -14,8 +14,8 @@ each with its own column -- neither ranks above the other:
   positions whose MAJORITY base differs, so falling below the line means the
   dominant strain swapped, even when the old strain is still detectably present.
 
-Both thresholds come from the inStrain paper's same-strain conventions and were
-confirmed with Andy (2026-09-01); ``min_compared`` (10 %, Sam's paper) is the
+Both thresholds come from the inStrain paper's same-strain conventions
+(confirmed 2026-09-01); ``min_compared`` (10 %) is the
 minimum fraction of the genome both samples must cover at ``min_cov`` before
 either verdict is trusted -- below it, or when nothing was compared at all,
 both flags stay blank and ``background`` reads "undetermined".
